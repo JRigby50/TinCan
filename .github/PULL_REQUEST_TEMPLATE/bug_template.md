@@ -1,5 +1,4 @@
 ---
-name: Bug report
 title: 'Bug Fix:'
 labels: bug,Semver-Patch
 assignees: ''

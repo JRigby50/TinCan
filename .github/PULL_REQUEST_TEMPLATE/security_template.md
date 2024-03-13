@@ -1,6 +1,5 @@
 ---
-name: Security Request
-title: 'Security Request:'
+title: Security Request
 labels: security fix,Semver-Patch
 assignees: ''
 
