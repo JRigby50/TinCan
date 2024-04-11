@@ -1,3 +1,7 @@
+
+
+---
+
 Please go the the `Preview` tab and select the appropriate sub-template:
 ## Pull Request Type
 What kind of change does this PR introduce?
@@ -6,11 +10,3 @@ What kind of change does this PR introduce?
 * [Feature](?expand=1&template=feature_template.md&labels=enhancement,Semver-Minor&title=Feature)
 * [Security Remediation](?expand=1&template=security_template.md&labels=security+fix,Semver-patch&title=Security+Request)
 * [New Version](?expand=1&template=version_template.md&labels=enhancement,Semver-Major&title=New+Version)
-
-```
-
-## What's new?
--
-
-## Screenshots
-N/A
