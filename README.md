@@ -1,3 +1,12 @@
+## Please select the appropriate PR template:
+## Pull Request Type
+What kind of change does this PR introduce?
+
+* [Bugfix](?expand=1&template=bug_template.md)
+* [Feature](?expand=1&template=feature_template.md)
+* [Security Remediation](?expand=1&template=security_template.md)
+
+
 # TinCan
 Creating the Robot I was promised 60 years ago, adjusted to fit my needs as of now.
 
