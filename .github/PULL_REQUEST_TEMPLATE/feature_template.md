@@ -6,7 +6,7 @@
 
 closes #
 
-## A brief decription of the new feature.
+## A brief description of the new feature.
 
 A short description of the added functionality requested.
 
