@@ -1,4 +1,4 @@
-## Please select the appropriate PR template.
+Please select the appropriate PR template.
 
 ## Pull Request Type
 What kind of change does this PR introduce?
