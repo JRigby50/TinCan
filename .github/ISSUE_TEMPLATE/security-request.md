@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-**Describe the Security Remediation**
+##  Describe the Security Remediation
 A short description of what the remediation is.
 
-**CVE:** include any relevent CVEs
+## CVE: include any relevent CVEs
 
-**Additional context**
+## Additional context
 
 Add any other context about the vulnerability or remediation here.
