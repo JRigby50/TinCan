@@ -1,8 +1,4 @@
----
-name: Major Version Release
-title: 'Major Version Release:'
-labels: enhancement,Semver-Major
-assignees: ''
+
 
 ---
 

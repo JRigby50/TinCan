@@ -1,8 +1,4 @@
----
-name: Feature request
-title: 'Feature Request:'
-labels: enhancement,Semver-Minor
-assignees: ''
+
 
 ---
 
