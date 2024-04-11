@@ -2,9 +2,10 @@
 ## Pull Request Type
 What kind of change does this PR introduce?
 
-* [Bugfix](?expand=1&template=bug_template.md)
-* [Feature](?expand=1&template=feature_template.md)
-* [Security Remediation](?expand=1&template=security_template.md)
+* [Bugfix](?expand=1&template=bug_template.md&labels=bug,Semver-Patch&title=Bug+fix)
+* [Feature](?expand=1&template=feature_template.md&labels=enhancement,Semver-Minor&title=Feature)
+* [Security Remediation](?expand=1&template=security_template.md&labels=security+fix,Semver-patch&title=Security+Request)
+* [New Version](?expand=1&template=version_template.md&labels=enhancement,Semver-Major&title=New+Version)
 
 
 # TinCan
