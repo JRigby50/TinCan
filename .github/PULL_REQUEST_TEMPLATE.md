@@ -1,7 +1,3 @@
-
-
----
-
 Please go the the `Preview` tab and select the appropriate sub-template:
 ## Pull Request Type
 What kind of change does this PR introduce?
