@@ -1,0 +1,17 @@
+<convert2exe>
+    <targetPath>processes.exe</targetPath>
+    <uacLevel>asInvoker</uacLevel>
+    <appTitle>Processes</appTitle>
+    <icon>processes.ico</icon>
+    <emulationMode>Edge</emulationMode>
+    <initialWidth>0</initialWidth>
+    <initialHeight>0</initialHeight>
+    <dependencies />
+    <targetFormat>default</targetFormat>
+    <details>
+        <version>1.0.0.0</version>
+        <description>Processes</description>
+        <productName>Processes</productName>
+        <copyright>Copyright (C) 2018</copyright>
+    </details>
+</convert2exe>
