@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+    font-family:Tahoma;
+    border-collapse: collapse;
+    width:100%;
+    table-layout: fixed;
+    word-wrap:break-word;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+tr:hover {
+  background-color: #f5f5f5;
+}
+th {
+    background-color: #4CAF50;
+    color: white;
+    text-align: left;
+}
+</style>
+<script>
+function load()
+{
+  var computer=".";
+  var objSWbemLocator = new ActiveXObject("WbemScripting.SWbemLocator");
+  var objSWbemServices = objSWbemLocator.ConnectServer(computer)
+  var colItems = objSWbemServices.ExecQuery("Select * From Win32_Process");
+  var enumItems = new Enumerator(colItems);
+  var s="<table><tr><th>Name</th><th>Pid</th><th>Command Line</th></tr>";
+  for (; !enumItems.atEnd(); enumItems.moveNext()) 
+  {
+    var objItem = enumItems.item();
+    s += "<tr><td>" + objItem.Name + "</td><td>" + objItem.ProcessId + "</td><td>" + objItem.CommandLine + "</td></tr>";
+  }
+  s+= "</table>";
+ document.body.innerHTML = s;
+}
+</script>
+</head>
+<body onload="load()">
+</body>
+</html>

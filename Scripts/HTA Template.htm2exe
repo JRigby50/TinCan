@@ -1,0 +1,17 @@
+<convert2exe>
+    <targetPath>HTA Template.exe</targetPath>
+    <uacLevel>asInvoker</uacLevel>
+    <appTitle>My HTML application</appTitle>
+    <icon></icon>
+    <emulationMode>Edge</emulationMode>
+    <initialWidth>0</initialWidth>
+    <initialHeight>0</initialHeight>
+    <dependencies />
+    <targetFormat>default</targetFormat>
+    <details>
+        <version>1.0.0.0</version>
+        <description></description>
+        <productName></productName>
+        <copyright>Copyright (C) 2019</copyright>
+    </details>
+</convert2exe>
