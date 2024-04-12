@@ -3,7 +3,7 @@ Please select the appropriate PR template.
 ## Pull Request Type
 What kind of change does this PR introduce?
 
-* [Bugfix](?expand=1&template=.github/PULL_REQUEST_TEMPLATE/bug_template.md&labels=bug,Semver-Patch&title=Bug+fix&head_repo=Dev&base=master)
+* [Bugfix](?expand=1&template=.github/PULL_REQUEST_TEMPLATE/bug_template.md&owner=JRigby50&labels=bug,Semver-Patch&title=Bug+fix&head_repo=Dev&base=master)
 * [Feature](?expand=1&template=.github/PULL_REQUEST_TEMPLATE/feature_template.md&labels=enhancement,Semver-Minor&title=Feature&head_repo=Dev&base=master)
 * [Security Remediation](?expand=1&template=.github/PULL_REQUEST_TEMPLATE/security_template.md&labels=security+fix,Semver-patch&title=Security+Request&head_repo=Dev&base=master)
 * [New Version](?expand=1&template=.github/PULL_REQUEST_TEMPLATE/version_template.md&labels=enhancement,Semver-Major&title=New+Version&head_repo=Dev&base=master)
