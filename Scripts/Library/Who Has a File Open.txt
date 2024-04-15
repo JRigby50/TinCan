@@ -1,0 +1,73 @@
+ScriptingAnswers.com ScriptVault  
+
+
+                   à Root à ScriptVault Jim Rigby • Logout  
+
+
+
+                        : 
+                        Who Has a File Open?
+                        by Don Jones 
+                          This uses the helpful WinNT ADSI provider to connect 
+                          to any server (Windows 4.0 or later, if it has ADSI 
+                          installed). It asks for a file name - which must be a 
+                          local path as it sits on the server, not a UNC - and 
+                          tells you who, if anyone, has that file open. Due to 
+                          some vagaries in how ADSI works, this doesn't work on 
+                          EVERY machine, but it's been tested in 4.0, 2000, 
+                          2003, and XP with good results.
+
+
+
+
+                          Script code:
+                          Code samples provided on ScriptingAnswers.com are 
+                          provided AS-IS without warranty or guarantee of any 
+                          kind. ScriptingAnswers.com is not responsible for 
+                          content posted by individuals who use this site. All 
+                          code samples should be thoroughly reviewed and tested 
+                          before being used in a production environment. 
+
+
+' first, get the server name we want to work with
+sServerName = InputBox ("Server name to check")
+
+' get the local path of the file to check
+sFilename= InputBox ("Full path and filename of the file on the" & _
+ "server (use the local path as if you were " & _
+ "at the server console)")
+
+' bind to the server's file service
+set oFileService = GetObject("WinNT://" & sServerName & _
+ "/lanmanserver,fileservice")
+
+' scan through the open resources until we
+' locate the file we want
+bFoundNone = True
+
+' use a FOR...EACH loop to walk through the
+' open resources
+For Each oResource In oFileService.Resources
+
+	' does this resource match the one we're looking for?
+	If oResource.Path = sFilename Then 
+
+		' we found the file - show who's got it
+		bFoundNone = False
+		WScript.Echo oResource.Path & " is opened by " & oResource.User
+	End If
+Next
+
+' if we didn't find the file open, display a msg
+If bFoundNone = True Then
+	WScript.Echo "Didn't find that file opened by anyone."
+End If
+
+
+
+
+            Copyright 2005 Tenth Year Ventures, LP. 
+
+
+
+ 

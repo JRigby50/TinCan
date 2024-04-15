@@ -1,0 +1,157 @@
+System Cleanup
+by Patrick Wilshusen 
+This script is designed to go through and delete temporary files on a Windows 2000 system. It will delete files and folders in the c:\winnt\temp directory. It will delete patch and service pack uninstall information that is over 30 days old It will delete from the individual user profiles the temp directory, the History, and the temporary internet files. This script was designed to save manual steps of going through our systems and manually doing these process. It is designed for Windows 2000, but could easily be modified for XP. 
+
+
+--------------------------------------------------------------------------------
+
+Script code:
+Code samples provided on ScriptingAnswers.com are provided AS-IS without warranty or guarantee of any kind. ScriptingAnswers.com is not responsible for content posted by individuals who use this site. All code samples should be thoroughly reviewed and tested before being used in a production environment. 
+
+
+'==========================================================================
+'
+' VBScript Source File -- Created with SAPIEN Technologies PrimalScript 3.1
+'
+' NAME: Machine Cleanup
+'
+' AUTHOR: Patrick Wilshusen 
+' DATE  : 5/13/2005
+'
+' COMMENT: 
+'
+'  This script is designed to go through and delete temporary files on a Windows 2000 system.
+'  It will delete files and folders in the c:\winnt\temp directory
+'  It will delete patch and service pack uninstall information that is over 30 days old
+'  It will delete from the individual user profiles the temp directory, the History, 
+'	and the temporary internet files.
+'
+'==========================================================================
+
+Option Explicit
+
+' Variable declaritions
+
+Dim fso
+Dim cleanuplog
+Dim strNTTemp
+Dim StrDocandSettings
+Dim aryUser
+Dim strWinnt
+Dim strDateToday
+Dim strDateResult
+Dim strUserName
+Dim strHistory
+Dim strTemp
+Dim strTempInetFiles
+Dim strComputer
+Dim strError
+Dim strHoldWinnt
+dim aryWinntFolders
+Dim strFolderName
+
+'Constant Declarations
+
+Const DeleteReadOnly = True
+Const ForReading = 1, ForWriting = 2, ForAppending = 8
+
+strComputer = "."
+Set fso = CreateObject("Scripting.FileSystemObject")
+
+' Error Handling
+
+	On Error Resume Next
+
+'Open Up Log file (c:\scripting\log.txt)
+
+	If fso.FileExists("c:\scripting\log.txt") Then
+		Set cleanuplog = fso.OpenTextFile("c:\scripting\log.txt", ForAppending, False)
+	Else
+		Set cleanuplog = fso.CreateTextFile("c:\scripting\log.txt", True)
+	End If
+
+
+	StrNTTemp = "\\" & strComputer & "\c$\winnt\Temp\"
+	Set StrDocandSettings = fso.getFolder("\\" & strComputer & "\c$\documents and settings")
+	Set aryUser = StrDocandSettings.SubFolders
+
+' Deleting permanent folder temp files (c:\winnt\temp)
+
+	FSO.DeleteFolder(strNTTemp & "*"), DeleteReadOnly
+		If Err Then Call LogError(strNTTemp)
+	FSO.DeleteFile(strNTTemp & "*.*"), DeleteReadOnly
+		If Err Then Call LogError(strNTTemp)
+
+' Delete Patch and ServicePack Uninstall files that are over 30 days old.
+
+		strWinnt = "\\" & strComputer & "\c$\winnt"
+		strDateToday = Date
+		strDateResult = DateAdd ("d", -30, strDateToday)
+
+		Set strHoldWinnt = fso.getFolder(StrWinnt)
+		Set aryWinntFolders = strHoldWinnt.SubFolders
+				
+		For Each strFolderName in aryWinntFolders
+			If InStr (1, strFolderName.Name, "$NT", 1) <> 0 _
+			And strFolderName.DateCreated < strDateResult Then
+				FSO.DeleteFolder(strWinnt & "\" & strFolderName.Name), DeleteReadOnly
+					If Err Then Call LogError (strFolderName.Name)
+			End If
+		Next
+
+' Loop through all of the users in the Document and settings folder, 
+' skipping users that do not need temp files cleaned up.
+
+		For Each strUserName in aryUser
+
+			If strUserName.name = "All Users" Then
+				ElseIf strUserName.name = "Default User" Then
+				ElseIf strUserName.name = "LocalService" Then
+				ElseIf strUserName.name = "NetworkService" Then
+				ElseIf strUserName.name = "Administrator" Then
+			Else
+
+' Create paths for the user that we will be deleting files and folders from
+
+				strHistory = "\\" & strComputer & "\c$\documents and settings\" _
+				& strUserName.name & "\Local Settings\History\History.IE5\"
+				
+				StrTemp = "\\" & strComputer & "\c$\documents and settings\" _
+				& strUserName.name & "\Local Settings\Temp\"
+				
+				strTempInetFiles = "\\" & strComputer & "\c$\documents and settings\" _
+				& strUserName.name & "\Local Settings\Temporary Internet Files\Content.IE5\"
+
+' Delete Folders using paths created above.
+
+				FSO.DeleteFolder(StrHistory & "*"), DeleteReadOnly
+					If Err Then Call LogError(strHistory)
+				FSO.DeleteFolder(StrTemp & "*"), DeleteReadOnly
+					If Err Then Call LogError(strTemp)
+				FSO.DeleteFolder(strTempInetFiles & "*"), DeleteReadOnly
+					If Err Then Call LogError(strTempInetFiles)
+
+' Delete files using paths created above
+
+				FSO.DeleteFile(StrHistory & "*.*"), DeleteReadOnly
+					If Err Then Call LogError(strHistory)
+				FSO.DeleteFile(StrTemp & "*.*"), DeleteReadOnly
+					If Err Then Call LogError(strTemp)
+				FSO.DeleteFile(strTempInetFiles & "*.*"), DeleteReadOnly
+					If Err Then Call LogError(strTempInetFiles)
+
+			End If
+	
+		Next
+
+	cleanuplog.WriteLine(strComputer & " is finished")
+
+' Subroutine for logging errors.  Errors will be logged if a user is logged in while 
+' trying to delete files or folders from their profile.
+
+	Sub LogError (strError)
+
+		cleanuplog.WriteLine(Err.Number & " " & Err.Description & "     " & strError)
+		Err.Clear
+
+	End Sub

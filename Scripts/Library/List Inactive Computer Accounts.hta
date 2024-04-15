@@ -1,0 +1,110 @@
+<html> 
+<!-------------------------------------------------------------------- 
+Find Computers in OU and Check when password was last changed  
+- an HTA application by Darril Gibson (darril@cox.net), 2006 
+---------------------------------------------------------------------> 
+<head> 
+<title>Find Antiques</title> 
+ 
+<HTA:APPLICATION  
+     ID="objLastCPULogon" 
+     APPLICATIONNAME="AntiqueComputers" 
+     SCROLL="yes" 
+     SINGLEINSTANCE="yes" 
+     MAXIMIZEBUTTON="yes" 
+     MINIMIZEBUTTON="yes" 
+     INNERBORDER="yes"    > 
+</head> 
+ 
+<SCRIPT Language="VBScript"> 
+'.tbox 
+'{font-family:Arial; font-size:8pt; width:25px;} 
+'.table 
+'{font-family:Arial; font-size:8pt;} 
+'#output 
+'{font-family:Arial; font-size: 8pt;} 
+'#update 
+'{font-family: Arial; font-size: 10pt;color="Red";} 
+ 
+'*************************************************************************** 
+'Set constants 
+'Const intOldComputer identifies when password was last changed. 
+'If it hasn't changed in 60 days, it's probabably not being used. 
+'*************************************************************************** 
+Const intOldComputer = 60 
+ 
+Sub LastComputerLogon 
+'******************************************* 
+'Identify last password change of computers 
+'******************************************* 
+    On error resume next 
+    'Ensures it goes to the next line of code if an error occurs 
+     
+    If txtOU.Value = "" then 
+        OUError.InnerHTML = "<font color=#FF0000>Please enter an OU.</font><br>" 
+        Exit sub 
+    else 
+        OUError.InnerHTML = "" 
+    end if 
+ 
+    If UCase(txtOU.value) = "COMPUTERS" then 
+          strContainer = "CN=" & txtOU.Value & ", " 
+    else     
+          strContainer = "OU=" & txtOU.Value & ", " 
+    end if     
+ 
+    Set objRootDSE = GetObject("LDAP://RootDSE")  
+    strDNSDomain = objRootDSE.Get("DefaultNamingContext") 
+    strContainer = strContainer & strDNSDomain 
+    set objOU = GetObject("LDAP://" & strContainer ) 
+    OldComputers.InnerHTML = "" 
+ 
+    For Each objUser In objOU 
+        'LastLogon attribute only works if single DC.  Attribute not replicated 
+        'Set objLastLogon = objUser.Get("lastLogon") 
+         
+        'PwdLastSet identifies when password was last set. 
+        Set objLastLogon = objUser.Get("pwdLastSet") 
+ 
+        intLastLogonTime = objLastLogon.HighPart * (2^32) + objLastLogon.LowPart  
+        intLastLogonTime = intLastLogonTime / (60 * 10000000) 
+        intLastLogonTime = intLastLogonTime / 1440 
+        If (intLastLogonTime + #1/1/1601#) <= (date()-intOldComputer) then              
+            OldComputers.InnerHTML = OldComputers.InnerHTML & "---Suspect---"              
+        end if 
+         
+        OldComputers.InnerHTML = OldComputers.InnerHTML & objUser.Name & " " & _ 
+            " password last changed: " & intLastLogonTime + #1/1/1601# & "<BR>" 
+    Next  
+End SUb 'LastComputerLogon 
+ 
+Sub Window_Onload 
+    OldAge.InnerHTML = "Computers considered old if not logged onto in " & intOldComputer & " days." 
+End Sub 
+ 
+</SCRIPT> 
+ 
+<body> 
+   <table border="0" width="100%"> 
+    <tr> 
+        <td width=50% valign=top><H3>Check for old computers</H3>  
+        <h5><span id=OldAge></span></H5> 
+        </td>         
+    </tr>         
+        <tr> 
+    <td width=50% valign=top> 
+    <font size="2">Please enter OU to check.<br> 
+    <input type="text" name="txtOU" size="25" title="Will check last logon of computers"><br><br> 
+    <span id=OUError></span><br> 
+    <input id=btnLastComputerLogon  class="button" type="button" value="Check for Old Computers"          
+ 
+name="btnLastComputerLogon"  onClick="LastComputerLogon" Title="Check for old computers.   
+        Gives listing of last logon times." >         
+        </td>    
+        <td width=50% valign=top>  
+            <font size="2"><span id=OldComputers></span></font> 
+        </td>  
+    </tr> 
+   </table> 
+</body> 
+</html> 

@@ -1,0 +1,29 @@
+'*  Script name:    SortFile.vbs
+'*  Created on:     2006-07-31 
+'*  Author:         Kent Finkle
+'*  Purpose:        Sort a text file.
+
+Const ForReading = 1
+Const ForWriting = 2
+
+Set DataList = CreateObject("System.Collections.ArrayList")
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objFile = objFSO.OpenTextFile("C:\Scripts\Computers.txt", ForReading)
+
+Do Until objFile.AtEndOfStream
+    strLine = objFile.ReadLine
+    DataList.Add strLine
+Loop
+
+objFile.Close()
+
+DataList.Sort()
+
+Set objFile = objFSO.OpenTextFile("C:\Scripts\Computers.txt", ForWriting)
+
+For Each ComputerName In DataList
+    objFile.WriteLine(ComputerName)
+Next
+
+objFile.Close()

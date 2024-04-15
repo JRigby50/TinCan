@@ -1,0 +1,12 @@
+#pageTools {
+	BORDER-TOP: #ccc 1px solid; FONT: 65% Verdana; BACKGROUND-COLOR: #f1f1f1
+}
+#pageTools A {
+	PADDING-RIGHT: 3px; PADDING-LEFT: 3px; PADDING-BOTTOM: 2px; MARGIN: 1px; CURSOR: hand; COLOR: #000; PADDING-TOP: 2px; HEIGHT: 20px; TEXT-DECORATION: none
+}
+#pageTools A:hover {
+	BORDER-RIGHT: #999 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #999 1px solid; PADDING-LEFT: 2px; PADDING-BOTTOM: 1px; MARGIN: 1px; BORDER-LEFT: #999 1px solid; CURSOR: hand; COLOR: #000; PADDING-TOP: 1px; BORDER-BOTTOM: #999 1px solid; HEIGHT: 20px; BACKGROUND-COLOR: #ccc; TEXT-DECORATION: none
+}
+BODY {
+	MARGIN: 0px
+}

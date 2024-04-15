@@ -1,0 +1,37 @@
+Set oDict = CreateObject("Scripting.Dictionary")  
+        For Each sItem In arTemp  
+                If Not oDict.Exists(sItem) Then  
+                        oDict.Add sItem, sItem  
+                End If  
+        Next  
+
+
+
+
+Case "ASC"  
+'                        ReDim arTemp(oDict.Count - 1)  
+'                        arNew = oDict.Items  
+'                        For i = UBound(arNew) - 1 To 0 Step -1  
+'                                For j = 0 To i  
+'                                        If arNew(j)>arNew(j+1) Then  
+'                                                sTmp = arNew(j+1)  
+'                                                arNew(j+1) = arNew(j)  
+'                                                arNew(j) = sTmp  
+'                                        End If  
+'                                Next  
+'                        Next  
+'                        arTemp = arNew  
+
+
+' Case "DESC"  
+         ReDim arTemp(oDict.Count - 1)  
+         arNew = oDict.Items  
+          For i = UBound(arNew) - 1 To 0 Step -1  
+                  For j = 0 To i  
+                          If arNew(j)<arNew(j+1) Then  
+                                  sTmp = arNew(j+1)  
+                                  arNew(j+1) = arNew(j)  
+                                  arNew(j) = sTmp  
+                          End If  
+                  Next  
+          Next 

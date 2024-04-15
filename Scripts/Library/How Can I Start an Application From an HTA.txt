@@ -1,0 +1,59 @@
+Hey, DL. Yes, we do know of an alternative to the Wscript.Shell command that will work in HTAs, and we’ll show you that in a minute. Before we do that, however, we should note that you actually can use the Wscript.Shell object within an HTA. This is a point that often creates confusion: because you can’t use certain commands - such as Wscript.Echo and Wscript.Sleep - within an HTA people assume you can’t use any WSH commands in an HTA. 
+
+First things first: why can’t you use Wscript.Echo and Wscript.Sleep in an HTA? Well, those methods are properties of the Wscript object, and you can’t create an instance of the Wscript object. Instead, the Wscript object is automatically created - and only created - when you run Windows Script Host (that is, Wscript.exe or Cscript.exe). That’s why this is a perfectly valid script:
+
+Wscript.Echo "Hey."
+Notice that we didn’t create the Wscript object; instead, it was created for us when we invoked Windows Script Host.
+
+But that’s just for the Wscript object. There are other WSH objects that you can create, including the Shell object. For example, here’s a simple little HTA that creates the Wscript.Shell object and then runs Notepad.exe (opening the file C:\Scripts\Test.txt along the way):
+
+<html> 
+<head> 
+<script language="VBScript"> 
+
+    Sub RunProgram 
+        Set objShell = CreateObject("Wscript.Shell")
+        objShell.Run "notepad.exe c:\scripts\test.txt"
+    End Sub
+
+</script> 
+</head> 
+
+<body> 
+<button onclick="RunProgram">Run Program</button> <p>
+</body> 
+</html>
+As you can see, this is about as simple an HTA as you can get: it consists entirely of a button that, when clicked, runs a subroutine named RunProgram. And take a look at the code for RunProgram:
+
+Sub RunProgram 
+    Set objShell = CreateObject("Wscript.Shell")
+    objShell.Run "notepad.exe c:\scripts\test.txt"
+End Sub
+There it is: we create an instance of the Wscript.Shell object and then call the Run method. And in doing so we pass Run a single parameter: the executable file name (notepad.exe) followed by the path to the file we want to open. That’s all we have to do.
+
+Incidentally, as long as you run this in an HTA everything will work just fine. If you try to run it in an HTML file (that is, a file with a .htm file extension) you’ll be presented with a message box warning you that an ActiveX control is trying to run on the page. At that point you’ll have to click Yes to allow the subroutine to create the Shell object and then run. This is due to the fact that WSH objects are considered “unsafe for scripting.” 
+
+Note. Yes, it sounds a bit weird that scripting objects aren’t considered safe for scripting. But that’s because Internet Explorer uses a different script host and a different security model than WSH. Fortunately, HTAs use a different security model than Internet Explorer, which means you won’t encounter this problem when creating the Shell object within an HTA.
+ 
+
+Now, what about that alternative? Well, if for some reason you don’t want to use the Wscript.Shell object then you can use the Windows Shell object instead. This HTA will also start Notepad and open the file C:\Scripts\Test.txt:
+
+<html> 
+<head> 
+<script language="VBScript"> 
+
+Sub RunProgram 
+    Const NORMAL_WINDOW = 1
+    Set objShell = CreateObject("Shell.Application")
+    objShell.ShellExecute "notepad.exe", "c:\scripts\test.txt", , , NORMAL_WINDOW
+End Sub
+
+</script> 
+</head> 
+
+<body> 
+<button onclick="RunProgram">Run Program</button> <p>
+</body> 
+</html>
+To be honest, we don’t see any real advantage to using the Windows Shell object as opposed to the Wscript.Shell object: both objects do pretty much the same thing. However, if you’d like to play around a bit with the Windows Shell, check out the documentation on the ShellExecute method. The important thing is this: if you want to start an application from your HTA, either approach will work.
+

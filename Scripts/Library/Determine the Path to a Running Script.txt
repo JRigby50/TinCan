@@ -1,0 +1,10 @@
+Dim fso
+Set fso = CreateObject("Scripting.FileSystemObject")
+Dim MylogFile
+Const ForWriting = 2
+Dim Path, PathFull
+PathFull = WScript.ScriptFullName
+Path = Left(PathFull, InStrRev(PathFull, "\")) 
+Set MylogFile = fso.OpenTextFile (Path & "Mylogfile.txt",ForWriting, true ) 
+MylogFile.WriteLine "script path is : " & Path 
+MylogFile.Close

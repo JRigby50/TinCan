@@ -1,0 +1,234 @@
+Web page event log viewer
+by Don Jones 
+This is designed to be run under IIS, and the page's security should be set to only allow Domain Admins to view the page. IIS must be set to not allow anonymous access to the page (thereby forcing authentication through the browser).
+
+
+--------------------------------------------------------------------------------
+
+Script code:
+Code samples provided on ScriptingAnswers.com are provided AS-IS without warranty or guarantee of any kind. ScriptingAnswers.com is not responsible for content posted by individuals who use this site. All code samples should be thoroughly reviewed and tested before being used in a production environment. 
+
+
+<%
+
+'Was the form submitted?
+If Request.Form("SUBMIT") = "" Then
+
+ 'No - set up the form
+ 'Start by getting the local computer name
+ Set oNet =CreateObject("WScript.Network")
+ sCompName=oNet.Computername
+ Response.Write "Computer: " & compname & "<BR>"
+ Set oNet = Nothing
+
+ 'Now display the HTML form 
+%>
+<FORM ACTION="event.asp" METHOD="POST">
+ <Table cellpadding=2 cellspacing=2 border=0>
+  <TR>
+   <TD>
+    <INPUT type="text" name="ComputerName" 
+     value="<% Response.Write CompName%>">
+   </TD>
+   <TD>Computer:</TD>
+  </TR>
+  <TR>
+   <TD>
+    <SELECT name="LogName">
+     <OPTION value="application">Application</OPTION>
+     <OPTION value="system">System</OPTION>
+     <OPTION value="security">Security</OPTION>
+     </SELECT>
+    </TD>
+    <TD>Log</TD>
+   </TR>
+   <TR>
+    <TD><INPUT type="text" name="Source"></TD>
+    <TD>Event Source</TD>
+   </TR>
+   <TR>
+    <TD>
+     <SELECT name="Type">
+      <OPTION value="">All</option>
+      <OPTION value="information">Information</OPTION>
+      <OPTION value="warning">Warning</OPTION>
+      <OPTION value="error">Error</OPTION>
+     </SELECT>
+    </TD>
+    <TD>Type</TD>
+   </TR>
+  <TR>
+   <TD><input type="text" name="EventCode"></TD>
+   <TD>Event Code</TD>
+  </TR>
+  <TR>
+   <TD><input type="text" name="UserName"</TD>
+   <TD>User Name</TD>
+  </TR>
+  <TR>
+   <TD><input type="password" name="Password"></TD>
+   <TD>Password</TD>
+  </TR>
+  <TR>
+   <TD COLSPAN=2 Align=center>
+    <INPUT type="submit" NAME="Submit" VALUE="Submit">
+   </TD>
+  </TR>
+ </TABLE>
+</FORM>
+
+<%
+'Here's the end of the original If...Then
+'This is executed if the form was submitted 
+Else 
+
+ 'declare variables
+ Dim oServices, oResultset, oRecord
+ Dim sComputerName, sLogFile, sQuery
+ Dim dtDate, dtTime
+ 
+ 'get the network object
+ set oNet =CreateObject("WScript.Network")
+ 
+ 'get a WMI locator
+ set oLocator = CreateObject("WbemScripting.SWbemLocator")
+ 
+ 'get the local computer name
+ sComputerName = oNet.ComputerName
+ 
+ 'build the WMI query
+ sQuery = "SELECT * FROM Win32_NTLogEvent WHERE Logfile="
+ 
+ 'computer name specified?
+ If(Request("ComputerName") <> "") Then 
+  sComputerName = Request("ComputerName")
+ End If
+ 
+ 'log file name specified?
+ If(Request("LogName")<> "") Then
+  sLogFile = Request("LogName")
+ End If
+ 
+ 'append computer name and log file
+ 'to WMI query
+ sQuery = sQuery & """" & sLogFile & """"
+ 
+ 'add source, type, and code to query
+ If(Request("Source")<> "") Then 
+  sQuery = sQuery & " AND SourceName=" & """" & _
+   Request("Source") & """"
+ End If
+ If(Request("Type") <>"") Then 
+  sQuery = sQuery & " AND Type=" & """" & _
+   Request("Type") & """"
+ End If
+ If(Request("EventCode") <>"") Then
+  sQuery = sQuery & " AND EventCode=" & _
+   """" & Request("EventCode") & """"
+ End If
+
+ 'username is blank?
+ If Request.form("UserName") <> "" Then
+  'no - connect to local machine
+  Set oServices = oLocator.ConnectServer(sComputerName, _
+   "root\default", Request.form("UserName"), _
+   Request.Form("Password"))
+   
+ Else
+  'yes = connect to local computer
+  Set oServices = oLocator.ConnectServer(sComputerName )
+ End If
+ 
+'execute query
+ Set oResultset = oServices.ExecQuery(sQuery)
+ 
+ 'any results?
+ If(oResultset.Count = 0) Then
+  'no
+  Response.Write "<b>Query returned 0 records.</b>"
+ Else
+  'yes - display results
+  
+  'build table header
+  Response.Write "<TABLE cellspacing=0 cellpadding=3 border=1>"
+  
+  'build first table row
+  Response.Write "<TR>"
+  Response.Write "<TH>Record</TH>"
+  Response.Write "<TH>Type</TH>"
+  Response.Write "<TH>Date</TH>"
+  Response.Write "<TH>Time</TH>"
+  Response.Write "<TH>Source</TH>"
+  Response.Write "<TH>Category</TH>"
+  Response.Write "<TH>Cat Strg</TH>"
+  Response.Write "<TH>Event</TH>"
+  Response.Write "<TH>Usr</TH>"
+  Response.Write "<TH>Computer</TH>"
+  Response.Write "<TH>Msg</TH>"
+  Response.Write "</TR>"
+
+  'go through each event entry
+  For Each oRecord In oResultset
+   'Format the date and time of the entry
+   dtDate = CDateWMI(oRecord.TimeGenerated)
+   dtTime = CTimeWMI(oRecord.TimeGenerated)
+   
+
+   'write row tag
+   Response.Write "<TR>"
+
+   'write cell tag & record information
+   Response.Write "<TD>" & oRecord.RecordNumber &" </TD>" & _
+   "<TD>" & oRecord.Type & "</TD>" & _
+   "<TD>" & dtDate & "</TD>" & _
+   "<TD>" & dtTime & "</TD>" & _
+   "<TD>" & oRecord.SourceName & "</TD>" & _
+   "<TD>" & oRecord.Category & "</TD>" & _
+   "<TD>" & oRecord.CategoryString & "</TD>" & _
+   "<TD>" & oRecord.EventCode & "</TD>" & _
+   "<TD>" & oRecord.User & "</TD>" & _
+   "<TD>" & oRecord.ComputerName & "</TD>" & _
+   "<TD>" & oRecord.Message & "</TD></TR>"
+
+  Next
+
+   'close the table
+   Response.Write "</TABLE> </FONT>"
+
+ End If
+
+'custom functions
+Function CDateWMI(cim_DateTime)
+ 'declare variables
+ Dim sDateTime, iYear, iMonth, iDay
+ 
+ 'convert the date to a string
+ sDateTime = CStr(cim_DateTime)
+ 
+ 'get the year, month, and day
+ iYear = CInt(Mid(sDateTime, 1, 4))
+ iMonth = CInt(Mid(sDateTime, 5, 2))
+ iDay = CInt(Mid(sDateTime, 7, 2))
+ 
+ 'reformat into a normal date
+ CDateWMI = CDate(Join(Array(iMonth, iDay, iYear), "/"))
+End Function
+
+Function CTimeWMI(cim_DateTime)
+ 'declare variables
+ Dim sDateTime, iHours, iMinutes, iSeconds
+ 
+ 'convert the time into a string
+ sDateTime = CStr(cim_DateTime)
+ 
+ 'get the hours, minutes, and seconds
+ iHours = CInt(Mid(sDateTime, 9, 2))
+ iMinutes = CInt(Mid(sDateTime, 11, 2))
+ iSeconds = CInt(Mid(sDateTime, 13, 2))
+ 
+ 'reformat into a normal time
+ CTimeWMI = TimeSerial(iHours, iMinutes, iSeconds)
+ End Function
+ 
+End If
+%>

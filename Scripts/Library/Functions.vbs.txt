@@ -1,0 +1,141 @@
+'*****Get OS
+Function OS
+	Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+	Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem",,48)
+		For Each objItem in colItems
+		    strOpSys = objItem.Caption
+		Next
+	OS = strOpSys
+End Function
+'*****Get OS Version
+Function OSVer
+	Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+	Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_OperatingSystem",,48)
+		For Each objItem in colItems
+		    strOpVer = objItem.CSDVersion
+		Next
+	OSVer = strOpVer
+End Function
+
+Function CPU
+'CPU Description
+	Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+	Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_Processor",,48)
+	    For Each objItem in colItems
+			strCPUName = objItem.Name
+		    Next
+	CPU = strCPUName
+End Function
+
+Function CPUCount
+'CPU Count
+	cpuCounter = 0
+	Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+	Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_Processor",,48)
+	    For Each objItem in colItems
+			strCPUName = objItem.Name
+		    cpuCounter = cpuCounter +1
+		Next
+	CPUCount = cpuCounter
+End Function
+
+Function Memory
+'Get Total Memory
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_PhysicalMemory",,48) 
+TotalMemory = 0.0
+	For Each objItem in colItems 
+		TotalMemory = TotalMemory + int(objItem.Capacity)
+	Next
+' Put Memory into proper format
+TotalMemory = TotalMemory / 1024
+	If TotalMemory < 1024 Then
+		strTotalMemory =(round(totalMemory, 2)) & " KB"
+		Memory=strTotalMemory
+	Exit Function
+	End If
+TotalMemory = TotalMemory / 1024
+		If TotalMemory < 1024 Then
+		strTotalMemory = (round(totalMemory, 2)) & " MB"
+		Memory=strTotalMemory
+		Exit Function
+		End If
+TotalMemory = TotalMemory / 1024
+		If TotalMemory < 1024 Then
+		strTotalMemory = (round(TotalMemory, 2)) & " GB"
+		Memory=strTotalMemory
+		Exit Function
+        End If
+TotalMemory = TotalMemory / 1024
+		strTotalMemory = (round(TotalMemory, 2)) & " TB"
+		Memory=strTotalMemory
+End Function
+
+Function CleanString(strRaw)
+'Remove garbage from description strings
+	strClean = Replace(strRaw,"Microsoft", "")
+	strClean = Replace(strClean,"MICROSOFT", "")
+	strClean = Replace(strClean,"(R)", "")
+	strClean = Replace(strClean,"(r)", "")
+	strClean = Replace(strClean,"(TM)", "")
+	strClean = Replace(strClean,"(tm)", "")
+	strClean = Replace(strClean,"®", "")
+	strClean = Replace(strClean,",", " ")
+	strClean = Trim (strClean)
+		While Instr(strClean, "  ")
+		strClean = Replace(strClean,"  ", " ")
+		Wend
+	CleanString = strClean
+End Function
+
+Function Sort(arrTemp)
+'Takes an Array and Returns an Array sorted in Ascending order with duplicates removed.
+Set objDict = CreateObject("Scripting.Dictionary")  
+    For Each strItem In arrTemp  
+            If Not objDict.Exists(strItem) Then  
+                    objDict.Add sItem, sItem  
+            End If  
+    Next  
+        ReDim arrTemp(objDict.Count - 1)  
+        arrNew = objDict.Items  
+        For i = UBound(arrNew) - 1 To 0 Step -1  
+                For j = 0 To i  
+                        If arrNew(j)>arrNew(j+1) Then  
+                                strTmp = arrNew(j+1)  
+                                arrNew(j+1) = arrNew(j)  
+                                arrNew(j) = strTmp  
+                        End If  
+                Next  
+        Next  
+Sort = arrNew
+End Function
+
+
+Still in progress
+
+'*****IP Addresses
+Function IPAddresses
+'Returns a sorted array of IP addresses with Duplicates removed.
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_NetworkAdapterConfiguration",,48) 
+
+For Each objItem in colItems 
+    If isNull(objItem.IPAddress) Then
+        'Put in Nothing
+    Else
+        'Put into array      Join(objItem.IPAddress, ",")
+    End If
+Next
+
+'    IPAddresses = []
+
+'        z = objItem.IPAddress
+'        if z is not None:
+'            for x in z:
+'                if x is not None and x <> "":
+'                    if (x not in IPAddresses):
+'                        IPAddresses.append(x)
+	Next
+IPAddresses = Sort(arrIPAddresses)
+'IPAddresses = arrIPAddresses
+End Function

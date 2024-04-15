@@ -1,0 +1,69 @@
+Select Computers Using Excel
+
+Description
+
+WMI scripting template that runs the script against all the computers listed in an Excel spreadsheet named C:\Scripts\Servers.xls. The computer names should be listed in column A of the spreadsheet, one computer per row, and with no blank cells cells between rows.
+
+Supported Platforms
+
+Windows Server 2003
+	
+
+Yes
+
+Windows XP
+	
+
+Yes
+
+Windows 2000
+	
+
+Yes
+
+Windows NT 4.0
+	
+
+Yes
+
+Windows 98
+	
+
+Yes
+
+Script Code
+
+On Error Resume Next
+
+Set objExcel = CreateObject("Excel.Application")
+Set objWorkbook = objExcel.Workbooks.Open("C:\Scripts\servers.xls")
+x = 1
+
+Do Until objExcel.Cells(x, 1).Value = ""
+    If objExcel.Cells(x, 1).Value = "" Then
+        Exit Do
+    End If
+
+    strComputer = objExcel.Cells(x, 1).Value 
+
+    ' =====================================================================
+    ' Insert your code here
+    ' =====================================================================
+
+    Set objWMIService = GetObject _
+        ("winmgmts:\\" & strComputer & "\root\cimv2")
+    Set colItems = objWMIService.ExecQuery _
+        ("Select * From Win32_OperatingSystem")
+    For Each objItem in ColItems
+        Wscript.Echo strComputer & ": " & objItem.Caption
+    Next
+
+    ' =====================================================================
+    ' End
+    ' =====================================================================
+
+    x = x + 1
+Loop
+
+objWorkbook.Close
+objExcel.Quit

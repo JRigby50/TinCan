@@ -1,0 +1,65 @@
+ScriptingAnswers.com ScriptVault  
+
+
+                   à Root à ScriptVault Jim Rigby • Logout  
+
+
+
+                        : 
+                        Read computer names from text file with error handling
+                        by Don Jones 
+                          This wrapper illustrates how to use error handling to 
+                          read computer names form a file, attempt a connection 
+                          to each (via WMI, perhaps), and handle the error which 
+                          occurs if one computer can't be contacted.
+
+
+
+
+                          Script code:
+                          Code samples provided on ScriptingAnswers.com are 
+                          provided AS-IS without warranty or guarantee of any 
+                          kind. ScriptingAnswers.com is not responsible for 
+                          content posted by individuals who use this site. All 
+                          code samples should be thoroughly reviewed and tested 
+                          before being used in a production environment. 
+
+
+'Create a FileSystemObject
+Set oFS = _
+ CreateObject("Scripting.FileSystemObject")
+
+'Open a text file of computer names
+'with one computer name per line
+Set oTS = oFS.OpenTextFile("c:\computers.txt")
+Set oTSOut = oFS.CreateTextFile("c:\errors.txt")
+
+'go through the text file
+Do Until oTS.AtEndOfStream
+
+ 'get next computer
+  sComputer = oTS.ReadLine
+
+ On Error Resume Next
+ '***MAKE CONNECTION***
+ If Err <> 0 Then
+ 	oTSOut.WriteLine "Error on " & sComputer & _
+ 	 ":" & Err.Number & ", " & Err.Description
+ Else
+	 On Error Goto 0
+	 '***REST OF CODE HERE 
+ End If
+ 
+Loop
+
+oTS.Close
+oTSOut.Close
+
+
+
+
+            Copyright 2005 Tenth Year Ventures, LP. 
+
+
+
+ 

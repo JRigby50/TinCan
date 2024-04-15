@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0081)http://www.microsoft.com/technet/scriptcenter/scripts/logs/eventlog/lgevvb01.mspx -->
+<HTML><HEAD><TITLE>Back Up and Clear an Event Log</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META content=en-us name=MS.LOCALE>
+<META content="Backs up and clears the Application event log." name=description>
+<META content=noindex,nofollow name=robots>
+<META content=MNP2.GenericArticle name=search.mnp.template><LINK 
+href="lgevvb01_files/templatecss.css" type=text/css rel=Stylesheet>
+<SCRIPT language=Javascript src="lgevvb01_files/js.aspx" 
+type=text/javascript></SCRIPT>
+<LINK href="lgevvb01_files/css.css" type=text/css rel=Stylesheet><LINK 
+href="C:\Documents and Settings\s823753\My Documents\Scripts\Event Log Script\Back Up and Clear an Event Log_files\lgevvb01_files\css(1).css" 
+type=text/css rel=stylesheet>
+<SCRIPT language=JavaScript>var doImage=doImage;var TType=TType;
+function mhHover(tbl,idx,cls){var t,d;if(document.getElementById)t=document.getElementById(tbl);else t=document.all(tbl);if(t==null)return;if(t.getElementsByTagName)d=t.getElementsByTagName("TD");else d=t.all.tags("TD");if(d==null)return;if(d.length<=idx)return;d[idx].className=cls;}
+function footerjs(doc){if(doImage==null){var tt=TType==null?"PV":TType;doc.write('<layer visibility="hide"><div style="display:none"><img src="http://c.microsoft.com/trans_pixel.asp?source=www&TYPE=' + tt + '&p=technet_scriptcenter_scripts_logs_eventlog&URI=%2ftechnet%2fscriptcenter%2fscripts%2flogs%2feventlog%2flgevvb01.mspx&GUID=1F4FC18C-F71E-47FB-8FC9-612F8EE59C61&r=http%3a%2f%2fwww.microsoft.com%2ftechnet%2fscriptcenter%2fscripts%2flogs%2feventlog%2fdefault.mspx&lc=en-us" width=0 height=0 hspace=0 vspace=0 border=0 alt=""/></div></layer>');}}</SCRIPT>
+
+<META content=_technet_scriptcenter_ name=WT.sp>
+<SCRIPT language=JavaScript src="lgevvb01_files/broker.js"></SCRIPT>
+
+<SCRIPT>
+				function synctoc()
+				{
+					if (top.MNPMenuFrame)
+					{
+						if (top.MNPMenuFrame.synctoc)
+						{
+							top.MNPMenuFrame.synctoc();
+						}
+					}
+				}
+				</SCRIPT>
+
+<META content="MSHTML 6.00.2900.3020" name=GENERATOR></HEAD>
+<BODY dir=ltr oncopy="e++; SetFirst('5');" bgColor=#ffffff leftMargin=0 
+topMargin=0 onload=synctoc() marginwidth="0" marginheight="0"><!--NOINDEX_START--><A name=top></A>
+<DIV id=MNP_showtoc 
+style="DISPLAY: none; PADDING-LEFT: 15px; PADDING-BOTTOM: 15px; FONT: 11px Verdana; PADDING-TOP: 10px; HEIGHT: 23px"><SPAN 
+style="CURSOR: hand" onclick=top.MNPSearchFrame.showtoc()><IMG 
+style="MARGIN-RIGHT: 3px" height=16 alt="show toc" 
+src="lgevvb01_files/showtoc.gif" width=16 align=absMiddle border=0>show 
+toc</SPAN></DIV><!--NOINDEX_STOP-->
+<TABLE>
+  <TBODY>
+  <TR>
+    <TD>
+      <DIV 
+      style="PADDING-RIGHT: 15px; PADDING-LEFT: 20px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+      <DIV class=ancestorLinks><NOBR><A 
+      href="http://www.microsoft.com/technet/scriptcenter/default.mspx">Script 
+      Center Home</A> &gt; </NOBR><NOBR><A 
+      href="http://www.microsoft.com/technet/scriptcenter/scripts/default.mspx">Script 
+      Repository</A> &gt; </NOBR><NOBR><A 
+      href="http://www.microsoft.com/technet/scriptcenter/scripts/logs/default.mspx">Logs</A> 
+      &gt; </NOBR><NOBR><A 
+      href="http://www.microsoft.com/technet/scriptcenter/scripts/logs/eventlog/default.mspx">Event 
+      Logs</A></NOBR></DIV>
+      <H1>Back Up and Clear an Event Log</H1>
+      <DIV style="HEIGHT: 18px"></DIV>
+      <P><B>Description</B></P>
+      <P>Backs up and clears the Application event log. </P>
+      <P><B>Supported Platforms</B></P>
+      <TABLE class=dataTable id=E6 cellSpacing=0 cellPadding=0>
+        <THEAD></THEAD>
+        <TBODY>
+        <TR class=record vAlign=top>
+          <TD>
+            <P class=lastInCell><B>Windows Server 2003</B></P></TD>
+          <TD style="BORDER-RIGHT: #cccccc 1px solid">
+            <P class=lastInCell><B>Yes</B></P></TD></TR>
+        <TR class=evenRecord vAlign=top>
+          <TD>
+            <P class=lastInCell><B>Windows XP</B></P></TD>
+          <TD style="BORDER-RIGHT: #cccccc 1px solid">
+            <P class=lastInCell><B>Yes</B></P></TD></TR>
+        <TR class=record vAlign=top>
+          <TD>
+            <P class=lastInCell><B>Windows 2000</B></P></TD>
+          <TD style="BORDER-RIGHT: #cccccc 1px solid">
+            <P class=lastInCell><B>Yes</B></P></TD></TR>
+        <TR class=evenRecord vAlign=top>
+          <TD>
+            <P class=lastInCell><B>Windows NT 4.0</B></P></TD>
+          <TD style="BORDER-RIGHT: #cccccc 1px solid">
+            <P class=lastInCell><B>Yes</B></P></TD></TR>
+        <TR class=record vAlign=top>
+          <TD>
+            <P class=lastInCell><B>Windows 98</B></P></TD>
+          <TD style="BORDER-RIGHT: #cccccc 1px solid">
+            <P class=lastInCell><B>No</B></P></TD></TR></TBODY></TABLE>
+      <DIV class=dataTableBottomMargin></DIV>
+      <P><B>Script Code</B></P><PRE class=codeSample>strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    &amp; "{impersonationLevel=impersonate,(Backup)}!\\" &amp; _
+        strComputer &amp; "\root\cimv2")
+
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile where LogFileName='Application'")
+
+For Each objLogfile in colLogFiles
+    errBackupLog = objLogFile.BackupEventLog("c:\scripts\application.evt")
+    If errBackupLog &lt;&gt; 0 Then        
+        Wscript.Echo "The Application event log could not be backed up."
+    Else
+        objLogFile.ClearEventLog()
+    End If
+Next
+</PRE>
+      <P>For online peer support, join the <A 
+      href="http://www.microsoft.com/technet/community/newsgroups/dgbrowser/en-us/default.mspx?dg=microsoft.public.windows.server.scripting&amp;lang=en&amp;cr=US">microsoft.public.windows.server.scripting</A> 
+      community on the msnews.microsoft.com news server. To provide feedback or 
+      report bugs in sample scripts or the Scripting Guide, please contact <A 
+      href="http://go.microsoft.com/?linkid=2028456">Microsoft TechNet</A>.</P>
+      <P><B>Disclaimer</B></P>
+      <P>The sample scripts are not supported under any Microsoft standard 
+      support program or service. The sample scripts are provided AS IS without 
+      warranty of any kind. Microsoft further disclaims all implied warranties 
+      including, without limitation, any implied warranties of merchantability 
+      or of fitness for a particular purpose. The entire risk arising out of the 
+      use or performance of the sample scripts and documentation remains with 
+      you. In no event shall Microsoft, its authors, or anyone else involved in 
+      the creation, production, or delivery of the scripts be liable for any 
+      damages whatsoever (including, without limitation, damages for loss of 
+      business profits, business interruption, loss of business information, or 
+      other pecuniary loss) arising out of the use of or inability to use the 
+      sample scripts or documentation, even if Microsoft has been advised of the 
+      possibility of such damages.</P><BR style="FONT-SIZE: 0pt" clear=all>
+      <DIV style="MARGIN-TOP: 16px; MARGIN-BOTTOM: 20px; WIDTH: 100%">
+      <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD><A 
+            href="http://www.microsoft.com/technet/scriptcenter/scripts/logs/eventlog/lgevvb01.mspx#top"><IMG 
+            height=9 alt="Top of page" src="lgevvb01_files/arrow_px_up.gif" 
+            width=7 border=0></A><A class=topOfPage 
+            href="http://www.microsoft.com/technet/scriptcenter/scripts/logs/eventlog/lgevvb01.mspx#top">Top 
+            of page</A></TD></TR></TBODY></TABLE></DIV></DIV></TD></TR></TBODY></TABLE><!--NOINDEX_START-->
+<SCRIPT language=javascript>
+              var framesValid = false;
+              if (window.name == "MNPMainFrame")
+              { var menuFrame = parent.frames["MNPMenuFrame"]; if (menuFrame) { framesValid = true; } }
+              if (!framesValid) location.replace("/technet/scriptcenter/scripts/logs/eventlog/lgevvb01.mspx?mfr=true");
+              
+                else document.write('<layer visibility="hide"><div style="display:none"><img alt="" width="0" height="0" border="0" hspace="0" vspace="0" src="http://c.microsoft.com/trans_pixel.asp?source=www&amp;TYPE=PV&amp;p=technet_scriptcenter_scripts_logs_eventlog&amp;URI=%2ftechnet%2fscriptcenter%2fscripts%2flogs%2feventlog%2flgevvb01.mspx&amp;GUID=1F4FC18C-F71E-47FB-8FC9-612F8EE59C61&amp;r=http%3a%2f%2fwww.microsoft.com%2ftechnet%2fscriptcenter%2fscripts%2flogs%2feventlog%2fdefault.mspx&amp;lc=en-us"></div></layer>');
+              
+              top.document.title = self.document.title;
+            </SCRIPT>
+
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR vAlign=bottom>
+    <TD><IFRAME id=footerId name=footerId marginWidth=0 marginHeight=0 
+      src="lgevvb01_files/ratings.htm" frameBorder=0 width="100%" scrolling=no 
+      height=243></IFRAME></TD></TR></TBODY></TABLE><BR 
+style="OVERFLOW: hidden; LINE-HEIGHT: 1px" clear=all>
+<TABLE id=msviFooter cellSpacing=0 cellPadding=0 width="100%">
+  <TBODY>
+  <TR vAlign=bottom>
+    <TD id=msviFooter2 
+    style="FILTER: progid:DXImageTransform.Microsoft.Gradient(startColorStr='#FFFFFF', endColorStr='#CDCDCD', gradientType='1')">
+      <DIV id=msviLocalFooter><NOBR><A 
+      href="http://go.microsoft.com/?linkid=317027" target=_top>Manage Your 
+      Profile</A> |</NOBR><WBR></WBR><NOBR><A 
+      href="http://www.microsoft.com/technet/contactus.mspx" target=_top>Contact 
+      Us</A> |</NOBR><WBR></WBR><NOBR><A 
+      href="http://www.microsoft.com/technet/abouttn/subscriptions/flash_register.mspx" 
+      target=_top>Newsletter</A></NOBR></DIV>
+      <DIV id=msviGlobalFooter><SPAN dir=ltr>© 2007 Microsoft Corporation. All 
+      rights reserved.&nbsp;</SPAN><NOBR><A 
+      href="http://go.microsoft.com/?linkid=4412892" target=_parent>Terms of 
+      Use</A> |</NOBR><WBR></WBR><NOBR><A 
+      href="http://go.microsoft.com/?linkid=4412893" 
+      target=_parent>Trademarks</A> |</NOBR><WBR></WBR><NOBR><A 
+      href="http://go.microsoft.com/?linkid=4412894" target=_parent>Privacy 
+      Statement</A></NOBR></DIV></TD>
+    <TD width=105 bgColor=#cdcdcd><IMG title="" height=29 alt=Microsoft 
+      src="lgevvb01_files/text.jpg" width=105 border=0></TD></TR></TBODY></TABLE>
+<SCRIPT language=javascript>        var msviFooter2;        if (document.getElementById)        {        msviFooter2 = document.getElementById("msviFooter2");        msviFooter2.style.filter = "";        }      </SCRIPT>
+
+<TABLE height=58 cellSpacing=0 cellPadding=0 width="100%">
+  <TBODY>
+  <TR vAlign=top>
+    <TD>
+      <DIV style="WIDTH: 200px"></DIV></TD>
+    <TD 
+    style="FILTER: progid:DXImageTransform.Microsoft.Gradient(startColorStr='#FFFFFF', endColorStr='#CDCDCD', gradientType='1')" 
+    width="100%"></TD></TR></TBODY></TABLE>
+<DIV style="DISPLAY: none">
+<SCRIPT type=text/javascript>var gDomain="m.webtrends.com";var gDcsId="dcsjwb9vb00000c932fd0rjc7_5p3t";var gTrackEvents="1";var gFpc="WT_FPC";if(document.cookie.indexOf(gFpc+"=")==-1){document.write("<SCR"+"IPT TYPE='text/javascript' SRC='"+"http"+(window.location.protocol.indexOf('https:')==0?'s':'')+"://"+gDomain+"/"+gDcsId+"/wtid.js"+"'><\/SCR"+"IPT>");}</SCRIPT>
+
+<SCRIPT src="lgevvb01_files/wt.js" type=text/javascript></SCRIPT>
+<NOSCRIPT><IMG height=1 src="lgevvb01_files/njs.gif" width=1 border=0 
+name=DCSIMG></NOSCRIPT></DIV></BODY></HTML>

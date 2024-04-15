@@ -1,0 +1,44 @@
+Script Fitness
+Squeeze more out of your scripts using the Microsoft Scriptomatic tool to write WMI scripts.
+
+by Don Jones
+
+ SEND   PRINT  RATE AND COMMENT 
+March 2005
+
+ 
+Want to get more scripting flexibility? Here's a way to get more out of Microsoft's Scriptomatic tool (click here to download it), which writes Windows Management Instrumentation scripts.
+
+First, let’s assume you have a text file named C:\Computers.txt, which contains one computer name per line. Start with this wrapper script:
+
+Dim objFSO, objTS, strComputer
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objTS = objFSO.OpenTextFile("C:\Computers.txt") 
+
+Do Until objTS.AtEndOfStream
+  strComputer = objTS.ReadLine
+  WScript.Echo vbCrLf & "Working with " & strComputer 
+
+  'paste scriptomatic code here
+Loop 
+
+WScript.Echo "All done!" 
+
+Got it? Okay, now haul out the Scriptomatic and select a script. I’m choosing the Win32_OperatingSystem class for my example. Then, in the Scriptomatic itself, delete the line that reads:
+
+strComputer = "."
+
+And delete any of the WScript.Echo lines that refer to properties you don’t care about. For example, I only care about ServicePackMajorVersion and ServicePackMinorVersion, so I’m deleting the rest. I’m left with:
+
+On Error Resume Next
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from 
+Win32_OperatingSystem",,48)
+For Each objItem in colItems
+  Wscript.Echo "ServicePackMajorVersion: " & 
+  objItem.ServicePackMajorVersion
+  Wscript.Echo "ServicePackMinorVersion: " & 
+  objItem.ServicePackMinorVersion
+Next
+
+Note that the word-wrapping is a little off; that’s okay. By pasting that into the indicated spot in the wrapper script I gave you, you’ve got a tool which will display the current service pack level of every computer named in C:\Computers.txt. Instant multi-computer scripting!

@@ -1,0 +1,84 @@
+Option Explicit
+
+
+
+'Get all member of a group INCLUDING members from ALL NESTED groups.
+'Simply call the script with the samAccountName of the group.
+'If the group name contains spaces it should be ENCLOSED IN QUOTES, 
+'IE scriptName.vbs "DOMAIN ADMINS"
+
+Dim objGroup
+
+
+'VERIFY A GROUP NAME WAS PASSED
+If wscript.arguments.count <> 1 Then
+  wscript.echo "NO GROUP PASSED"
+  wscript.echo "Usage:  scriptName <groupSamAccountName>"
+  wscript.quit
+End If
+
+
+'BIND TO THE GORUP  
+Set objGroup = getGroup(wscript.Arguments(0))
+
+
+'ENUMERATE THE GROUPS MEMBERS
+enumMembers objGroup, ""
+
+	
+
+Function getGroup(strGroupName)
+  Dim objConn, objRecSet, strQueryString, objRootDSE, strQueryFrom
+  Const adsOpenStatic = 3
+
+
+   Set objRootDSE = GetObject("LDAP://RootDSE")
+   strQueryFrom = "LDAP://" & objRootDSE.get("defaultNamingContext")
+
+   Set objConn = wscript.CreateObject("ADODB.Connection")
+   objConn.Provider = "ADsDSOObject"
+   objConn.Open
+
+   strQueryString = "SELECT AdsPath FROM '" & strQueryFrom & "' " & _ 
+  		  "WHERE samAccountName = '" & strGroupName & "'"
+
+   Set objRecSet = wscript.CreateObject("ADODB.Recordset")
+
+   objRecSet.Open strQueryString, objConn, adsOpenStatic
+
+    If objRecSet.recordCount = 1 Then
+      Set getGroup = GetObject(objRecSet("AdsPath"))
+    Else
+      wscript.echo ucase(strGroupName) & " was not found in the domain. _
+          (" & objRootDSE.get("defaultNamingContext") & ")"
+      wscript.quit
+    End If
+End Function
+
+
+Sub enumMembers(byRef objGroup, strInheritedFrom)
+ Dim objMember
+
+   For Each objMember In objGroup.Members
+     If lcase(objMember.class) = "group" Then
+     enumMembers objMember, objMember.samAccountName
+   Else
+     If objMember.displayname <> "" Then
+       If strInheritedFrom = "" Then
+         wscript.echo objMember.displayname
+       Else
+         wscript.echo objMember.displayname & " (From NESTED GROUP:  " & _
+             strInheritedFrom & ")"
+      End If
+    Else
+       If strInheritedFrom = "" Then 
+        wscript.echo objMember.samAccountName
+     Else
+       wscript.echo objMember.samAccountName & " (From NESTED GROUP:  " & _
+           strInheritedFrom & ")"
+     End If
+   End If
+ End If
+
+ Next
+End Sub

@@ -1,0 +1,35 @@
+This script will convert a WMI date string to a human readable date/time format.
+ The WMI date string '20150508135914.795634+120' is converted to:
+ In a danish Windows:    'fredag 8. maj 2015 - 13:59:14'
+ In an english Windows: 'Friday, May 08, 2015 - 1:59:14 PM'
+ It should work in all language settings.
+ New version with error check.
+ It can be used instead of the function in Scriptomatic2.
+
+a = "20150508135914.795634+120" 
+wscript.echo WmiDateToDatetime (a) 
+ 
+' Convert WMI date to date/time 
+' Works in all language settings 
+' By Jørgen Bigom 
+
+
+Function WmiDateToDatetime (wmidate) 
+    Dim y, m, d, h, mn, s 
+    If VarType(wmidate) <> vbString Then 
+        WmiDateToDatetime = "Undefined!": Exit Function 
+    End If 
+    If Len(wmidate) < 15 Or Mid(wmidate, 15,1) <> "." Then 
+        WmiDateToDatetime = "Undefined!": Exit Function 
+    End If 
+    y = Left(wmidate, 4)    ' year 
+    m = Mid(wmidate, 5, 2)    ' month 
+    d = Mid(wmidate, 7, 2)    ' day 
+    h = Mid(wmidate, 9, 2)    ' hours 
+    mn = Mid(wmidate, 11, 2) ' minutes 
+    s = Mid(wmidate, 13, 2)    ' seconds 
+    If y < 1980 Or m < 1 Or d < 1 Then 
+        WmiDateToDatetime = "Undefined!": Exit Function 
+    End If 
+    WmiDateToDatetime = FormatDateTime(DateSerial (y, m, d), VbLongdate) & " - " & FormatDateTime(TimeSerial(h, mn, s), vbLongTime) 
+End Function

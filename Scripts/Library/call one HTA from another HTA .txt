@@ -1,0 +1,13 @@
+call one HTA from another HTA 
+I tried to run one HTA from another several years ago, doesn't work.  But you can use the Windows Scripting shell:
+function runApp( app ) { 
+   ItemWindow = new ActiveXObject( 'WSCRIPT.Shell' ).Run( app ) ;
+}
+
+usage: runApp("YourHTA.hta") ;
+
+I use it all the time to make custom dialog Windows.  I keep a variable in the first hta that generates the HTML and script for the second hta, saving it to a file on the fly.  You can pass parameters using windows.dialogArguments.  Get your parameters back and delete the newly made hta.
+
+Works great.
+
+Eric 

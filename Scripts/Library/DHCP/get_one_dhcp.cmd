@@ -1,0 +1,1 @@
+for /F %%s in (dhcpserver_one.txt) do netsh -r %%s DHCP server dump > %%s_DHCP.DMP

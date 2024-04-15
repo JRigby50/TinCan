@@ -1,0 +1,129 @@
+Delete All Files in a Directory Older than a Specified Number of Days
+
+Submitted By: Israel Farfan 
+
+Language: VBScript 
+
+Description: Delete disposable log files that you don't need to keep after a specified number of days. The script also generates an email with a list of them. You might want to periodically run this as a scheduled task. 
+
+Script Code
+
+Option Explicit
+'===========================================================================
+'  Scheduled Task - Visual Basic ActiveX Script
+'===========================================================================
+'  Date    : 09/12/2002
+'  Auth    : Israel Farfan
+'  Desc    : VBScript file that cycles thru log files
+'===========================================================================
+
+'--  Delete SMTP & FTP log files older than specified days
+Call CycleDirectory("C:\WINNT\system32\LogFiles\SMTPSVC1", 7)
+Call CycleDirectory("C:\Program Files\War-ftpd\Log", 7)
+
+
+
+'===========================================================================
+'  Name    : CycleDirectory()
+'  Desc    : Delete Files older than specified on top
+'===========================================================================
+Function CycleDirectory(strPath2Logs, intDays2Keep)
+    Dim fso, f, fc, f1, strFiles, intFiles
+
+    strFiles = ""
+    intFiles = 0
+
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If (fso.FolderExists(strPath2Logs)) Then
+        Set f = fso.GetFolder(strPath2Logs)
+        Set fc = f.Files
+
+        '-- Determine if file is older than defined days
+        For Each f1 in fc
+            If DateDiff("d", f1.DateLastModified, Now) > intDays2Keep Then
+                strFiles = strFiles & f1.Name & vbCrLf
+                intFiles = intFiles + 1
+                f1.Delete(True)
+            End If
+        Next
+
+        Set f1 = Nothing
+        Set fc = Nothing
+        Set f = Nothing
+
+    v'-- Send email with list of files deleted
+        If Len(strFiles) > 0 Then
+            strFiles = "Deleted " & intFiles & " File(s) on " & strPath2Logs & vbCrLf & _
+            vbCrLf & "FILES:" & vbCrLf & "===================" & vbCrLf & strFiles
+            Call SendAlertEmail("CycleDirectory() Deleted " & intFiles & " File(s)", strFiles)
+        End if
+    Else
+        '-- Path Not Found!
+    vCall SendAlertEmail("CycleDirectory() Failed!", "[ERROR!] File Path not Found : " _ 
+        & strPath2Logs)
+    End If
+	Set fso = Nothing
+
+End Function
+
+
+'===========================================================================
+'  Name    : GetMachineName()
+'  Desc    : Determine Computer's Machine Name
+'===========================================================================
+Function GetMachineName()
+    On Error Resume Next
+
+    '-- Try Network Object
+    Dim WshNetwork
+
+    Set WshNetwork = CreateObject("WScript.Network")
+    GetMachineName = WshNetwork.ComputerName
+    Set WshNetwork = Nothing
+
+    If IsNull(GetMachineName) Or GetMachineName = "" Then
+        '-- Try Shell Object
+        Dim wshShell
+
+        Set wshShell = CreateObject("WSCript.Shell")
+        GetMachineName = wshShell.RegRead _
+            ("HKLM\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName\ComputerName")
+        Set wshShell = Nothing
+
+        If IsNull(GetMachineName) Or GetMachineName = "" Then
+            '-- Try Windows Mgmt Implementation
+            Dim objWMIService, OSItems, objItem
+        
+            Set objWMIService = GetObject _
+                ("winmgmts:" & "{impersonationLevel=impersonate}!\\.\root\cimv2")
+            Set OSItems = objWMIService.ExecQuery("Select * from Win32_OperatingSystem", , 48)
+            For Each objItem in OSItems
+                GetMachineName = objItem.CSName
+            Next
+        End If
+    End If
+    Err.Clear
+
+    If IsNull(GetMachineName) Or GetMachineName = "" Then GetMachineName = "LOCALHOST"
+End Function
+
+
+'===========================================================================
+'  Name    : SendAlertEmail(Subject Line, Email Body)
+'  Desc    : Send Error/Alert Email
+'===========================================================================
+Function SendAlertEmail(strSubject, strErrorText)
+    '-- Get Machine Name
+    Dim oEmail, strMachineName
+    strMachineName = GetMachineName()
+
+    '-- Send Email
+    Set oEmail = CreateObject("CDO.Message")
+    oEmail.From = strMachineName
+    oEmail.To   = "myemail@mydomain.com"
+    oEmail.Subject = strMachineName & " : " & strSubject & " @ " & Now
+    oEmail.TextBody = strErrorText
+    oEmail.Send()
+    Set oEmail = Nothing
+End Function
+
