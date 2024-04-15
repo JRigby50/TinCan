@@ -1,0 +1,68 @@
+Demonstrates how to add a sleep function to an HTA by calling a one-line VBScript script. 
+
+
+<html><title></title>
+<hta:application id="objHTA" applicationname="ScriptLog"
+ border="thick" caption="yes" scroll="no" singleinstance="no">
+<head>
+<script language="vbscript">
+
+Sub Window_Onload
+	LogLine "======== Script started ========"
+
+	document.Title = "WaitSeconds demo"
+
+	LogLine "Waiting for ten seconds ..."
+
+	WaitSeconds 10
+
+	LogLine "That was a long ten seconds!"
+
+	LogLine "======== Script complete ========"
+End Sub
+
+Sub LogLine(ByVal strText)
+	ScriptLog.insertAdjacentHTML "beforeEnd", "<br><br>" & LogTime() & strText
+	' Scroll to bottom of window contents
+	ScriptLog.scrollIntoView False
+End Sub
+
+Function LogTime()
+	Dim dtmNow, strNow
+	dtmNow = Now
+	strNow = strNN(Hour(dtmNow)) & ":" & strNN(Minute(dtmNow)) & ":" & strNN(Second(dtmNow)) & "&nbsp;&nbsp;"
+	LogTime = strNow
+End Function
+
+Function strNN(intX)
+	strNN=Right("00"&CStr(intX),2)
+End Function
+
+Sub WaitSeconds (intNumSecs)
+	' Because WScript.Sleep () is not available in HTA
+	' scripts, invoke a VBScript file to do the waiting.
+
+	Dim strScriptFile, strCommand, intRetcode, objWS
+
+	If intNumSecs <= 0 Then Exit Sub
+
+	Set objWS = CreateObject ("WScript.Shell")
+
+	strScriptFile = "%temp%\wait" & intNumSecs & "seconds.vbs"
+
+	strCommand = "cmd /c ""echo WScript.Sleep " & intNumSecs * 1000 & " >" & strScriptFile & _
+				"&start /wait """" wscript.exe " & strScriptFile & """"
+
+	intRetCode = objWS.Run (strCommand, 0, True)
+
+	If intRetCode = 0 Then Exit Sub
+
+	LogLine "ERROR " & CStr (intRetCode) & " DURING WAITSECONDS PROCEDURE"
+End Sub
+
+</script>
+</head>
+<body nowrap style="background-color:white;color:black;font-family:Lucida Console;font-size:8pt;overflow:scroll;">
+<div id="ScriptLog"></div>
+</body>
+</html>

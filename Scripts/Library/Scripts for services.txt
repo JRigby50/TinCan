@@ -1,0 +1,328 @@
+List Services Capable of Interacting with the Desktop
+
+Submitted By: Umesh Chandra Thakur 
+
+Language: VBScript 
+
+Description: Lists all services that can interact with Windows on the desktop. 
+
+Script Code
+
+'------------------------------------------------------------
+'List all services that can interact with windows on desktop
+'By: Umesh C. Thakur (ucthakur@hotmail.com)
+'------------------------------------------------------------
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+wscript.echo "SERVICES THAT CAN INTERACT WITH WINDOWS ON DESKTOP:"
+wscript.echo "---------------------------------------------------"
+
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Service where desktopInteract=True")
+
+For Each objItem in colItems
+
+    Wscript.Echo objItem.Name & " (" & objItem.displayName & ")"
+
+Next
+
+wscript.echo "Total Services that can interact with windows on desktop: " & colItems.count
+
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+List Services Configured to start Automatically
+
+Submitted By: Umesh Chandra Thakur 
+
+Language: VBScript 
+
+Description: Displays all services whose startup mode is set to Automatic. 
+
+Script Code
+
+'------------------------------------------------------
+'List all services that are set to start Automatically
+'By: Umesh C. Thakur (ucthakur@hotmail.com)
+'------------------------------------------------------
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+wscript.echo "SERVICES SET TO START AUTOMATICALLY:"
+wscript.echo "------------------------------------"
+
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Service where startMode='Auto'")
+
+For Each objItem in colItems
+    Wscript.Echo objItem.Name & " (" & objItem.displayName & ")"
+Next
+
+wscript.echo "Total Auto-start Services: " & colItems.count
+
+Note: Not all scripts run on all versions of Windows. 
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+
+List Services Configured to Start Manually
+
+Submitted By: Umesh Chandra Thakur 
+
+Language: VBScript 
+
+Description: Lists all services whose startup mode is set to Manual. 
+
+Script Code
+
+'-------------------------------------------------
+'List all services that are set to start Manually
+'By: Umesh C. Thakur (ucthakur@hotmail.com)
+'-------------------------------------------------
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+wscript.echo "SERVICES SET TO START MANUALLY:"
+wscript.echo "-------------------------------"
+
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Service where startMode='Manual'")
+
+For Each objItem in colItems
+    Wscript.Echo objItem.Name & " (" & objItem.displayName & ")"
+Next
+
+wscript.echo "Total Manual-Startup Services: " & colItems.count
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+' Michael Maher 14/6/07
+' Searches all servers in nominated OU for services running under credentials of service account. 
+' Useful when password needs to be reset.
+
+' Modify Script:
+'    - Your Server OU  Line 11 
+'    - Your Domain Details Line 23
+'    - Your Service Account Name Line 33
+
+On Error Resume Next
+
+strOu="Servers OU"
+
+Const FOR_READING = 1
+Const ADS_SCOPE_SUBTREE = 2
+
+Set objConnection = CreateObject("ADODB.Connection")
+Set objCommand =   CreateObject("ADODB.Command")
+objConnection.Provider = "ADsDSOObject"
+objConnection.Open "Active Directory Provider" 
+
+
+Set objCommand.ActiveConnection = objConnection
+objCommand.CommandText = "SELECT Name FROM 'LDAP://Ou=" & strOU & _
+    ",DC=company,DC=com' WHERE objectClass='Computer'"   
+Set objRecordSet = objCommand.Execute
+
+objRecordSet.MoveFirst
+
+Do Until objRecordSet.EOF
+   strComputer = objRecordSet.Fields("Name").Value
+WScript.Echo "Name: " & strComputer 
+
+        Set objComputer = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & 
+            strComputer & "\root\cimv2")
+        Set colServiceList = objComputer.ExecQuery _
+            ("Select * from Win32_Service Where StartName = 'DOMAINNAME\\SERVICEACCOUNT'")
+
+        For Each objService in colServiceList
+            Wscript.Echo objService.DisplayName
+        Next
+
+    objRecordSet.MoveNext
+Loop
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+List Services Running Under Domain Accounts
+
+Submitted By: Rob Stine 
+
+Language: VBScript 
+
+Description: Lists services running under domain accounts, and does this for all the computers in a domain. 
+
+Script Code
+
+' findServiceAccounts.vbs
+' 
+' This script will enumerate services on all machines in a domain
+' to identify domain service accounts currently in use.
+'
+
+Const strDomainName = "CORP"
+
+Dim objComputer
+Dim objDomain
+Dim intPadding
+Dim intPadding2
+
+Set objDomain = GetObject("WinNT://" & strDomainName)
+
+objDomain.Filter = Array("Computer")
+
+For Each objComputer in objDomain
+  WScript.Echo "  " & objComputer.Name
+  objComputer.Filter = Array("service")
+
+  For Each objService in objComputer
+
+    If objService.ServiceAccountName<>"LocalSystem" _
+      AND objService.ServiceAccountName<>"NT AUTHORITY\LocalService" _ 
+      AND objService.ServiceAccountName<>".\ASPNET" _ 
+      AND objService.ServiceAccountName<>".\NetShowServices" _ 
+      AND objService.ServiceAccountName<>"NT AUTHORITY\NetworkService" Then
+	intPadding = 42 - Len(objService.DisplayName)
+	intPadding2 = 32 - Len(objService.ServiceAccountName)
+	Wscript.Echo Space(4) & objService.DisplayName & Space(intPadding) & objService.ServiceAccountName
+    End If
+    Next
+Next
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+List Services Running Under the Local System Account
+
+Submitted By: Umesh Chandra Thakur 
+
+Language: VBScript 
+
+Description: Lists all services that are set to run under the Local System account. 
+
+Script Code
+
+'------------------------------------------------------------------
+'List all services that are set to run under LOCALSYSTEM ACCOUNT
+'By: Umesh C. Thakur (ucthakur@hotmail.com)
+'------------------------------------------------------------------
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+wscript.echo "SERVICES THAT RUNS UNDER LOCALSYSTEM ACCOUNT:"
+wscript.echo "----------------------------------------------"
+
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Service where startName='LocalSystem'")
+
+For Each objItem in colItems
+    Wscript.Echo objItem.Name & " (" & objItem.displayName & ")"
+Next
+
+wscript.echo "Total Services set to run under LocalSystem Account: " & colItems.count
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+
+List Disabled Services
+
+Submitted By: Umesh Chandra Thakur 
+
+Language: VBScript 
+
+Description: Lists all services whose startup mode is set to Disabled. 
+
+Script Code
+
+'---------------------------------------------
+'List all DISABLED services
+'By: Umesh C. Thakur (ucthakur@hotmail.com)
+'---------------------------------------------
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+wscript.echo "DISABLED SERVICES:"
+wscript.echo "------------------"
+
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Service where startMode='Disabled'")
+
+For Each objItem in colItems
+ Wscript.Echo objItem.Name & " (" & objItem.displayName & ")"
+Next
+
+wscript.echo "Total Disabled Services: " & colItems.count
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+
+List Information About the FTP Service
+
+Submitted By: Shawn Stugart 
+
+Language: VBScript 
+
+Description: Scans a set of computers for the Microsoft FTP service. If the service is found on a computer, the script reports the value of the AllowAnonymous property for each FTP site hosted by that computer. 
+
+Script Code
+
+Option Explicit
+
+const ForReading = 1
+Dim strFileName, objFSO, objShell, objInputFile, ftpSite
+Dim strServer, objIIS, obj, objScriptExec, strPingStdOut
+
+On Error Resume Next
+
+CheckForCScript
+
+strFileName = "clients.txt"
+set objFSO = CreateObject("Scripting.FileSystemObject")
+set objShell = CreateObject("WScript.Shell")
+set objInputFile = objFSO.OpenTextFile("c:\" & strFileName, ForReading)
+
+Do Until objInputFile.AtEndOfStream
+    strServer = objInputFile.Readline
+    Set objScriptExec = objShell.Exec("ping -n 1 -w 250 " & strServer)
+    strPingStdOut = Lcase(objScriptExec.StdOut.ReadAll)
+    If InStr(strPingStdOut, "reply from ") Then
+		set objIIS = GetObject("IIS://" & strServer & "/MSFTPSVC")
+		If Err = 0 Then
+			WScript.Echo "-----------------------------------------------------------------------------"
+			Wscript.Echo "FTP Service FOUND on " & UCase(strServer)
+			For each ftpSite in objIIS
+				If (ftpSite.Class = "IIsFtpServer") then
+					WScript.Echo vbTab & "FTP Site: " & ftpSite.ServerComment & " Anonymous Access Allowed = " _
+						& ftpSite.AllowAnonymous
+				End If
+			next
+			WScript.Echo "-----------------------------------------------------------------------------"
+		Else
+			WScript.Echo "FTP Service Not Found on " & strServer
+			Err.Clear
+		End If
+	Else
+	    WScript.Echo "***" & strServer & " is not available at this time.***"
+	End If
+Loop
+
+Sub CheckForCScript
+	dim hostname
+	hostname = lcase(right(WSCript.Fullname, 11))
+	If hostname = "wscript.exe" Then
+	    WScript.Echo "This script requires cscript.exe" & vbCrLf & vbCrLf _
+	    	& "At a command line, run " & chr(34) & "cscript " & WScript.ScriptFullName & chr(34)
+	    WScript.Quit
+	End If
+End Sub
+

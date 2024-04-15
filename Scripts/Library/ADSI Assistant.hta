@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>ADSI Assistant</title>
+
+<HTA:APPLICATION 
+     ID="objHTAHelpomatic"
+     APPLICATIONNAME="ADSI Assistant"
+     SCROLL="yes"
+     SINGLEINSTANCE="yes"
+     WINDOWSTATE="maximize"
+ 
+ >
+</head>
+
+<SCRIPT Language="VBScript">
+
+'Enumerating Domain Name:
+'========================
+
+Sub RunDomainScript
+
+   set x = getobject("LDAP://RootDSE")
+   strADSpath = x.get("Rootdomainnamingcontext")
+   Domain.value = strADSpath
+End Sub   
+
+
+'Organizational Unit Object:
+'===========================
+
+Sub RunOUScript
+
+    If OUOption(0).Checked Then
+      strLdapQuery =BasictextBox.value
+      strOU= BasicTextBox1.value
+      set colOU = getobject("LDAP://" &strldapquery)
+      colOU.filter = Array("OrganizationalUnit")
+        for each z in colOU
+        strOU1 = strOU1 & z.OU &vbcrlf
+        Next
+       basicOU.value = strOU1 
+    End If
+    
+
+    If OUOption(1).Checked Then
+      strLdapQuery =BasictextBox.value
+      strOU = BasicTextBox1.value
+      set x = getobject("LDAP://" &strldapquery)
+      set y = x.create("OrganizationalUnit","OU=" &strOU)
+      y.setinfo
+    End If
+
+
+
+    If OUOption(2).Checked Then
+     strLdapQuery =BasictextBox.value
+     strOU = BasicTextBox1.value
+     set x = getobject("LDAP://" &strldapquery)
+     x.delete "OrganizationalUnit","OU=" &strOU
+    End If
+
+End Sub
+
+
+'Computer Object:
+'================ 
+
+Sub RunComputerScript
+
+   If ComputerOption(0).Checked Then
+       strcomputer = "."
+       set WMIobject = getobject("winmgmts:\\" &strcomputer &"\root\cimv2")
+       set colitems = WMIobject.execquery("select * from Win32_NTdomain")
+
+       for each object in colitems
+        strdomain=object.domainname
+        set Computercol = getobject("WinNT://" &strdomain)
+        Computercol.filter = Array("Computer")
+        for each z in ComputerCol
+        strcomputer1 = strcomputer1 & z.name &vbcrlf
+        Next
+       basiccomputer.value = strcomputer1 
+       Next
+   End If
+
+    If ComputerOption(1).Checked Then
+      strLdapQuery =BasictextBox4.value
+      strcomputer = BasicTextBox5.value
+      set x = getobject("LDAP://" &strldapquery)
+      set y = x.create("Computer","Cn=" &strcomputer)
+      y.put "SamAccountname",strcomputer
+      y.setinfo
+    End If 
+
+    If ComputerOption(2).Checked Then
+     strLdapQuery =BasictextBox4.value
+     strcomputer = BasicTextBox5.value
+     set x = getobject("LDAP://" &strldapquery)
+     x.delete "Computer","CN=" &strcomputer
+   End If
+    
+End Sub
+
+
+
+
+
+</SCRIPT>
+<body STYLE="font:10 pt arial; color:white;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=1, StartColorStr='#000000', EndColorStr='#C0C0C0')" onLoad=RunDomainScript>
+<Font><b><u>Domain Name:</u></b></Font>
+<input type="text" name="Domain" size="20"><p>
+
+<Font><b><u>Organizational Unit Object:</u></b></Font><p>
+<input type="radio" name="OUOption" value="1"><b>Get OUs</b><BR>
+<input type="radio" name="OUOption" value="2"><b>Create OU</b><BR>
+<input type="radio" name="OUOption" value="3"><b>Delete OU [Only applies when OU is empty ]</b><BR>
+
+<Font><b>Enter the path and name for the Organizational Unit</b></Font><p>
+<input type="text" name="BasicTextBox" size="50">
+<input type="text" name="BasicTextBox1" size="10">
+<input id=runbutton  class="button" type="button" value="Run Script" name="run_button"  onClick="RunOUScript">
+<textarea name="BasicOU" rows="1" cols="20"></textarea><p>
+
+
+
+
+<Font><b><u>Computer Object:</u></b></Font><p>
+<input type="radio" name="ComputerOption" value="1"><b>Get Computers</b><BR>
+<input type="radio" name="ComputerOption" value="2"><b>Create Computer</b><BR>
+<input type="radio" name="ComputerOption" value="3"><b>Delete Computer</b><BR>
+
+<Font><b>Enter the path and name for the computer[Applies to only create and delete options]</b></Font><p>
+<input type="text" name="BasicTextBox4" size="50">
+<input type="text" name="BasicTextBox5" size="10">
+<input id=runbutton  class="button" type="button" value="Run Script" name="run_button"  onClick="RunComputerScript">
+<textarea name="BasicComputer" rows="1" cols="20"></textarea><p>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,198 @@
+netsh>?
+
+The following commands are available:
+
+Commands in this context:
+..             - Goes up one context level.
+?              - Displays a list of commands.
+abort          - Discards changes made while in offline mode.
+add            - Adds a configuration entry to a list of entries.
+advfirewall    - Changes to the `netsh advfirewall' context.
+alias          - Adds an alias.
+bridge         - Changes to the `netsh bridge' context.
+bye            - Exits the program.
+commit         - Commits changes made while in offline mode.
+delete         - Deletes a configuration entry from a list of entries.
+dhcp           - Changes to the `netsh dhcp' context.
+dhcpclient     - Changes to the `netsh dhcpclient' context.
+dump           - Displays a configuration script.
+exec           - Runs a script file.
+exit           - Exits the program.
+firewall       - Changes to the `netsh firewall' context.
+help           - Displays a list of commands.
+http           - Changes to the `netsh http' context.
+interface      - Changes to the `netsh interface' context.
+ipsec          - Changes to the `netsh ipsec' context.
+lan            - Changes to the `netsh lan' context.
+nap            - Changes to the `netsh nap' context.
+netio          - Changes to the `netsh netio' context.
+offline        - Sets the current mode to offline.
+online         - Sets the current mode to online.
+popd           - Pops a context from the stack.
+pushd          - Pushes current context on stack.
+quit           - Exits the program.
+ras            - Changes to the `netsh ras' context.
+rpc            - Changes to the `netsh rpc' context.
+set            - Updates configuration settings.
+show           - Displays information.
+unalias        - Deletes an alias.
+winhttp        - Changes to the `netsh winhttp' context.
+winsock        - Changes to the `netsh winsock' context.
+
+The following sub-contexts are available:
+ advfirewall bridge dhcp dhcpclient firewall http interface ipsec lan nap netio
+ras rpc winhttp winsock
+
+To view help for a command, type the command, followed by a space, and then
+ type ?.
+
+********************************************************
+
+netsh>dhcp ?
+list                          - Lists all the commands available.
+help                          - Displays help.
+?                             - Displays help.
+add                           - Adds a configuration entry to a table.
+delete                        - Deletes a configuration entry from a table.
+show                          - Displays information.
+server [\\servername/ipaddress] - To switch the context to the server specified.
+
+                                A Null implies the local machine.
+
+************************************************************
+
+netsh dhcp server>?
+list                          - Lists all the commands available.
+dump                          - Dumps configuration to a text file.
+help                          - Displays help.
+?                             - Displays help.
+add                           - Adds a configuration entry to a table.
+backup                        - Backup the configuration.
+delete                        - Deletes a configuration entry from a table.
+export                        - Exports the configuration to a file.
+import                        - Imports the configuration from a file.
+initiate                      - Initiates an operation.
+restore                       - Restore the configuration.
+set                           - Sets configuration information.
+show                          - Displays information.
+scope <scope-ip-address>      - To switch to the scope identified by
+                                the IP address.
+mscope <mscope-name>          - To switch to the mscope identified by
+                                the MScope name.
+V4                            - To switch to the V4 Context
+V6                            - To switch to the V6 Context
+
+***************************************************************
+
+dump
+Dumps the configuration of the local DHCP server to the command prompt window when run within the netsh environment.
+
+Syntax
+dump 
+
+When run at the command prompt or in a batch file, output can be saved in a text file. Used without parameters, this command dumps the configuration of the local server to the command prompt window.
+
+Syntax
+netsh dhcp server [ IPAddress ] dump >[PathAndFileName]
+
+Parameters
+IPAddress 
+Specifies the IP address of the DHCP server for which the configuration is output.
+
+PathAndFileName 
+Specifies both the location where the file is saved, and the name of the destination file to which to dump DHCP server configuration. If unspecified, the DHCP server configuration is dumped to the command prompt window.
+
+Remarks
+This command dumps the DHCP configuration as text output within the command prompt window. You can copy or redirect this output to a file to view it in a text editor. After file output is obtained, you can use the exec command to configure another DHCP server with the same configuration.
+
+
+Before performing the dump command at the source server, reconcile all scopes and fix any reported inconsistencies.
+
+
+The following command dumps the current configuration for the local DHCP server (the source) to a text file named Dhcpcfg.dmp. This file can be copied to another (destination) DHCP server and used to recreate the source configuration on it. You can recreate the configuration with the following command: 
+
+dump > dhcpcfg.dmp
+
+
+Before you use the exec command to execute a dump file at the destination server, complete the following steps: 
+
+
+Close the DHCP console at the destination server. Do not reopen the console until after you have run the exec command.
+
+
+Delete all default option definitions and any user and vendor classes at the destination server.
+
+
+These examples demonstrate how to use the delete optiondef and del class Netsh commands to delete all default option definitions and any user and vendor classes. You can run these commands at the dhcp server> prompt, from within the netsh environment. 
+
+
+delete optiondef 76
+
+
+del class "Default BOOTP Class"
+
+
+del class "Microsoft Windows 98 Options"
+
+
+On the destination server, the exec command is used to load and execute the saved configuration: 
+
+netsh exec dhcpcfg.dmp
+
+
+After you use the exec command to load the dump file, you must reconcile all scopes. Use net stop dhcpserver to stop the DHCP Server service and net start dhcpserver to restart it. Once the service is restarted, DHCP database changes take effect.
+
+
+Examples
+The first command, which is run within the netsh environment, dumps the configuration of the local DHCP server to the command prompt window.
+
+The second command, which is run at the command prompt, dumps the configuration of a DHCP server with IP address 192.168.0.1 to a text file named Dhcpcfg.dmp at the location C:\Dhcp\ on the local computer.
+
+The third command, which is run at the command prompt, dumps the configuration of a DHCP server with IP address 192.168.0.1 to a text file named Dhcpcfg.dmp on a shared network folder named \\Backup\Dhcp\.
+
+dump 
+
+netsh dhcp server 192.168.0.1 dump > C:\Dhcp\Dhcpcfg.dmp 
+
+netsh dhcp server 192.168.0.1 dump > \\Backup\Dhcp\Dhcpcfg.dmp 
+
+
+***************************************************************
+
+export
+Exports the DHCP service configuration to a file.
+
+Syntax
+export [Path]FileName {all | ScopeList}
+
+Parameters
+[Path] FileName 
+Required. Specifies, by name, the file where the DHCP configuration will be stored. If the path, the file name, or both contain spaces, quotation marks must be used.
+
+{all | ScopeList} 
+Required. Specifies which scopes you want to export. The parameter all exports all scopes. The parameter ScopeList exports the scopes that correspond to the IP addresses you list. Each IP address in the list must be separated by spaces.
+
+Remarks
+This command works only on the local server.
+
+
+While the export command runs, the DHCP service is stopped and does not respond to DHCP clients seeking new leases or lease renewals.
+
+
+If the DHCP service has a large number of scopes or a large number of client address leases, this command can take a long time to run.
+
+
+Examples
+In the first example, this command exports the complete DHCP service configuration to the file c:\Temp\Dhcpdb.
+
+In the second example, this command exports the DHCP configuration for scopes 10.0.0.0 and 192.168.0.0 to the file c:\Temp\Dhcpdb.
+
+In the third example, this command exports the complete DHCP service configuration to the file c:\My Folder\Dhcp Configuration. Note that both the path and file name contain spaces, so quotation marks are used.
+
+export c:\Temp\Dhcpdb all 
+
+export c:\Temp\Dhcpdb 10.0.0.0 192.168.0.0 
+
+export "c:\My Folder\Dhcp Configuration" all 
+
+*********************************************************

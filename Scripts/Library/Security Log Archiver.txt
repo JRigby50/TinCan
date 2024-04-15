@@ -1,0 +1,143 @@
+ScriptingAnswers.com ScriptVault  
+
+                         Home  
+                         Store  
+                         Content  
+                         Info  
+                         Forums  
+                         ScriptVault  
+                         Gold  
+                         Certification  
+
+
+                   à Root à ScriptVault Jim Rigby • Logout  
+
+
+
+                        : 
+                        Security Log Archiver
+                        by Don Jones 
+                          Log Hunter is a VBScript written in WSF format, 
+                          meaning it can be used as a command-line tool and 
+                          supports /? functionality.
+
+
+
+
+                          Script code:
+                          Code samples provided on ScriptingAnswers.com are 
+                          provided AS-IS without warranty or guarantee of any 
+                          kind. ScriptingAnswers.com is not responsible for 
+                          content posted by individuals who use this site. All 
+                          code samples should be thoroughly reviewed and tested 
+                          before being used in a production environment. 
+
+
+<?xml version="1.0" ?>
+<package>
+	<comment>
+	PrimalCode wizard generated file.
+	</comment>
+	<job id="loghunter" prompt="no">
+		<?job error="false" debug="false" ?>
+		<runtime>
+			<description>
+Collects security log files from a list of computers (listed in a text file, one computer name per line) and archives those logs to a specified folder. Optionally, collected logs can be cleared.
+			</description>
+			<named helpstring="Filename listing one computer name per line" name="file" required="true" type="string"/>
+			<named helpstring="Folder name - must exist - where logs should be archived" name="dest" required="true" type="string"/>
+			<named helpstring="Yes or No - clear log after archviing" name="clear" required="true" type="string"/>
+			<named helpstring="Specify the path for the archive file" name="archive" required="true" type="string"/>
+			<usage>
+Clear log files after collection:
+
+ Loghunter /file:c:\computers.txt /dest:c:\archive /clear:yes
+			</usage>
+		</runtime>
+		<script id="Loghunter" language="VBScript">
+<![CDATA[
+'==========================================================================
+'
+' LogHunter
+' 
+' VBScript by Don Jones. Copyright (c)2004 BrainCore Nevada, Inc.
+' All Rights Reserved. Provided without warranty of any kind; please
+' test throoughly before using in a production environment. The author
+' of this script is not responsible for any damages arising from its
+' use, including damages which the author has been advised of. 
+'
+' www.ScriptingAnswers.com - Where Windows Administrators Go To Automate
+'
+' AUTHOR: Don Jones
+' DATE  : 7/31/2004
+'
+' COMMENT: 
+'
+'==========================================================================
+
+If WScript.Arguments.Count < 3 Then
+	WScript.Arguments.ShowUsage
+	WScript.Quit
+End If
+
+Dim sFile, sFolder, bClear
+sFile = WScript.Arguments.Named("file")
+sFolder = WScript.Arguments.Named("folder")
+If lcase(WScript.Arguments.Named("clear")) = "yes" Then
+	bClear = True
+Else
+	bClear = False
+End If
+
+Dim oFSO, oTS
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+If Not oFSO.FolderExists(sFolder) Then
+	WScript.Echo "Destination folder does not exist"
+	WScript.Quit
+End If
+If Not oFSO.FileExists(sFile) Then
+	WScript.Echo "Input file does not exist"
+	WScript.Quit
+End If
+
+Dim sClient, oWMIService, cLogFiles, oLogfile
+Dim errBackupLog, sOutfile
+Set oTS = oFSO.OpenTextFile(sFile)
+Do Until oTS.AtEndOfStream
+	sClient = oTS.ReadLine
+	Set oWMIService = GetObject("winmgmts:" _
+	 & "{impersonationLevel=impersonate,(Backup)}!\\" & _
+	 sClient & "\root\cimv2")
+	 
+	Set cLogFiles = oWMIService.ExecQuery _
+	 ("Select * from Win32_NTEventLogFile where " & _
+	 "LogFileName='Security'")
+	 
+ 	For Each oLogfile in cLogFiles
+ 	  sOutfile = oFSO.BuildPath(sFolder,sClient & "=" & _
+ 	   DatePart("y",Date) & "-" & DatePart("yyyy",Date) & ".evt"
+	  errBackupLog = objLogFile.BackupEventLog(sOutfile)
+	 
+	  If errBackupLog <> 0 Then 
+	   Wscript.Echo "Couldn't get log from " & sClient
+	  Else 
+	   WScript.Echo "Got " & sClient
+	   oLogFile.ClearEventLog()	   
+	  End If
+Loop
+oTS.Close
+WScript.Echo "Complete"
+
+]]>
+		</script>
+	</job>
+</package>
+Return
+
+
+
+            Copyright 2005 Tenth Year Ventures, LP. 
+             
+
+
+ 

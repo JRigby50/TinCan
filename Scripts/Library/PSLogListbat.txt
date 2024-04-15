@@ -1,0 +1,1 @@
+psloglist @SERVERLIST.txt -u SERVICEACCOUNT -p SVCACTPASSWORD -s -d 7 

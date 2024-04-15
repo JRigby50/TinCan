@@ -1,0 +1,102 @@
+ScriptingAnswers.com ScriptVault FAQ
+       Exam Objectives
+       AD Administration
+       Databases (ADO)
+       Computer Management
+       Email and Exchange
+       Event Logs and Logging
+       Files and Folders
+       Hardware
+       IIS Administration
+       Logon Scripts
+       Networking
+       Printers and Printing
+       Registry
+       Scheduled Tasks
+       Security
+       Services
+       Misc VBScript and WSH
+       Misc WMI
+       Misc ADSI
+       Misc Batch
+       Wrappers and Templates
+       Tutorials
+       Scripting News
+       Scripting Links
+       Product Reviews
+       Articles & Tutorials
+       Bumper Stickers
+       Your Cart
+       Your Account
+       User Account
+       Affiliate Account
+  
+
+                         Home  
+                         Store  
+                         Content  
+                         Info  
+                         Forums  
+                         ScriptVault  
+                         Gold  
+                         Certification  
+
+
+                   à Root à ScriptVault Jim Rigby • Logout  
+
+
+
+                        Wrapper Scripts: 
+                        Scripts that run against multiple computers
+                        by donj 
+                          Sometimes you'll want to write scripts that can 
+                          perform an action against multiple computers, all 
+                          automatically. One easy way to do that is to create a 
+                          text file containing the target computers' names, and 
+                          to have the script read that file and execute whatever 
+                          commands you like against each. Here's a shell script 
+                          that you can use to achieve just that. Simply add in 
+                          the code you want to run against each computer, and 
+                          you're done! 
+
+
+
+
+                          Script code:
+                          Code samples provided on ScriptingAnswers.com are 
+                          provided AS-IS without warranty or guarantee of any 
+                          kind. ScriptingAnswers.com is not responsible for 
+                          content posted by individuals who use this site. All 
+                          code samples should be thoroughly reviewed and tested 
+                          before being used in a production environment. 
+
+
+'Create a FileSystemObject
+Set oFS = CreateObject("Scripting.FileSystemObject")
+'Open a text file of computer names
+'with one computer name per line
+Set oTS = oFS.OpenTextFile("c:computers.txt")
+
+'go through the text file
+Do Until oTS.AtEndOfStream
+ 'get the next computer name
+ 'store it in variable sComputer
+ sComputer = oTS.ReadLine
+
+ '-----------------------------------
+ ' YOUR CODE HERE - code will
+ ' affect each computer in the
+  ' input text file
+ '-----------------------------------
+  Loop
+'close the text file
+oTS.Close
+MsgBox "Done!"Return
+
+
+
+            Copyright 2005 Tenth Year Ventures, LP. 
+             
+
+
+ 

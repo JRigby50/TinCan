@@ -1,0 +1,96 @@
+'==========================================================================
+'
+' VBScript Source File -- Created with SAPIEN Technologies PrimalScript 4.0
+'
+' NAME: Function - ReadFile.vbs
+'
+' CREATED       : 6/8/2006
+' CREATED BY    : Frank Methorst
+' MODIFIED      :
+' MODIFIED BY   :
+'
+'
+' COMMENT: This function is used to read text files for things like usernames
+' and returns an array that can then be used to do something with the list.
+'
+'
+'==========================================================================
+'
+' Variable Prefix Standards:
+'
+' Single letter lower case prefixes should be used
+' to identify the type of variable
+'
+' s = String        (i.e. sComputer, sUser, sDomain etc.)
+' o = Object        (i.e. oFSO, oShell, oNetwork, oWMI etc.)
+' a = Array         (i.e. aHotfixes, aBranches, etc.)
+' c = Collection    (i.e. cComputers, cUsers, cOUs etc.)
+' i = Integer       (i.e. i, iNumber, etc.)
+' d = Date/Time     (i.e. dDate, dStartTime, dToday etc.)
+' b = Boolean       (i.e. bAnswer, bOutput etc.)
+' e = Error         (i.e. eNumber, eDescription etc.)
+' vb = builtin      (i.e. vbCRLF, vbTAB, vbLongDate etc.)
+'
+'
+' Constant Standards:
+' 
+' Constants should be identified by using upper case letters
+' exclusively separated by underscores:
+'
+' i.e. OVERWRITE_EXISTING, FILE_SHARE, MAXIMUM_CONNECTIONS etc.
+'
+'
+'==========================================================================
+
+'=================== Script Initialization ================================
+
+Option Explicit
+' On Error Resume Next
+
+'=================== Constant / Variable Declaration ======================
+
+Dim aUsers
+Dim i
+
+'=================== Object Creation ======================================
+
+
+
+
+'=================== Main Logic ===========================================
+
+' Sample usage
+
+aUsers = ReadFile("\\Public\IV_Infrastructure\Scripts\_Functions and Subroutines\Userlist.txt")
+
+' Since the function creates an array by splitting on the vbCRLF delimiter
+' the last entry returned is blank. By subtracting 1 from the UBound you can
+' eliminate this blank entry
+
+For i = 0 To UBound(aUsers) -1
+	WScript.Echo aUsers(i)
+Next 
+
+'=================== Cleanup ==============================================
+
+
+
+
+'=================== Functions / Subroutines ==============================
+
+Function ReadFile(sFile)
+	On Error Resume Next 
+	Dim oFile
+	Dim oFSO
+	Dim sResult
+	Const FOR_READING = 1
+	Set oFSO = CreateObject("Scripting.FileSystemObject")
+	Set oFile = oFSO.OpenTextFile(sFile, FOR_READING)
+	Do Until oFile.AtEndOfStream
+		sResult = sResult & oFile.ReadLine & VbCrLf 
+	Loop
+	oFile.Close
+	ReadFile = Split(sResult, VbCrLf)
+	Set oFile = Nothing 
+	Set oFSO = Nothing   
+End Function 

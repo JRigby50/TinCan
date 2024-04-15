@@ -1,0 +1,82 @@
+ScriptingAnswers.com ScriptVault  
+
+
+                   à Root à ScriptVault Jim Rigby • Logout  
+
+
+
+                        : 
+                        Dump Security Log
+                        by Don Jones 
+                          This simple script will contact multiple computers 
+                          (listed in computers.txt input file), archive their 
+                          security event log to your local computer, and then 
+                          clear the log. 
+
+
+
+
+                          Script code:
+                          Code samples provided on ScriptingAnswers.com are 
+                          provided AS-IS without warranty or guarantee of any 
+                          kind. ScriptingAnswers.com is not responsible for 
+                          content posted by individuals who use this site. All 
+                          code samples should be thoroughly reviewed and tested 
+                          before being used in a production environment. 
+
+
+'Create a FileSystemObject
+Set oFS = CreateObject("Scripting.FileSystemObject")
+
+'Open a text file of computer names
+'with one computer name per line
+Set oTS = oFS.OpenTextFile("c:\computers.txt")
+
+'go through the text file
+Do Until oTS.AtEndOfStream
+
+ 'get next computer
+  sComputer = oTS.ReadLine
+
+ 'connect to the WMI provider  
+ Set oWMIService = GetObject("winmgmts:" _
+ & "{impersonationLevel=impersonate,(Backup,Security)}!\\" & _
+ sComputer & "\root\cimv2")
+ 
+ 'query the Security logs
+ Set cLogFiles = oWMIService.ExecQuery _
+ ("Select * from Win32_NTEventLogFile where " & _
+ "LogFileName='Security'")
+ 
+ 'go through the collection of logs
+ For Each oLogfile in cLogFiles
+
+  'back up the log to a file
+  errBackupLog = oLogFile.BackupEventLog _
+  ("c:\logfiles\" & sComputer & "\" & Date() & ".evt")
+  
+  'see if an error occured
+  If errBackupLog <> 0 Then 
+   
+   'one did - display an error
+   Wscript.Echo "Couldn't get log from " & sComputer
+   
+  Else
+  
+   'no error - safe to clear the Log
+   oLogFile.ClearEventLog()
+   
+  End If
+ Next
+Loop
+
+'close the input file
+oTS.Close
+
+
+
+            Copyright 2005 Tenth Year Ventures, LP. 
+
+
+
+ 

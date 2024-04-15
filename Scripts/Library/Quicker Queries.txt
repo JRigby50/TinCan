@@ -1,0 +1,33 @@
+Quicker Queries 
+Add database queries to your scripts.
+
+by Don Jones
+
+ SEND   PRINT  RATE AND COMMENT 
+February 2005
+
+ 
+Here's a quick-and-dirty way to incorporate databases—Access, SQL Server, Excel spreadsheets, or whatever—into your scripts.
+
+Start by defining an ODBC Data Source Name (DSN) using the Data Sources console (located under Administrative Tools). You'll give the DSN—let's say "MyData"—and point it to a data source, which can be nearly anything: an Excel spreadsheet, an Access database, and so forth.
+
+In your script, you'll create an ActiveX Data Objects (ADO) Connection object, which will open the DSN and attach to the database you've selected:
+
+Dim oCN
+Set oCN = CreateObject("ADODB.Connection")
+oCN.Open "MyData"
+
+Simple enough so far. Now for some quick terminology: You'll be querying one or more columns from one or more rows in a table. In Excel-speak, that's columns, rows, and sheets; Access uses columns, rows, and tables, as does SQL Server. Let's say you have a table (or Excel sheet) named MyTable; it contains columns named UserName and UserEmail. You want to query these two columns for every row in the table (or sheet) and display that information. You'll use an ADO RecordSet object to do your dirty work:
+
+Dim oRS
+Set oRS = oCN.Execute("Select UserName,UserEmail " & _
+  "FROM MyTable")
+Do Until oRS.EOF
+  WScript.Echo oRS("UserName") & " = " & oRS("UserEmail")
+  oRS.MoveNext
+Loop
+
+This uses the previously defined Connection object to query your two columns from the table (or sheet), returning a recordset (also called a rowset, since it is a set of rows). Then, a Do…Loop construct runs until the end of the recordset. For each row, you'll see the contents of the UserName and UserEmail columns; the MoveNext method brings up the next row. 
+
+There you have it: Simple database queries from within VBScript. I've got lots more online in the ScriptVault at www.ScriptingAnswers.com, if you want to see what else ADO can do.
+

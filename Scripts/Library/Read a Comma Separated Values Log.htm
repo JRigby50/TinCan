@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0075)http://www.microsoft.com/technet/scriptcenter/scripts/default.mspx?mfr=true -->
+<HTML><HEAD><TITLE>Microsoft Corporation</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META content=en-us name=MS.LOCALE>
+<META content=noindex name=robots>
+<SCRIPT>
+					window.onload = loadCols;
+					
+					function loadCols()
+					{
+						try { fstMain.load("mnpFrames.data"); }
+						catch(e) { return; }
+						var colWidth = fstMain.getAttribute("colWidth");
+						if (colWidth)
+						{
+				
+							fstMain.cols = colWidth + ",*";
+				
+							if (colWidth == "0")
+								top.MNPMainFrame.MNP_showtoc.style.display = "";
+						}				
+					}
+					
+					function saveCols()
+					{
+						fstMain.setAttribute("colWidth", fstMenuColumn.offsetWidth);
+						try { fstMain.save("mnpFrames.data"); }
+						catch(e) {}
+					}
+				</SCRIPT>
+
+<META content="MSHTML 6.00.2900.3020" name=GENERATOR></HEAD><FRAMESET 
+onresize=saveCols() frameSpacing=0 rows=89,* frameBorder=0><FRAME 
+name=MNPMastheadFrame src="Read a Comma Separated Values Log_files/masthead.htm" 
+noResize scrolling=no><FRAMESET id=fstMain onresize=saveCols() 
+style="BEHAVIOR: url(#default#userdata)" name=fstMain frameSpacing=6 
+frameBorder=1 cols=216,*><FRAMESET id=fstMenuColumn onresize=saveCols() 
+frameSpacing=0 rows=69,* frameBorder=0><FRAME name=MNPSearchFrame 
+src="Read a Comma Separated Values Log_files/quicksearch.htm" 
+scrolling=no><FRAME name=MNPMenuFrame 
+src="Read a Comma Separated Values Log_files/framesmenu.htm" 
+scrolling=yes></FRAMESET><FRAME name=MNPMainFrame borderColor=#003399 
+src="Read a Comma Separated Values Log_files/lgtxvb01.htm" 
+frameBorder=0></FRAMESET></FRAMESET></HTML>

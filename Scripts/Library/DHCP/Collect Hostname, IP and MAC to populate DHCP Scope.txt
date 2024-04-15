@@ -1,0 +1,39 @@
+Visual Basic
+On Error Resume Next
+Dim fso
+Dim tst
+Dim objTS
+Dim strMachineName
+
+Set fso = createObject("Scripting.FileSystemObject")
+
+'here is where you will provide the ip list to get the mac information
+
+Set tst = fso.OpenTextFile("C:\iprange.txt", 1, false)
+
+While Not tst.AtEndOfStream
+                strMachineName = tst.readLine
+                
+                echoMAC strMachineName
+Wend
+
+Sub echoMAC(strComputer)
+
+                On error resume next
+                If strComputer <> "" Then
+                               strInput = True
+                End if
+
+                Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+
+
+                Set colItems = objWMIService.ExecQuery _
+                               ("Select * From Win32_NetworkAdapterConfiguration Where IPEnabled = True")
+
+                For Each objItem in colItems
+
+'you can use wscript.write, instead of wscript.echo to save the information on a file 
+                              wscript.echo objItem.dnshostname & ";" & objItem.IPAddress(0) & ";" & objItem.MACAddress
+
+                Next
+End Sub

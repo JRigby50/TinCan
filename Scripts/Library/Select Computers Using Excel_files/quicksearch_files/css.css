@@ -1,0 +1,39 @@
+.mnpQuickSearch {
+	PADDING-RIGHT: 10px; PADDING-LEFT: 5px; PADDING-BOTTOM: 7px; PADDING-TOP: 5px
+}
+.mnpQuickSearch A {
+	FONT-WEIGHT: normal; BACKGROUND: none transparent scroll repeat 0% 0%
+}
+.mnpQuickSearch A:visited {
+	FONT-WEIGHT: normal; BACKGROUND: none transparent scroll repeat 0% 0%
+}
+.mnpQuickSearch A:hover {
+	FONT-WEIGHT: normal; BACKGROUND: none transparent scroll repeat 0% 0%
+}
+.mnpSearchBox {
+	MARGIN: 2px 0px 1px
+}
+.mnpSearchButton {
+	PADDING-LEFT: 1px; MARGIN-LEFT: 7px
+}
+.syncBarNext {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; BACKGROUND: #cccccc; MARGIN-LEFT: 7px; BORDER-LEFT: #cccccc 1px solid; WIDTH: 15px; CURSOR: hand; BORDER-BOTTOM: #cccccc 1px solid; HEIGHT: 15px
+}
+.syncBarPrevious {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; BACKGROUND: #cccccc; MARGIN-LEFT: 7px; BORDER-LEFT: #cccccc 1px solid; WIDTH: 15px; CURSOR: hand; BORDER-BOTTOM: #cccccc 1px solid; HEIGHT: 15px
+}
+.mnpQuickSearch {
+	FONT: 7.5pt Verdana
+}
+.mnpSearchBox {
+	FONT: 11px Verdana
+}
+.mnpSearchScopes {
+	FONT: 11px Tahoma
+}
+.mnpSearchButton {
+	FONT: 11px Tahoma
+}
+BODY {
+	MARGIN: 0px
+}

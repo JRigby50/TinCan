@@ -1,0 +1,370 @@
+ScriptingAnswers.com ScriptCenter  
+
+                         Home  
+                         Store  
+                         Content  
+                         Info  
+                         Forums  
+                         ScriptVault  
+                         Gold  
+                         Certification  
+
+
+                   à Root à ScriptVault à Event Logs and Logging Jim Rigby 
+                        • Logout  
+
+
+
+                        Event Logs and Logging: 
+                        Enumerate Logs on Servers
+                        by droopy 
+                          As a systems admin, one of the most critical, yet time 
+                          consuming aspects of your daily job is to view and 
+                          parse out the Event Logs on your various servers. This 
+                          script will query AD for specific OS captions, query 
+                          the selected machines and then write the eventlogs to 
+                          an Excel spreadsheet. Please feel free to let me know 
+                          if you have any questions/comments/troubles with this 
+                          script. I've pasted the core code below, but if you 
+                          want a formatted version, you can see it at 
+                          http://www.mcttraining.com/scripting/EventLogs.htm 
+
+
+
+
+                          Script code:
+                          Code samples provided on ScriptingAnswers.com are 
+                          provided AS-IS without warranty or guarantee of any 
+                          kind. ScriptingAnswers.com is not responsible for 
+                          content posted by individuals who use this site. All 
+                          code samples should be thoroughly reviewed and tested 
+                          before being used in a production environment. 
+
+
+'==========================================================================
+' FILE NAME: EventLog.vbs
+' AUTHOR: Adam Hayes
+' CREATION DATE : 12 Aug 2003
+' REVISION DATE : 22 Jan 2004
+' COMMENT: Collects all of the event log entries from any computer that
+'          is running Windows 2000/2003 Sever. It creates an Excel file  
+'    for each computer name and then clears all Event Logs.
+'==========================================================================
+Option Explicit
+On Error Resume Next
+Dim strTxtPath,oFSO,strReportPath
+Const ForReading = 1, ForWriting = 2
+strReportPath="newtonadmin fileseports"
+strTxtPath="newtonadmin fileseports xt"
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+
+'==========================================================================
+' SUB NAME: MAIN
+' AUTHOR: Adam Hayes
+' CREATION DATE : 12 Aug 2003
+' COMMENT:  Calls each sub procedure to run the script
+'==========================================================================
+Call MoveFiles()
+Call QueryAD()
+Call GetLogNames()
+Call GetEvents()
+Call ClearEvents()
+Call ClearTxtFiles()
+WScript.Echo "Event Log Script Complete"
+
+'==========================================================================
+' SUB NAME: QueryAD()
+' AUTHOR: Adam Hayes
+' CREATION DATE : 12 Aug 2003
+' REVISION DATE : 22 Jan 2004
+' COMMENT: Queries AD for the computer accounts that are running Windows
+'     2000/2003 Server and saves the results to a text file 
+'          in strTxtPath
+'==========================================================================
+Sub QueryAD()
+Dim oFile, objRoot, objDomainPath, objDomain,strPath, objListOU, objOU
+Dim objListCntnrs, objContainer, objListComputer, objComputer
+
+Set oFile = oFSO.CreateTextFile(strTxtPath&"computers.txt", True)
+Set objRoot = GetObject("LDAP://RootDSE")
+objDomainPath = objRoot.Get("DefaultNamingContext")
+Set objDomain = GetObject("LDAP://" & objDomainPath)
+strPath= objDomain.ADSPath
+
+Set objListOU = GetObject(strPath)
+objListOU.Filter = Array("organizationalUnit")
+For Each objOU In objListOU
+    Set objListComputer = GetObject(objOU.ADSPath)
+    objListComputer.Filter = Array("computer")
+    For Each objComputer in objListComputer
+ If objComputer.operatingsystem = "Windows 2000 Server" Then
+            oFile.Writeline(objComputer.CN)
+ End If
+ If objComputer.operatingsystem = "Windows Server 2003" Then
+     oFile.Writeline(objComputer.CN)
+ End If
+    Next
+Next
+
+Set objListCntnrs = GetObject(strPath)
+objListCntnrs.Filter = Array("container")
+For Each objContainer In objListCntnrs
+    Set objListComputer = GetObject(objContainer.ADSPath)
+    objListComputer.Filter = Array("computer")
+    For Each objComputer in objListComputer
+ If objComputer.operatingsystem = "Windows 2000 Server" Then
+            oFile.Writeline(objComputer.CN)
+ End If
+ If objComputer.operatingsystem = "Windows Server 2003" Then
+     oFile.Writeline(objComputer.CN)
+ End If
+    Next
+Next
+oFile.Close
+End Sub
+
+'==========================================================================
+' SUB NAME: GetLogNames()
+' AUTHOR: Adam Hayes
+' CREATION DATE : 14 August 2003
+' REVISION DATE :
+' COMMENT: Opens the computers.txt file and queries each computer for the
+'    Event Logs that exist on each. It creates a txt file of the 
+'    names and logs as logs.txt in the strTxtPath.
+'==========================================================================
+Sub GetLogNames ()
+Dim oNameFile,strNextLine,arrComputerName,strComputerName,oLogFile
+Dim objWMIService,colItems,objItem,strLogName,i
+
+Set oNameFile = oFSO.OpenTextFile(strTxtPath&"computers.txt", ForReading)
+Set oLogFile = oFSO.CreateTextFile(strTxtPath&"logs.txt", True)
+Do Until oNameFile.AtEndOfStream
+    strNextLine = oNameFile.Readline
+    arrComputerName= Split(strNextLine,vbCRLF)
+    For i=0 To UBound (arrComputerName)
+ strComputerName=arrComputerName(i)
+ oLogFile.Write(strComputerName)
+ Set objWMIService = GetObject _
+  ("winmgmts:" & strComputerName & "ootcimv2")
+ Set colItems = objWMIService.ExecQuery _
+  ("Select * from Win32_NTEventlogFile",,48)
+ For Each objItem in colItems
+     strLogName=objItem.logfilename
+     oLogFile.Write(","& strLogName)
+ Next
+ oLogFile.Write (vbCRLF)
+    Next
+Loop
+oLogFile.Close
+oNameFile.Close
+End Sub
+
+'==========================================================================
+' FILE NAME: MoveFiles()
+' AUTHOR: Adam Hayes
+' CREATION DATE : 14 August 2003
+' REVISION DATE :
+' COMMENT: Moves any existing XLS files from strReportPath into the "old"
+'    subdirectory of strReportPath
+'==========================================================================
+Sub MoveFiles()
+Dim oFolder,colFiles,intNumber
+Set oFolder = oFSO.GetFolder(strReportPath)
+Set colFiles = oFolder.Files
+intNumber=colFiles.count
+If intNumber0 Then
+    oFSO.MoveFile strReportPath&"*.xls" , strReportPath&"old"
+End If
+End Sub
+
+'==========================================================================
+' SUB NAME: GetEvents()
+' AUTHOR: Adam Hayes
+' CREATION DATE : 14 August 2003
+' REVISION DATE :
+' COMMENT: Opens each ComputerNamelogs.txt from strTxtPath and queries 
+'    each computer
+'==========================================================================
+Sub GetEvents()
+On Error Resume Next
+Dim oDate,oLogFile,strNextLine,arrLogFile,strComputerName,strLogName
+Dim i,objWMIService,colLoggedEvents,oFile,objEvent,strMessage,arrMessage
+Dim objExcel, objContainer, objChild
+
+Const xlAscending = 1
+Const xlDescending = 2
+Const xlGuess = 0
+Const xlTopToBottom = 1
+
+oDate=GetDate()
+
+Set oLogFile = oFSO.OpenTextFile(strTxtPath&"logs.txt", ForReading)
+Do Until oLogFile.AtEndOfStream
+    strNextLine = oLogFile.ReadLine
+    Set objExcel = WScript.CreateObject("Excel.Application")
+    objExcel.Visible = False
+    objExcel.Workbooks.Add
+    If strNextLine"" then
+ arrLogFile= Split(strNextLine,",")
+ strComputerName=arrLogFile(0)
+ 'WScript.Echo strComputerName
+ For i = 1 to Ubound(arrLogFile)
+     strLogName=arrLogFile(i)
+     'WScript.Echo "   " & strLogName
+     objExcel.ActiveWorkbook.Sheets.Add
+     objExcel.ActiveSheet.Name = strLogName
+     objExcel.ActiveSheet.Range("A1").Activate
+     objExcel.ActiveCell.Value = "Record"
+     objExcel.ActiveCell.Offset(0,1).Value = "Time"
+     objExcel.ActiveCell.Offset(0,2).Value = "Event Code"
+     objExcel.ActiveCell.Offset(0,3).Value = "Event Type"
+     objExcel.ActiveCell.Offset(0,4).Value = "Source"
+     objExcel.ActiveCell.Offset(0,5).Value = "Message"
+     objExcel.ActiveSheet.Columns("A").ColumnWidth="6.14"
+     objExcel.ActiveSheet.Columns("B").ColumnWidth="11.57"
+     objExcel.ActiveSheet.Columns("C").ColumnWidth="9.71"
+     objExcel.ActiveSheet.Columns("D").ColumnWidth="11.86"
+     objExcel.ActiveSheet.Columns("E").ColumnWidth="40.00"
+     objExcel.ActiveSheet.Columns("F").ColumnWidth="67.71"
+     objExcel.Sheets(strLogName).Range("F1:F300").WrapText = True
+     objExcel.ActiveCell.Offset(1,0).Activate 
+     Set objWMIService = GetObject _
+  ("winmgmts:"&"{impersonationLevel=impersonate}!" & _
+  strComputerName &"ootcimv2")
+     Set colLoggedEvents = objWMIService.ExecQuery _
+  ("Select * from Win32_NTLogEvent Where Logfile ='" _
+  & strLogName & "'")
+     For Each objEvent in colLoggedEvents
+  If objEvent.Message  ""Then
+      strMessage=objEvent.Message
+      arrMessage=Split(strMessage,vbCRLF)
+      strMessage=Join(arrMessage)
+      arrMessage=Split(strMessage,vbLF)
+      strMessage=Join(arrMessage)
+  End If
+  objExcel.ActiveCell.Value = objEvent.RecordNumber
+  objExcel.ActiveCell.Offset(0,1).Value = objEvent.TimeWritten
+  objExcel.ActiveCell.Offset(0,2).Value = objEvent.EventCode
+  objExcel.ActiveCell.Offset(0,3).Value = objEvent.Type
+  objExcel.ActiveCell.Offset(0,4).Value = objEvent.SourceName
+  objExcel.ActiveCell.Offset(0,5).Value = strMessage
+  objExcel.ActiveCell.Offset(1,0).Activate 
+     Next
+     objExcel.ActiveCell.CurrentRegion.Select
+     objExcel.Selection.Sort  _
+  objExcel.Worksheets(strLogName).Range("D2"), _
+  xlDescending, objExcel.Worksheets(1).Range("B2"), , _
+  xlDescending, , , xlGuess,1,False,xlTopToBottom
+ Next
+ objExcel.Sheets("Sheet1").Delete
+ objExcel.Sheets("Sheet2").Delete
+ objExcel.Sheets("Sheet3").Delete
+ objExcel.AlertBeforeOverwriting = False
+ objExcel.ActiveWorkbook.SaveAs(strReportPath & oDate _
+  & "_" & strComputerName & ".xls")
+ objExcel.Quit
+    End If
+Loop
+oLogFile.Close
+End Sub
+
+'==========================================================================
+' SUB NAME: ClearEvents()
+' AUTHOR: Adam Hayes
+' CREATION DATE : 14 Aug 2003
+' REVISION DATE :
+' COMMENT:  Clears the event logs on the computer (strComputer)
+'==========================================================================
+Sub ClearEvents()
+Dim oLogFile,strNextLine,arrLogFile,strComputerName,strLogName,objWMIService
+Dim colLoggedEvents,objEvent,i
+
+Set oLogFile = oFSO.OpenTextFile(strTxtPath&"logs.txt", ForReading)
+Do Until oLogFile.AtEndOfStream
+    strNextLine = oLogFile.ReadLine
+    If strNextLine"" then
+ arrLogFile= Split(strNextLine,",")
+ strComputerName=arrLogFile(0)
+ For i = 1 to Ubound(arrLogFile)
+    strLogName=arrLogFile(i)
+    Set objWMIService = GetObject
+  ("winmgmts:{impersonationLevel=impersonate}!" & _
+  strComputerName & "ootcimv2")
+     Set colLoggedEvents = objWMIService.ExecQuery _
+      ("Select * from Win32_NTEventLogFile where LogFileName='" _
+  &strLogName&"'")
+     For Each objEvent in colLoggedEvents
+  objEvent.ClearEventLog()
+     Next
+ Next
+    End If
+Loop
+End Sub
+
+'==========================================================================
+' SUB NAME: ClearTxtFiles
+' AUTHOR: Adam Hayes
+' CREATION DATE : 14 Aug 2003
+' REVISION DATE :
+' COMMENT:  Clears all txt files form the strTxtPath
+'==========================================================================
+Sub ClearTxtFiles()
+Dim oFSO
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+oFSO.DeleteFile(strTxtPath&"*.txt")
+End Sub
+
+'==========================================================================
+' FUNCTION NAME: GetDate
+' AUTHOR: Adam Hayes
+' CREATION DATE : 13 Aug 2003
+' REVISION DATE :
+' COMMENT: Uses the Date() command to retrieve the current date, then
+'    reformats it into DayMonthYear format and returns the value
+'==========================================================================
+Function GetDate()
+Dim oDate,arrDate,oMonth,oDay,oYear
+oDate=Date()
+arrDate=Split(oDate,"/")
+oDay=arrDate(1)
+oYear=arrDate(2)
+Select Case arrDate(0)
+    Case "1" 
+ oMonth="Jan"
+    Case "2"
+ oMonth="Feb"
+    Case "3"
+ oMonth="Mar"
+    Case "4"
+ oMonth="Apr"
+    Case "5"
+ oMonth="May"
+    Case "6"
+ oMonth="June"
+    Case "7"
+ oMonth="July"
+    Case "8"
+ oMonth="Aug"
+    Case "9"
+ oMonth="Sept"
+    Case "10"
+ oMonth="Oct"
+    Case "11"
+ oMonth="Nov"
+    Case "12"
+ oMonth="Dec"
+End Select
+arrDate(0)=oDay
+arrDate(1)=oMonth
+arrDate(2)=oYear
+GetDate= Join(arrDate,"")
+End Function
+Return
+
+
+
+            Copyright 2005 Tenth Year Ventures, LP. 
+             
+
+
+ 

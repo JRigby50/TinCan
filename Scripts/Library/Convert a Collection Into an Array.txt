@@ -1,0 +1,53 @@
+Option Explicit
+ 
+'*  Script name:    Array_From_Collection.vbs 
+'*  Created on:     2007-11-14 
+'*  Author:         Kent Finkle 
+'*  Purpose:        Convert a collection into an array. 
+ 
+Main 
+ 
+Sub Main() 
+ 
+    Dim a
+    Dim c
+    Dim fso
+ 
+    Set fso = CreateObject("Scripting.FileSystemObject") 
+ 
+    Set c = fso.Drives 
+ 
+    a = Array_FromCollection(c) 
+ 
+    Array_Print "Array from collection", a 
+ 
+End Sub 
+ 
+Sub Array_Print(comment, a) 
+ 
+    Dim i
+ 
+    Wscript.Echo comment 
+ 
+    For i = lbound(a) to ubound(a) 
+        Wscript.Echo a(i)
+    Next 
+ 
+    Wscript.Echo "-------------------------------"    
+ 
+End Sub 
+ 
+Function Array_FromCollection(c) 
+ 
+    Dim mylist
+    Dim item 
+     
+    Set mylist = CreateObject("System.Collections.ArrayList") 
+    
+    For Each item In c
+        mylist.Add item 
+    Next 
+    
+    Array_FromCollection = mylist.ToArray() 
+ 
+End Function

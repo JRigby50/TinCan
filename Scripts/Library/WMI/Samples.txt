@@ -1,0 +1,463 @@
+Returns information about the computer baseboard.
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_BaseBoard")
+For Each objItem in colItems
+    For Each strOption in objItem.ConfigOptions
+        Wscript.Echo "Configuration Option: " & strOption
+    Next
+    Wscript.Echo "Depth: " & objItem.Depth
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Height: " & objItem.Height
+    Wscript.Echo "Hosting Board: " & objItem.HostingBoard
+    Wscript.Echo "Hot Swappable: " & objItem.HotSwappable
+    Wscript.Echo "Manufacturer: " & objItem.Manufacturer
+    Wscript.Echo "Model: " & objItem.Model
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "Other Identifying Information: " & objItem.OtherIdentifyingInfo
+    Wscript.Echo "Part Number: " & objItem.PartNumber
+    Wscript.Echo "Powered On: " & objItem.PoweredOn
+    Wscript.Echo "Product: " & objItem.Product
+    Wscript.Echo "Removable: " & objItem.Removable
+    Wscript.Echo "Replaceable: " & objItem.Replaceable
+    Wscript.Echo "Requirements Description: " & objItem.RequirementsDescription
+    Wscript.Echo "Requires DaughterBoard: " & objItem.RequiresDaughterBoard
+    Wscript.Echo "Serial Number: " & objItem.SerialNumber
+    Wscript.Echo "SKU: " & objItem.SKU
+    Wscript.Echo "Slot Layout: " & objItem.SlotLayout
+    Wscript.Echo "Special Requirements: " & objItem.SpecialRequirements
+    Wscript.Echo "Tag: " & objItem.Tag
+    Wscript.Echo "Version: " & objItem.Version
+    Wscript.Echo "Weight: " & objItem.Weight
+    Wscript.Echo "Width: " & objItem.Width
+Next
+
+
+
+Returns information about the computer bus.
+
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Bus")
+For Each objItem in colItems
+    Wscript.Echo "Bus Number: " & objItem.BusNum
+    Wscript.Echo "Bus Type: " & objItem.BusType
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "PNP Device ID: " & objItem.PNPDeviceID
+Next
+
+
+
+Returns information about the IRQ settings on a computer.
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_IRQResource")
+For Each objItem in colItems
+    Wscript.Echo "Availability: " & objItem.Availability
+    Wscript.Echo "Hardware: " & objItem.Hardware
+    Wscript.Echo "IRQ Number: " & objItem.IRQNumber
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "Trigger Level: " & objItem.TriggerLevel
+    Wscript.Echo "Trigger Type: " & objItem.TriggerType
+    Wscript.Echo
+Next
+
+
+
+Returns information about the parallel ports installed on a computer
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_ParallelPort",,48)
+For Each objItem in colItems
+    Wscript.Echo "Availability: " & objItem.Availability
+    For Each strCapability in objItem.Capabilities
+        Wscript.Echo "Capability: " & strCapability
+    Next
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "OS Auto Discovered: " & objItem.OSAutoDiscovered
+    Wscript.Echo "PNP Device ID: " & objItem.PNPDeviceID
+    Wscript.Echo "Protocol Supported: " & objItem.ProtocolSupported
+Next
+
+
+Returns information about the way physical memory is configured on a computer
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_PhysicalMemory",,48)
+For Each objItem in colItems
+    Wscript.Echo "Bank Label: " & objItem.BankLabel
+    Wscript.Echo "Capacity: " & objItem.Capacity
+    Wscript.Echo "Data Width: " & objItem.DataWidth
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Device Locator: " & objItem.DeviceLocator
+    Wscript.Echo "Form Factor: " & objItem.FormFactor
+    Wscript.Echo "Hot Swappable: " & objItem.HotSwappable
+    Wscript.Echo "Manufacturer: " & objItem.Manufacturer
+    Wscript.Echo "Memory Type: " & objItem.MemoryType
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "Part Number: " & objItem.PartNumber
+    Wscript.Echo "Position In Row: " & objItem.PositionInRow
+    Wscript.Echo "Speed: " & objItem.Speed
+    Wscript.Echo "Tag: " & objItem.Tag
+    Wscript.Echo "Type Detail: " & objItem.TypeDetail
+Next
+
+
+Returns information about the processors installed on a computer. 
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_Processor")
+For Each objItem in colItems
+    Wscript.Echo "Address Width: " & objItem.AddressWidth
+    Wscript.Echo "Architecture: " & objItem.Architecture
+    Wscript.Echo "Availability: " & objItem.Availability
+    Wscript.Echo "CPU Status: " & objItem.CpuStatus
+    Wscript.Echo "Current Clock Speed: " & objItem.CurrentClockSpeed
+    Wscript.Echo "Data Width: " & objItem.DataWidth
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "Ext Clock: " & objItem.ExtClock
+    Wscript.Echo "Family: " & objItem.Family
+    Wscript.Echo "L2 Cache Size: " & objItem.L2CacheSize
+    Wscript.Echo "L2 Cache Speed: " & objItem.L2CacheSpeed
+    Wscript.Echo "Level: " & objItem.Level
+    Wscript.Echo "Load Percentage: " & objItem.LoadPercentage
+    Wscript.Echo "Manufacturer: " & objItem.Manufacturer
+    Wscript.Echo "Maximum Clock Speed: " & objItem.MaxClockSpeed
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "PNP Device ID: " & objItem.PNPDeviceID
+    Wscript.Echo "Processor Id: " & objItem.ProcessorId
+    Wscript.Echo "Processor Type: " & objItem.ProcessorType
+    Wscript.Echo "Revision: " & objItem.Revision
+    Wscript.Echo "Role: " & objItem.Role
+    Wscript.Echo "Socket Designation: " & objItem.SocketDesignation
+    Wscript.Echo "Status Information: " & objItem.StatusInfo
+    Wscript.Echo "Stepping: " & objItem.Stepping
+    Wscript.Echo "Unique Id: " & objItem.UniqueId
+    Wscript.Echo "Upgrade Method: " & objItem.UpgradeMethod
+    Wscript.Echo "Version: " & objItem.Version
+    Wscript.Echo "Voltage Caps: " & objItem.VoltageCaps
+Next
+
+
+Returns information about the serial ports installed on a computer
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_SerialPort",,48)
+For Each objItem in colItems
+    Wscript.Echo "Binary: " & objItem.Binary
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "Maximum Baud Rate: " & objItem.MaxBaudRate
+    Wscript.Echo "Maximum Input Buffer Size: " & objItem.MaximumInputBufferSize
+    Wscript.Echo "Maximum Output Buffer Size: " & objItem.MaximumOutputBufferSize
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "OS Auto Discovered: " & objItem.OSAutoDiscovered
+    Wscript.Echo "PNP Device ID: " & objItem.PNPDeviceID
+    Wscript.Echo "Provider Type: " & objItem.ProviderType
+    Wscript.Echo "Settable Baud Rate: " & objItem.SettableBaudRate
+    Wscript.Echo "Settable Data Bits: " & objItem.SettableDataBits
+    Wscript.Echo "Settable Flow Control: " & objItem.SettableFlowControl
+    Wscript.Echo "Settable Parity: " & objItem.SettableParity
+    Wscript.Echo "Settable Parity Check: " & objItem.SettableParityCheck
+    Wscript.Echo "Settable RLSD: " & objItem.SettableRLSD
+    Wscript.Echo "Settable Stop Bits: " & objItem.SettableStopBits
+    Wscript.Echo "Supports 16-Bit Mode: " & objItem.Supports16BitMode
+    Wscript.Echo "Supports DTRDSR: " & objItem.SupportsDTRDSR
+    Wscript.Echo "Supports Elapsed Timeouts: " & objItem.SupportsElapsedTimeouts
+    Wscript.Echo "Supports Int Timeouts: " & objItem.SupportsIntTimeouts
+    Wscript.Echo "Supports Parity Check: " & objItem.SupportsParityCheck
+    Wscript.Echo "Supports RLSD: " & objItem.SupportsRLSD
+    Wscript.Echo "Supports RTSCTS: " & objItem.SupportsRTSCTS
+    Wscript.Echo "Supports Special Characters: " & objItem.SupportsSpecialCharacters
+    Wscript.Echo "Supports XOn XOff: " & objItem.SupportsXOnXOff
+    Wscript.Echo "Supports XOn XOff Setting: " & objItem.SupportsXOnXOffSet
+Next
+
+
+Determines the processor architecture (such as x86 or ia64) for a specified computer
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set objProcessor = objWMIService.Get("win32_Processor='CPU0'")
+ 
+If objProcessor.Architecture = 0 Then
+    Wscript.Echo "This is an x86 computer."
+ElseIf objProcessor.Architecture = 1 Then
+    Wscript.Echo "This is a MIPS computer."
+ElseIf objProcessor.Architecture = 2 Then
+    Wscript.Echo "This is an Alpha computer."
+ElseIf objProcessor.Architecture = 3 Then
+    Wscript.Echo "This is a PowerPC computer."
+ElseIf objProcessor.Architecture = 6 Then
+    Wscript.Echo "This is an ia64 computer."
+Else
+    Wscript.Echo "The computer type could not be determined."
+End If
+
+
+Returns information about the pointing devices installed on a computer. Used as an example of how to retrieve hardware information using WMI.
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colMice = objWMIService.ExecQuery _
+    ("Select * from Win32_PointingDevice")
+For Each objMouse in colMice
+    Wscript.Echo "Hardware Type: " & objMouse.HardwareType
+    Wscript.Echo "Number of Buttons: " & objMouse.NumberOfButtons    
+    Wscript.Echo "Status: " & objMouse.Status
+    Wscript.Echo "PNP Device ID: " & objMouse.PNPDeviceID
+Next
+
+
+Retrieves BIOS information for a computer, including BIOS version number and release date.
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colBIOS = objWMIService.ExecQuery _
+    ("Select * from Win32_BIOS")
+For each objBIOS in colBIOS
+    Wscript.Echo "Build Number: " & objBIOS.BuildNumber
+    Wscript.Echo "Current Language: " & objBIOS.CurrentLanguage
+    Wscript.Echo "Installable Languages: " & objBIOS.InstallableLanguages
+    Wscript.Echo "Manufacturer: " & objBIOS.Manufacturer
+    Wscript.Echo "Name: " & objBIOS.Name
+    Wscript.Echo "Primary BIOS: " & objBIOS.PrimaryBIOS
+    Wscript.Echo "Release Date: " & objBIOS.ReleaseDate
+    Wscript.Echo "Serial Number: " & objBIOS.SerialNumber
+    Wscript.Echo "SMBIOS Version: " & objBIOS.SMBIOSBIOSVersion
+    Wscript.Echo "SMBIOS Major Version: " & objBIOS.SMBIOSMajorVersion
+    Wscript.Echo "SMBIOS Minor Version: " & objBIOS.SMBIOSMinorVersion
+    Wscript.Echo "SMBIOS Present: " & objBIOS.SMBIOSPresent
+    Wscript.Echo "Status: " & objBIOS.Status
+    Wscript.Echo "Version: " & objBIOS.Version
+    For i = 0 to Ubound(objBIOS.BiosCharacteristics)
+        Wscript.Echo "BIOS Characteristics: " & _
+            objBIOS.BiosCharacteristics(i)
+    Next
+Next
+
+
+Retrieves information about all the modems installed in a computer
+
+On Error Resume Next
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery("Select * from Win32_POTSModem")
+For Each objItem in colItems
+    Wscript.Echo "Attached To: " & objItem.AttachedTo
+    Wscript.Echo "Blind Off: " & objItem.BlindOff
+    Wscript.Echo "Blind On: " & objItem.BlindOn
+    Wscript.Echo "Compression Off: " & objItem.CompressionOff
+    Wscript.Echo "Compression On: " & objItem.CompressionOn
+    Wscript.Echo "Configuration Manager Error Code: " & _
+        objItem.ConfigManagerErrorCode
+    Wscript.Echo "Configuration Manager User Configuration: " & _
+        objItem.ConfigManagerUserConfig
+    Wscript.Echo "Configuration Dialog: " & objItem.ConfigurationDialog
+    Wscript.Echo "Country Selected: " & objItem.CountrySelected
+    Wscript.Echo "DCB: "
+    For Each objElement In objItem.DCB
+        WScript.Echo vbTab & objElement
+    Next
+    Wscript.Echo "Default: "
+    For Each objElement In objItem.Default
+        WScript.Echo vbTab & objElement
+    Next
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "Device Type: " & objItem.DeviceType
+    Wscript.Echo "Driver Date: " & objItem.DriverDate
+    Wscript.Echo "Error Control Forced: " & objItem.ErrorControlForced
+    Wscript.Echo "Error Control Off: " & objItem.ErrorControlOff
+    Wscript.Echo "Error Control On: " & objItem.ErrorControlOn
+    Wscript.Echo "Flow Control Hard: " & objItem.FlowControlHard
+    Wscript.Echo "Flow Control Off: " & objItem.FlowControlOff
+    Wscript.Echo "Flow Control Soft: " & objItem.FlowControlSoft
+    Wscript.Echo "Inactivity Scale: " & objItem.InactivityScale
+    Wscript.Echo "Inactivity Timeout: " & objItem.InactivityTimeout
+    Wscript.Echo "Index: " & objItem.Index
+    Wscript.Echo "Maximum Baud Rate To SerialPort: " & _
+        objItem.MaxBaudRateToSerialPort
+    Wscript.Echo "Model: " & objItem.Model
+    Wscript.Echo "Modem Inf Path: " & objItem.ModemInfPath
+    Wscript.Echo "Modem Inf Section: " & objItem.ModemInfSection
+    Wscript.Echo "Modulation Bell: " & objItem.ModulationBell
+    Wscript.Echo "Modulation CCITT: " & objItem.ModulationCCITT
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "PNP Device ID: " & objItem.PNPDeviceID
+    Wscript.Echo "Port SubClass: " & objItem.PortSubClass
+    Wscript.Echo "Prefix: " & objItem.Prefix
+    Wscript.Echo "Properties: "
+    For Each objElement In objItem.Properties
+        WScript.Echo vbTab & objElement
+    Next
+    Wscript.Echo "Provider Name: " & objItem.ProviderName
+    Wscript.Echo "Pulse: " & objItem.Pulse
+    Wscript.Echo "Reset: " & objItem.Reset
+    Wscript.Echo "Responses Key Name: " & objItem.ResponsesKeyName
+    Wscript.Echo "Speaker Mode Dial: " & objItem.SpeakerModeDial
+    Wscript.Echo "Speaker Mode Off: " & objItem.SpeakerModeOff
+    Wscript.Echo "Speaker Mode On: " & objItem.SpeakerModeOn
+    Wscript.Echo "Speaker Mode Setup: " & objItem.SpeakerModeSetup
+    Wscript.Echo "Speaker Volume High: " & objItem.SpeakerVolumeHigh
+    Wscript.Echo "Speaker Volume Info: " & objItem.SpeakerVolumeInfo
+    Wscript.Echo "Speaker Volume Low: " & objItem.SpeakerVolumeLow
+    Wscript.Echo "Speaker Volume Med: " & objItem.SpeakerVolumeMed
+    Wscript.Echo "Status Info: " & objItem.StatusInfo
+    Wscript.Echo "Terminator: " & objItem.Terminator
+    Wscript.Echo "Tone: " & objItem.Tone
+    Wscript.Echo
+Next
+
+
+Uses WMI to retrieve the same data found in the System Information applet.
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_OperatingSystem")
+For Each objOperatingSystem in colSettings 
+    Wscript.Echo "OS Name: " & objOperatingSystem.Name
+    Wscript.Echo "Version: " & objOperatingSystem.Version
+    Wscript.Echo "Service Pack: " & _
+        objOperatingSystem.ServicePackMajorVersion _
+            & "." & objOperatingSystem.ServicePackMinorVersion
+    Wscript.Echo "OS Manufacturer: " & objOperatingSystem.Manufacturer
+    Wscript.Echo "Windows Directory: " & _
+        objOperatingSystem.WindowsDirectory
+    Wscript.Echo "Locale: " & objOperatingSystem.Locale
+    Wscript.Echo "Available Physical Memory: " & _
+        objOperatingSystem.FreePhysicalMemory
+    Wscript.Echo "Total Virtual Memory: " & _
+        objOperatingSystem.TotalVirtualMemorySize
+    Wscript.Echo "Available Virtual Memory: " & _
+        objOperatingSystem.FreeVirtualMemory
+    Wscript.Echo "OS Name: " & objOperatingSystem.SizeStoredInPagingFiles
+Next
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_ComputerSystem")
+For Each objComputer in colSettings 
+    Wscript.Echo "System Name: " & objComputer.Name
+    Wscript.Echo "System Manufacturer: " & objComputer.Manufacturer
+    Wscript.Echo "System Model: " & objComputer.Model
+    Wscript.Echo "Time Zone: " & objComputer.CurrentTimeZone
+    Wscript.Echo "Total Physical Memory: " & _
+        objComputer.TotalPhysicalMemory
+Next
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_Processor")
+For Each objProcessor in colSettings 
+    Wscript.Echo "System Type: " & objProcessor.Architecture
+    Wscript.Echo "Processor: " & objProcessor.Description
+Next
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_BIOS")
+For Each objBIOS in colSettings 
+    Wscript.Echo "BIOS Version: " & objBIOS.Version
+Next
+
+
+
+determine whether a computer has a PCMCIA slot
+
+strComputer = "."
+Set objWMIService = GetObject(_
+    "winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery(_
+    "Select * from Win32_PCMCIAController")
+Wscript.Echo "Number of PCMCIA slots: " _
+    & colItems.Count
+
+
+identify devices that are not working (those marked with an exclamation point icon in Device Manager)?
+
+strComputer = "."
+Set objWMIService = GetObject(_
+    "winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery _
+    ("Select * from Win32_PnPEntity " _
+        & "WHERE ConfigManagerErrorCode <> 0")
+For Each objItem in colItems
+    Wscript.Echo "Class GUID: " & objItem.ClassGuid
+    Wscript.Echo "Description: " & objItem.Description
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "Manufacturer: " & objItem.Manufacturer
+    Wscript.Echo "Name: " & objItem.Name
+    Wscript.Echo "PNP Device ID: " & objItem.PNPDeviceID
+    Wscript.Echo "Service: " & objItem.Service
+Next
+
+
+...determine what kind of device is plugged into a USB port?
+
+Use the Win32_USBHub class and check the Description property. This property may have a value such as "Mass Storage Device" or "Printing Support".
+strComputer = "."
+Set objWMIService = GetObject(_
+    "winmgmts:\\" & strComputer & "\root\cimv2")
+Set colItems = objWMIService.ExecQuery( _
+    "Select * from Win32_USBHub")
+For Each objItem in colItems
+    Wscript.Echo "Device ID: " & objItem.DeviceID
+    Wscript.Echo "PNP Device ID: " _
+        & objItem.PNPDeviceID
+    Wscript.Echo "Description: " _
+        & objItem.Description
+    Wscript.Echo
+Next
+
+
+...determine whether a computer is a tower, a mini-tower, a laptop, and so on?
+
+Use the Win32_SystemEnclosure class and check the value of the ChassisType property.
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" _
+    & strComputer & "\root\cimv2")
+Set colChassis = objWMIService.ExecQuery _
+    ("Select * from Win32_SystemEnclosure")
+For Each objChassis in colChassis
+    For Each objItem in objChassis.ChassisTypes
+        Wscript.Echo "Chassis Type: " & objItem
+    Next
+Next
+
+
+get the serial number and asset tag of a computer
+
+Use the Win32_SystemEnclosure class, and the properties SerialNumber and SMBIOSAssetTag.
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" _
+    & strComputer & "\root\cimv2")
+Set colSMBIOS = objWMIService.ExecQuery _
+    ("Select * from Win32_SystemEnclosure")
+For Each objSMBIOS in colSMBIOS
+    Wscript.Echo "Part Number: " & objSMBIOS.PartNumber
+    Wscript.Echo "Serial Number: " _
+        & objSMBIOS.SerialNumber
+    Wscript.Echo "Asset Tag: " _
+        & objSMBIOS.SMBIOSAssetTag
+Next
+
+

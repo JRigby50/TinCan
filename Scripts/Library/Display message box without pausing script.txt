@@ -1,0 +1,9 @@
+This code displays a message box without pausing the current script.  I was scheduling / running multiple vbscripts from within an HTA tool and wanted to display a message after each script was finished without stopping / pausing anything.  This way the other scripts will continue without a user having to click on OK first.
+
+
+VBScriptCopy CodeSet WshShell = WScript.CreateObject("WScript.Shell")
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set objOutputFile = fso.OpenTextFile("temp.vbs", 2, -1)
+objOutputFile.WriteLine "MsgBox ""Hello World"""
+objOutputFile.Close
+WshShell.Run "temp.vbs", 1, False

@@ -1,0 +1,112 @@
+Visual Basic
+' ==========================================================
+'=	Purpose:	PING, TRACE HOSTS AND PARSE TO AID THWI=
+'=			ROUTING TROUBLESHOOTING =
+'=			CONNECTIVITY TETS=
+'=	Author:	TOM MCGEOWN=
+'=	Created:	15/05/2007=
+'=	Modified:	21/06/2007=
+' ==========================================================
+'*****DECLARE CONSTANTS AND OBJECTS***** 
+
+Const FOR_APPENDING = 8 
+Const FOR_READING = 1 
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objShell = CreateObject("WScript.Shell") 
+'*****CREATE SOME VARIABLES AND ASSIGN VALUES***** 
+
+hostlist = "server1,server2,server3,server4,server5,server6"
+'CHANGE THESE VALUES TO THE HOSTS YOUI WISH TO PING AND TRACE 
+arrTargetHosts = Split(hostlist, ",") 
+'*****GET LOCAL COMPUTER NAME*****
+
+NOTE: STRNAME WILL BE IN UPPERCASE
+Set colItems = objWMIService.ExecQuery("Select * From Win32_ComputerSystem")
+For Each objItem in colItems
+    strName = objItem.Name
+Next
+'*****CREATE OUTPUT FILE*****
+
+Set objFile = objFSO.CreateTextFile(strname & "Results.txt") 
+'*****PING TRACE AND PARSE TRACE FOR ALL COMPUTERS IN ARRAY***** 
+
+For iCounter = Lbound (arrTargetHosts) to Ubound (arrTargetHosts)
+	strComputer = arrTargetHosts(iCounter)
+	If strName <> strComputer then
+		objFile.writeline strName & " to " & strComputer
+		PingHost
+		TraceRt
+		ParseTrace
+	End If
+Next
+'*****FUNCTIONS FOLLOW*****
+
+Function PingHost
+	Set objExec = objShell.Exec("ping -n 2 -w 1000 " & strComputer)
+'CALL SHELL AND PING HOST
+
+	strPingResults = LCase(objExec.StdOut.ReadAll)
+ 'CONVERT OUTPUT TO LOWERCASE FOR EASIER PARSING AND ASSIGN TO VARIABLE
+	objFile.writeline(strPingResults)
+'WRITE TO TEXT FILE
+
+End Function
+
+Function TraceRt
+	Set objExec = objShell.Exec("tracert " & strComputer)
+ 
+'CALL SHELL AND TRACERT HOST
+	strTraceResults = LCase(objExec.StdOut.ReadAll)
+ 
+'CONVERT OUTPUT TO LOWERCASE FOR EASIER PARSING AND ASSIGN TO VARIABLE
+	objFile.writeline(strTraceResults)
+
+'WRITE TO TEXT FILE
+	Set objTemp = objFSO.CreateTextFile("C:\temp2.txt")
+
+'CREATE TEMP FILE
+	objTemp.writeline(strTraceResults)
+
+'WRITE TRACE TO TEMP FILE
+	objTemp.Close
+End Function
+
+Function ParseTrace
+       strToday = Date()
+       strTime = Time()
+       strStart = strName
+       strEnd = strComputer
+       strRoute = strToday & " " & strTime & "," & strStart & "," & "----->,"	
+       Set objTemp2 = objFSO.OpenTextFile("C:\temp2.txt",FOR_READING)
+
+'OPEN TEMP FILE
+       Do Until objTemp2.AtEndOfStream
+
+'READ EACH LINE OF TEMP FILE
+          strText = objTemp2.ReadLine
+          If inStr(strText, " ms ") then 'PARSE EACH LINE OF TRACE AND APPEND TO STRROUTE
+             arrLine = Split(strText, " ms ")
+             strStep = Trim(arrLine(3))
+             strStep1 = Mid(strStep, 1, Len(strStep)-1)
+             strRoute = strRoute & strStep1 & ",----->,"
+          End if
+       Loop
+       objTemp2.Close
+       strRoute = strRoute & strEnd
+       Set objOut = objFSO.OpenTextFile("results.csv",FOR_APPENDING)
+
+'OPEN CSV FILE
+       objOut.writeline(strRoute)
+
+'WRITE TO CSV FILE
+       objOut.close
+
+'CLOSE CSV FILE
+       Set objTemp = objFSO.GetFile("c:\Temp2.txt")
+       objTemp.delete
+
+'DELETE TEMP FILE
+End Function
+

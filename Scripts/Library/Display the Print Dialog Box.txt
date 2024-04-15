@@ -1,0 +1,3 @@
+Sub RunScript
+    Window.Print()
+End Sub

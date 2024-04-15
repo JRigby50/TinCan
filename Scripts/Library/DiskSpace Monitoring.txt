@@ -1,0 +1,166 @@
+It's an improvement from the original Nag Pal's script
+
+It will retrieve the letter, size, free space (GB), free space (%) from every volume on each server on the server list, and will mark in yellow if the free space is under 20% and in red if it under 10%.
+
+The result file includes the date and also the heeder inside the file.
+
+The improvements were made to include the date and to avoid errors where a server can’t be reached.
+
+
+
+
+'******************************************************************************
+'* Provides data from disks from a list of servers (servers.txt)              *
+'* Created by Nag Pal and Modify by Martin Scaine                             *
+'* The original script don't manage error,                                    *
+'* so if you can't connect to a server it will repeat the data from last.     *
+'* Also I include the date on the name of the report file and on it header.   *
+'* It can be usefull if you need to check it every day                        *
+'******************************************************************************
+
+On Error Resume Next
+Const ForAppending = 8
+Const HARD_DISK = 3
+Const ForReading = 1
+
+'Var declaration
+dtmDay = Day(Date)
+dtmMonth = Month(Date)
+dtmYear = Year(Date)
+dtmDate = CDate(dtmYear & "-" & dtmMonth & "-" & dtmDay)
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+'Open the server list
+Set SrvList = objFSO.OpenTextFile("Servers.txt", ForReading)
+
+'Create a result file
+If dtmday < 10 and dtmMonth >9 then
+Set ReportFile = objFSO.OpenTextFile ("Srv_Disk_Space_" & dtmYear & "-" & dtmMonth & "-0" & dtmDay & ".html", ForAppending, True)
+End If
+If dtmday > 9 and dtmMonth < 10 then
+Set ReportFile = objFSO.OpenTextFile ("Srv_Disk_Space_" & dtmYear & "-0" & dtmMonth & "-" & dtmDay & ".html", ForAppending, True)
+End If
+If dtmday < 10 and dtmMonth < 10 then
+Set ReportFile = objFSO.OpenTextFile ("Srv_Disk_Space_" & dtmYear & "-0" & dtmMonth & "-0" & dtmDay & ".html", ForAppending, True)
+End If
+If dtmday > 9 and dtmMonth >9 then
+Set ReportFile = objFSO.OpenTextFile ("Srv_Disk_Space_" & dtmYear & "-" & dtmMonth & "-" & dtmDay & ".html", ForAppending, True)
+End If
+i = 0
+
+
+'Inicializar HTML
+ReportFile.writeline("<html>")
+ReportFile.writeline("<head>")
+ReportFile.writeline("<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'>")
+ReportFile.writeline("<title>" & "Server Space Disk Report " & dtmDate & "</title>")
+ReportFile.writeline("<style type='text/css'>")
+ReportFile.writeline("<!--")
+ReportFile.writeline("td {")
+ReportFile.writeline("font-family: Tahoma;")
+ReportFile.writeline("font-size: 11px;")
+ReportFile.writeline("border-top: 1px solid #999999;")
+ReportFile.writeline("border-right: 1px solid #999999;")
+ReportFile.writeline("border-bottom: 1px solid #999999;")
+ReportFile.writeline("border-left: 1px solid #999999;")
+ReportFile.writeline("padding-top: 0px;")
+ReportFile.writeline("padding-right: 0px;")
+ReportFile.writeline("padding-bottom: 0px;")
+ReportFile.writeline("padding-left: 0px;")
+ReportFile.writeline("}")
+ReportFile.writeline("body {")
+ReportFile.writeline("margin-left: 5px;")
+ReportFile.writeline("margin-top: 5px;")
+ReportFile.writeline("margin-right: 0px;")
+ReportFile.writeline("margin-bottom: 10px;")
+ReportFile.writeline("")
+ReportFile.writeline("table {")
+ReportFile.writeline("border: thin solid #000000;")
+ReportFile.writeline("}")
+ReportFile.writeline("-->")
+ReportFile.writeline("</style>")
+ReportFile.writeline("</head>")
+ReportFile.writeline("<body>")
+
+ReportFile.writeline("<table width='50%'>")
+ReportFile.writeline("<tr bgcolor='#CCCCCC'>")
+ReportFile.writeline("<td colspan='7' height='25' align='center'>")
+ReportFile.writeline("<font face='tahoma' color='#003399' size='2'><strong>Server Space Disk Report " & dtmdate & "</strong></font>")
+ReportFile.writeline("</td>")
+ReportFile.writeline("</tr>")
+ReportFile.writeline("</table>")
+
+
+'Server name declaration
+Do Until SrvList.AtEndOfStream
+	StrComputer = SrvList.Readline
+
+	Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+	Set colDisks = objWMIService.ExecQuery("Select * from Win32_LogicalDisk Where DriveType = " & HARD_DISK & "")
+
+	If Err.Number <> 0 Then 
+		ReportFile.writeline("<table width='50%'><tbody>")
+		ReportFile.writeline("<tr bgcolor='#FF0000'>")
+		ReportFile.writeline("<td width='50%' align='center' colSpan=6><font face='tahoma' color='#003399' size='2'><strong>Error - " & StrComputer & " - Error</strong></font></td>")
+		ReportFile.writeline("</tr>")
+		Err.Clear
+	Else
+
+	ReportFile.writeline("<table width='50%'><tbody>")
+	ReportFile.writeline("<tr bgcolor='#CCCCCC'>")
+	ReportFile.writeline("<td width='50%' align='center' colSpan=6><font face='tahoma' color='#003399' size='2'><strong>" & StrComputer & "</strong></font></td>")
+	ReportFile.writeline("</tr>")
+
+	ReportFile.writeline("<tr bgcolor=#CCCCCC>")
+		ReportFile.writeline("<td width='05%' align='center'>Drive / Mount</td>")
+		ReportFile.writeline("<td width='05%' align='center'>Total Capacity (in GB)</td>")
+		ReportFile.writeline("<td width='05%' align='center'>Used Capacity (in GB)</td>")
+		ReportFile.writeline("<td width='05%' align='center'>Free Space (in GB)</td>")
+		ReportFile.writeline("<td width='05%' align='center'>Freespace %</td>")
+	ReportFile.writeline("</tr>") 
+
+		'Data recolection
+		For Each objDisk in colDisks
+
+			'Var init
+			TotSpace=0
+			FrSpace=0
+			FrPercent=0
+			UsSpace=0
+			Drv="Error"
+			VolName="Error"
+
+			'Var charge
+			
+			TotSpace=Round(((objDisk.Size)/1073741824),2)
+			FrSpace=Round(objDisk.FreeSpace/1073741824,2)
+			FrPercent=Round((FrSpace / TotSpace)*100,0)
+			UsSpace=Round((TotSpace - FrSpace),2)
+			Drv=objDisk.DeviceID
+			VolName=objDisk.DeviceID
+
+			'Lnt=Len(VolName)
+
+			'If  Len(VolName) =  3 then
+				If FrPercent > 20 Then
+					ReportFile.WriteLine "<tr><td align=center>" & Drv & "</td><td align=center>" & TotSpace & "</td><td align=center>" & UsSpace & "</td><td align=center>" & FrSpace & "</td><td BGCOLOR='#00FF00' align=center>" & FrPercent & "%" &"</td></tr>"
+				ElseIf FrPercent < 10 Then
+					ReportFile.WriteLine "<tr><td align=center>" & Drv & "</td><td align=center>" & TotSpace & "</td><td align=center>" & UsSpace & "</td><td align=center>" & FrSpace & "</td><td bgcolor='#FF0000' align=center>" & FrPercent & "%" &"</td></tr>"
+				Else
+					ReportFile.WriteLine "<tr><td align=center>" & Drv & "</td><td align=center>" & TotSpace & "</td><td align=center>" & UsSpace & "</td><td align=center>" & FrSpace & "</td><td bgcolor='#FBB917' align=center>" & FrPercent & "%" &"</td></tr>"
+				End If
+			'Else
+			'End If
+		Next
+
+	End If
+
+	ReportFile.writeline("<tr>")
+	ReportFile.writeline("<td width='50%' colSpan=6>&nbsp;</td>")
+	ReportFile.writeline("</tr>")
+
+	ReportFile.writeline("</tbody></table>")
+Loop
+ReportFile.WriteLine "</body></html>"
+

@@ -1,0 +1,92 @@
+<TITLE>Progress Bar Demo</TITLE>
+<HTA:APPLICATION 
+        Id="oInstall" 
+        APPLICATIONNAME="Progress Bar Demo"
+        SCROLL="no"
+        SINGLEINSTANCE="yes"
+        WINDOWSTATE="minimize"
+        SELECTION="NO"
+        CONTEXTMENU = "NO"
+        BORDER="Thin"
+        BORDERStyle = "Normal"
+        INNERBORDER = "YES"
+        NOWRAP
+        MAXIMIZEBUTTON = "NO"
+        MINIMIZEBUTTON = "NO"
+        SYSMENU = "NO"
+>
+
+<HEAD>
+<STYLE>
+body {filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,
+                        StartColorStr='#9999FF', EndColorStr='#FFFFFF');font-family:Arial;
+                        font-size:12pt}
+.pgbar {filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,
+                                StartColorStr='#FFFFFF', EndColorStr='#9999FF')}
+</STYLE>
+</HEAD>
+
+<SCRIPT LANGUAGE="VBScript">
+Option Explicit
+Dim objShell
+Set objShell = CreateObject("WScript.Shell")
+'-- Set Window Size and Position
+Sub Window_Onload
+        self.Focus
+        self.resizeTo 300,150
+        self.MoveTo 500,500
+        bar.style.width = "0%"  
+        
+
+'-- Start the progress bar
+        ProgBar "Init", "I'm doing something now...<br>"
+'-- Run the command 
+        objShell.Run "%comspec% /c pause" ,9, True
+'-- Stop the progress bar
+        ProgBar "End", "dummyarg"
+'-- Start the progress bar
+        ProgBar "Init", "Now I'm doing something else...<br>"
+'-- Run the command 
+        objShell.Run "%comspec% /c pause" ,1, True
+'-- Stop the progress bar
+        ProgBar "End", "dummyarg"
+        MsgBox "I'm done"
+'-- End the script
+        self.close
+End Sub
+        
+
+Public strTimer
+Function ProgBar(strCmd, strMsg)
+        Select Case strCmd
+                Case "Init"
+                        bar.style.width = "0%"
+                        Statwin.innerHTML = Statwin.innerHTML & strMsg
+                        strTimer = window.setInterval("ProgBar 'Run'" & "," & "dummyarg" , 100)
+                        ' strTimer value is the delay in milliseconds
+                Case "Run"
+                        If Not bar.style.width = "100%" Then
+                                bar.style.width = Left(bar.style.width, Len(bar.style.width) - 1) + .5 & "%"
+                                ' Using .5 pixel increase with 100ms delay provides a smooth
+                                ' progress bar transition
+                        Else
+                                bar.style.width = "0%"
+                        End If
+                Case "End"
+                        Window.clearInterval(strTimer)
+                        bar.style.width = "100%"
+        End Select
+End Function
+</SCRIPT>
+
+<!-- HTML layout -->
+<BODY Id="bdy">
+        <DIV Id="Statwin">
+        </DIV>
+        <!-- Changing the font size changes the size of the bar. -->
+        <DIV style="Position:Absolute;Width:100%;Bottom:10px;Border-width:1;Border-style:solid;
+        Border-color:#BBBBBB;Font-size:10px">
+                <SPAN ID="bar" class=pgbar></SPAN>
+        </DIV>
+</BODY>
+</HTML>

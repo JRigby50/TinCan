@@ -1,0 +1,36 @@
+.tree {
+	BACKGROUND: #f1f1f1; CURSOR: default; PADDING-TOP: 2px
+}
+.treeItem {
+	HEIGHT: 19px
+}
+.treeBullet {
+	PADDING-LEFT: 8px; FONT: 70% Verdana; WIDTH: 24px; HEIGHT: 19px
+}
+.treeLabel {
+	BORDER-RIGHT: #f1f1f1 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #f1f1f1 1px solid; PADDING-LEFT: 2px; PADDING-BOTTOM: 0px; BORDER-LEFT: #f1f1f1 1px solid; CURSOR: hand; PADDING-TOP: 1px; BORDER-BOTTOM: #f1f1f1 1px solid; HEIGHT: 19px
+}
+.treeLabel A {
+	COLOR: black; TEXT-DECORATION: none
+}
+.treeContainer {
+	PADDING-LEFT: 21px
+}
+.treeBox {
+	BORDER-RIGHT: black 1px solid; BORDER-TOP: black 1px solid; MARGIN-TOP: 4px; BACKGROUND: white; OVERFLOW: hidden; BORDER-LEFT: black 1px solid; WIDTH: 11px; CURSOR: hand; BORDER-BOTTOM: black 1px solid; HEIGHT: 11px; TEXT-ALIGN: center
+}
+.treePlus {
+	FONT: 9px Verdana; POSITION: relative; TOP: -2px
+}
+.treeMinus {
+	PADDING-LEFT: 1px; FONT: 15px/15px Verdana; POSITION: relative; TOP: -4px
+}
+.treeDot {
+	FONT: 9px Verdana; POSITION: relative; TOP: -4px
+}
+.treeLabel {
+	FONT: 70% Verdana
+}
+BODY {
+	MARGIN: 0px
+}

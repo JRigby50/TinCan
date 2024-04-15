@@ -1,0 +1,131 @@
+.vbs script to back up event logs and schedule future backups
+by Jeff Gilbert 
+This script performs a backup of the event logs and clears them. It also copies another .vbs file to the C:\ of the system running the script to schedule future event log backups to run three times a week at 10pm. So it's really two scripts in one for you here...the 2nd script needs to be in the same folder as the first script so it will be copied to the other machine correctly.
+
+
+--------------------------------------------------------------------------------
+
+Script code:
+Code samples provided on ScriptingAnswers.com are provided AS-IS without warranty or guarantee of any kind. ScriptingAnswers.com is not responsible for content posted by individuals who use this site. All code samples should be thoroughly reviewed and tested before being used in a production environment. 
+
+
+' BACKUPEVT.VBS
+Dim MachineName,SRVName,Path
+SRVName=[Enter a server share here, include the last \]
+Set WshNetwork = WScript.CreateObject("WScript.Network")
+MachineName = WshNetwork.ComputerName
+Path=SRVName & MachineName & "\"
+On Error resume next
+
+Set FSO = CreateObject("Scripting.FileSystemObject")
+ If Not FSO.FileExists("c:\evtbkp.vbs") Then 
+' Put the second .vbs file in the same folder as SRVName--2nd script is detailed under this one
+' This is the part that creates the folder on the server share to store the event logs
+' And also copies the .vbs that will run future scheduled backups to the C:
+      FSO.CopyFile SRVName\"evtbkp.vbs", "c:\"
+      FSO.CreateFolder(Path)
+      FSO.CreateFolder(Path & "Application Logs")
+      FSO.CreateFolder(Path & "Security Logs")
+      FSO.CreateFolder(Path & "System Logs")
+ 
+' This is the part that schedules the backup to run
+    strComputer = "."
+    Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" _
+    & strComputer & "\root\cimv2") 
+Set objNewJob = objWMIService.Get("Win32_ScheduledJob")
+errJobCreated = objNewJob.Create _
+    (SRVName & "c:\evtbkp.vbs", "********120000.000000-900", _
+        True , 1 OR 4 OR 16, , , JobId) 
+    end If
+
+dtmThisDay = Day(Date)
+dtmThisMonth = Month(Date)
+dtmThisYear = Year(Date)
+strBackupName = dtmThisYear & "_" & dtmThisMonth _
+    & "_" & dtmThisDay
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate,(Backup)}!\\" & _
+        strComputer & "\root\cimv2")
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile " _
+        & "Where LogFileName='Application'")
+For Each objLogfile in colLogFiles
+    objLogFile.BackupEventLog(Path & "Application Logs\" & strBackupName & _
+        "_Application.evt")
+    objLogFile.ClearEventLog()
+wscript.echo "Application log saved and cleared!"
+Next
+
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile " _
+        & "Where LogFileName='Security'")
+For Each objLogfile in colLogFiles
+    objLogFile.BackupEventLog(Path & "Security Logs\" &  strBackupName & _
+        "_Security.evt")
+    objLogFile.ClearEventLog()
+wscript.echo "Security log saved and cleared!"
+Next
+
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile " _
+        & "Where LogFileName='System'")
+For Each objLogfile in colLogFiles
+    objLogFile.BackupEventLog(Path & "System Logs\" &  strBackupName & _
+        "_System.evt")
+    objLogFile.ClearEventLog()
+wscript.echo "System log saved and cleared!"
+Next
+Wscript.quit
+
+
+
+***********************************************************
+2nd .vbs used to run the scheduled backups from the local machine
+
+' EVTBKP.VBS
+Dim MachineName,SRVName,Path
+SRVName=[HARD CODE THE PATH TO SRVName HERE]
+Set WshNetwork = WScript.CreateObject("WScript.Network")
+MachineName = WshNetwork.ComputerName
+Path=SRVName & MachineName & "\"
+On Error resume next
+
+dtmThisDay = Day(Date)
+dtmThisMonth = Month(Date)
+dtmThisYear = Year(Date)
+strBackupName = dtmThisYear & "_" & dtmThisMonth _
+    & "_" & dtmThisDay
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate,(Backup)}!\\" & _
+        strComputer & "\root\cimv2")
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile " _
+        & "Where LogFileName='Application'")
+For Each objLogfile in colLogFiles
+    objLogFile.BackupEventLog(Path & "Application Logs\" & strBackupName & _
+        "_Application.evt")
+    objLogFile.ClearEventLog()
+Next
+
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile " _
+        & "Where LogFileName='Security'")
+For Each objLogfile in colLogFiles
+    objLogFile.BackupEventLog(Path & "Security Logs\" &  strBackupName & _
+        "_Security.evt")
+    objLogFile.ClearEventLog()
+Next
+
+Set colLogFiles = objWMIService.ExecQuery _
+    ("Select * from Win32_NTEventLogFile " _
+        & "Where LogFileName='System'")
+For Each objLogfile in colLogFiles
+    objLogFile.BackupEventLog(Path & "System Logs\" &  strBackupName & _
+        "_System.evt")
+    objLogFile.ClearEventLog()
+Next
+Wscript.quit
+

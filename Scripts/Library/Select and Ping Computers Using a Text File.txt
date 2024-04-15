@@ -1,0 +1,82 @@
+Select and Ping Computers Using a Text File
+
+Description
+
+WMI scripting template that runs the script against a list of computer found in a text file named C:\Scripts\Servers.txt. Within the text file, each computer name should be on a separate line. For example:
+
+atl-ws-01
+atl-ws-02
+atl-ws-03
+
+This script pings the relevant computer before trying to make a connection.
+
+Supported Platforms
+
+Windows Server 2003
+	
+
+Yes
+
+Windows XP
+	
+
+Yes
+
+Windows 2000
+	
+
+Yes
+
+Windows NT 4.0
+	
+
+Yes
+
+Windows 98
+	
+
+Yes
+
+Script Code
+
+On Error Resume Next
+
+Const ForReading = 1
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objTextFile = objFSO.OpenTextFile("c:\scripts\servers.txt", ForReading)
+
+strComputers = objTextFile.ReadAll
+objTextFile.Close
+
+arrComputers = Split(strComputers, vbCrLf)
+Set objShell = CreateObject("WScript.Shell")
+
+For Each strComputer In arrComputers
+
+    strCommand = "%comspec% /c ping -n 3 -w 1000 " & strComputer
+    Set objExecObject = objShell.Exec(strCommand)
+    strText = objExecObject.StdOut.ReadAll
+    If Instr(strText, "Reply") > 0 Then
+
+    ' =====================================================================
+    ' Insert your code here
+    ' =====================================================================
+
+        Set objWMIService = GetObject _
+            ("winmgmts:\\" & strComputer & "\root\cimv2")
+        Set colItems = objWMIService.ExecQuery _
+            ("Select * From Win32_OperatingSystem")
+        For Each objItem In ColItems
+            Wscript.Echo strComputer & ": " & objItem.Caption
+        Next
+
+    ' =====================================================================
+    ' End
+    ' =====================================================================
+
+    Else
+        Wscript.Echo strComputer & " could not be reached."
+    End If
+
+Next

@@ -1,0 +1,43 @@
+Visual Basic
+'New and Improved DNS/WINS Query script
+'by Rob Cilia 8/4/10
+
+On Error Resume Next
+
+'open the file system object
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+set WSHShell = wscript.createObject("wscript.shell")
+'open the data file
+Set oTextStream = oFSO.OpenTextFile("computers.txt")
+'make an array from the data file
+RemotePC = Split(oTextStream.ReadAll, vbNewLine)
+'close the data file
+oTextStream.Close
+For Each strComputer In RemotePC
+
+   WScript.Echo
+   WScript.Echo "=========================================="
+   WScript.Echo "Computer: " & strComputer
+   WScript.Echo "=========================================="
+
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\CIMV2") 
+Set colItems = objWMIService.ExecQuery( _
+    "SELECT * FROM Win32_NetworkAdapterConfiguration",,48) 
+For Each objItem in colItems 
+    'Wscript.Echo "-----------------------------------"
+    'Wscript.Echo "Win32_NetworkAdapterConfiguration instance"
+    'Wscript.Echo "-----------------------------------"
+     If isNull(objItem.DNSHostName) Then
+    '    Wscript.Echo "DNSHostName: "
+     Else
+     	Wscript.Echo "DNS Host Name: " & objItem.DNSHostName
+     	Wscript.Echo "Description: " & objItem.Description
+	Wscript.Echo "IP Address: " & Join(objItem.IPAddress, ",")
+     	Wscript.Echo "IP Subnet: " & Join(objItem.IPSubnet, ",")
+	Wscript.Echo "DNS Server Search Order: " & Join(objItem.DNSServerSearchOrder, " , ")
+	Wscript.Echo "DNS Suffix: " & objItem.DNSDomain
+	Wscript.Echo "WINS Primary Server: " & objItem.WINSPrimaryServer
+	Wscript.Echo "WINS Secondary Server: " & objItem.WINSSecondaryServer
+     End If
+Next
+Next

@@ -1,0 +1,38 @@
+'Samples of reading command line parameters
+
+Dim colArguments
+Dim colArgumentsNamed
+Dim colArgumentsUnNamed
+
+
+Set colArguments = WScript.Arguments
+Set colArgumentsNamed = WScript.Arguments.Named
+Set colArgumentsUnNamed = WScript.Arguments.Unnamed
+
+WScript.Echo "Total Number of All Arguments is: " & colArguments.Count
+
+If colArguments.Count> 0 Then
+	For i = 0 To colArguments.Count - 1
+		WScript.Echo "Argument " & i+1 & " is: " & colArguments(i)
+	Next
+End If
+
+WScript.Echo "Number of Named Arguments is: " & colArgumentsNamed.Count
+
+If colArgumentsNamed.Count> 0 Then
+	'Not sure how to step through the named args.
+	'Test for exist of a specific arg, then process
+	If colArgumentsNamed.Exists( "ini" ) Then
+		WScript.Echo "/ini parameter is: " & colArgumentsNamed.Item ( "ini" )
+	Else 
+		WScript.Echo "/ini parameter was not specified"	
+	End If 	
+End If
+
+WScript.Echo "Number of UnNamed Arguments is: " & colArgumentsUnNamed.Count
+
+If colArgumentsUnNamed.Count> 0 Then
+	For i = 0 To colArgumentsUnNamed.Count - 1
+		WScript.Echo "UnNamed Argument " & i+1 & " is: " & colArgumentsUnNamed(i)
+	Next
+End If
