@@ -1,0 +1,15 @@
+<msi>
+    <targetFolder>C:\Users\james\Documents\Scripts\HTAs\HTA VBS Script Chooser_msi</targetFolder>
+    <version>1.0.0.0</version>
+    <description>MSI package for HTA VBS Script Chooser</description>
+    <productName>HTA VBS Script Chooser</productName>
+    <manufacturer>james</manufacturer>
+    <scope>perUser</scope>
+    <upgradeCode>{6A70BAC0-B998-4B12-A83F-71D6ADDDE1D1}</upgradeCode>
+    <desktopShortcut>no</desktopShortcut>
+    <startmenuShortcut>no</startmenuShortcut>
+    <dependencies>
+        <dependency>HTA VBS Script Chooser.dll</dependency>
+        <dependency>HTA VBS Script Chooser.exe.manifest</dependency>
+    </dependencies>
+</msi>

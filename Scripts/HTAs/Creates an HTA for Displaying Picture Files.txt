@@ -1,0 +1,92 @@
+'  Drag a picture file (gif, jpg, bmp, including animated gifs) into this script or
+'  place the script (or a shortcut to it) in the SendTo folder
+'  Script will present the picture file in a minimal HTA window that lacks
+'  title or scroll bar making it appear more like a picture frame
+'      Steve Yandl       October 2007
+ 
+
+Const filePropName = 0
+Const filePropType = 2
+Const filePropDimensions = 26
+ 
+Dim wsh, FSO
+ 
+intDur = 10  ' Number of seconds HTA will stay up
+                     ' If too long, user can press Alt plus F4 to close window
+ 
+strPictFile = WScript.Arguments(0)
+ 
+Set FSO = CreateObject("Scripting.FileSystemObject")
+ 
+
+'  Check that the picture file exists, is a picture type and get its dimensions
+If FSO.FileExists(strPictFile) Then
+    Set objShell = CreateObject("Shell.Application")
+    strArgParent = FSO.GetParentFolderName(strPictFile)
+    strArgFileName = FSO.GetFileName(strPictFile)
+    Set objFolder = objShell.Namespace(strArgParent)
+ 
+    For Each strFileName In objFolder.Items
+        If objFolder.GetDetailsOf(strFileName, filePropName) = _
+           strArgFileName Then
+         strDimensions = objFolder.GetDetailsOf(strFileName, _
+           filePropDimensions)
+         strType = objFolder.GetDetailsOf(strFileName, filePropType)
+        End If
+    Next
+ 
+If Left(strType, 4) = "JPEG" OR Left(strType, 3) = "GIF" OR _
+      Left(strType, 6) = "Bitmap" Then
+'  Proceed
+Else
+WScript.Quit
+End If
+ 
+    If InStr(strDimensions, " x ") > 0 Then
+        sizeArr = Split(strDimensions, "x")
+        w = Trim(sizeArr(0))
+        h = Trim(sizeArr(1))
+    End If
+Else
+WScript.Quit
+End If
+ 
+ 
+ 
+' Create an HTA file with picture file as its background and timed close 
+strHTAname = FSO.GetSpecialFolder(2) & "\Temp0.hta"
+Set txtHTA = FSO.CreateTextFile(strHTAname)
+ 
+With txtHTA
+  .WriteLine "<HTML>"
+  .WriteLine "<HTA:Application"
+  .WriteLine "Caption=" & Chr(34) & "no" & Chr(34)
+  .WriteLine "Borderstyle="&Chr(34)&"complex"&Chr(34)
+  .WriteLine "Scroll=" & Chr(34) & "no" & Chr(34) & ">"
+  .WriteLine "<SCRIPT Language=" & Chr(34) & "VBScript" & Chr(34) & ">"
+  .WriteLine "Sub Window_OnLoad"
+  .WriteLine "window.resizeTo " & w & ", " & h
+  .WriteLine "idTimer = window.setTimeout(" & Chr(34) _
+     & "CloseShop" & Chr(34) _
+     & ", " & CStr(intDur * 1000) & ", " & Chr(34) & "VBScript" _
+     & Chr(34) & ")"
+  .WriteLine "End Sub"
+  .WriteLine "Sub CloseShop"
+  .WriteLine "window.clearTimeout(idTimer)"
+  .WriteLine "self.close()"
+  .WriteLine "End Sub"
+  .WriteLine "</SCRIPT>"
+  .WriteLine "<BODY background=" & Chr(34) & strPictFile & Chr(34) & ">"
+  .WriteLine "</BODY>"
+  .WriteLine "</HTML>"
+  .Close
+End With
+ 
+
+'  Launch the HTA file
+Set wsh = CreateObject("WScript.Shell")
+wsh.Run "mshta.exe " & Chr(34) & strHTAname & Chr(34)
+ 
+'  Delete the temp HTA file
+WScript.Sleep 6000
+FSO.DeleteFile strHTAname

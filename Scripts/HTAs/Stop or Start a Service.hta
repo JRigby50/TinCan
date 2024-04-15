@@ -1,0 +1,130 @@
+<html>
+<head>
+<title>My HTML application</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="My HTML application"
+  ID="MyHTMLapplication"
+  VERSION="1.0"/>
+</head>
+
+<script language="VBScript">
+
+Sub Window_OnLoad
+  'This method will be called when the application loads
+  'Add your code here
+End Sub
+Option Explicit
+Dim objWMIService, objItem, objService, objShell
+Dim colListOfServices, Action
+Dim strServiceList, strServiceName, strComputer, strService
+Const TIMEOUT = 2
+
+Set objShell = WScript.CreateObject("WScript.Shell")
+
+'Enter the Computer name.
+Do 
+   	strComputer = InputBox  ("Enter the name of the Computer","Computer Name"," ")
+   	If strComputer = "" Then
+      	WScript.Quit
+   	ElseIf strComputer = " " Then
+      	MsgBox "You must specify a Computer name",vbOkOnly,"Computer Name Required"
+   	End If
+Loop Until strComputer <> " "
+
+'Enter the Service name. NOTE: Service name is case sensitive!
+Do 
+	strService = InputBox  ("Enter the name of the Service to start or stop" &_
+   		vbCrLf & "or a ? for a listing of services" &_
+   		vbCrLf & "Note: The service name is Case Sensitive","Service Name"," ")
+   	If strService = "" Then
+      	WScript.Quit
+   	ElseIf strService = " " Then
+    	MsgBox "You must specify a Service name",vbOkOnly,"Service Name Required"
+   	End If
+	'If a '?' is entered, get a formatted list of Services by (Real) Name and Display Name
+	If strService = "?" Then
+		Set objWMIService = GetObject("winmgmts:" _
+			& "{impersonationLevel=impersonate}!\\" _
+			& strComputer & "\root\cimv2")
+		Set colListOfServices = objWMIService.ExecQuery _
+			("Select * from Win32_Service ")		
+		strServiceList = LeftPad("Service Name", 30, Chr(32)) & vbTab & "Service Display Name"
+		strServiceList = strServiceList & vbCrLf & LeftPad("------------", 30, Chr(32)) & vbTab & "--------------------"
+		For Each objService in colListOfServices
+			strServiceName = objService.name
+			strServiceName = LeftPad(strServiceName, 30, Chr(32))
+			strServiceList = strServiceList & vbCrLf & strServiceName & vbTab & objService.DisplayName
+		Next		
+		Set colListOfServices = nothing
+		Set objWMIService = Nothing 
+		WScript.Echo strServiceList
+	End If
+Loop Until strService <> " " And strService <> "?"
+strService = "'" & strService & "'"
+
+'Check the service status, if it is stopped ask to start it
+'if it is running ask to stop it, also if it is an auto startup
+'ask if the user wants to change it to disabled.
+Set objWMIService = GetObject("winmgmts:" _
+& "{impersonationLevel=impersonate}!\\" _
+& strComputer & "\root\cimv2")
+Set colListOfServices = objWMIService.ExecQuery _
+("Select * from Win32_Service Where Name =" & strService & " ")
+For Each objService in colListOfServices
+	If objService.State = "Running" Then
+        Action = MsgBox("The " & strService & " service is running; do you want to stop it?", vbYesNo, "Stop Service?")
+        If Action = vbYes Then
+			objService.StopService()
+            objShell.Popup "Stop request sent.", TIMEOUT
+            If objService.StartMode = "Auto" Then
+            	Action = MsgBox("The " & strService & " service is stopped; do you want to disable it?", vbYesNo, "Disable Service?")
+        		If Action = vbYes Then
+            		errReturnCode = objService.Change( , , , , "Disabled") 
+            		objShell.Popup "Disable Service request sent.", TIMEOUT
+        		End If
+			End If
+        End If
+    ElseIf objService.State = "Stopped" Then
+    	If objService.StartMode = "Disabled" Then
+        	MsgBox "The " & strService & " service is Disabled and can not be started with this script",vbOkOnly,"Service Disabled"
+		Else
+	        Action = MsgBox("The " & strService & " service is stopped; do you want to start it?", vbYesNo,"Start Service?")
+        	If Action = vbYes Then
+            	objService.StartService()
+            	objShell.Popup "Start request sent.", TIMEOUT
+        	End If
+        End If
+    Else
+        objShell.Popup "Service state cannot be determined.", TIMEOUT
+    End If
+Next 
+
+set objShell = Nothing
+Set objService = Nothing
+Set objItem = Nothing
+Set objWMIService = Nothing
+
+WScript.Quit ' End of WMI script to Start / Stop services
+
+Function LeftPad(strData, intLen, chrPad)
+	'Pads the string strData from the left to length intLen with char chrPad.
+ 	'If strData length is greater than intLen, returns strData unchanged
+    Dim intPadLen
+    intPadLen = intLen - Len(strData)
+    If intPadLen > 0 Then
+     	LeftPad = String(intPadLen, chrPad) & strData
+    Else
+     	LeftPad = strData
+    End If
+End Function
+
+
+</script>
+
+<body bgcolor="white">
+
+<!--Add your controls here-->
+
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</body>
+</html>

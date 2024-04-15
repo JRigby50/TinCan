@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>My HTML application</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="My HTML application"
+  ID="MyHTMLapplication"
+  VERSION="1.0"/>
+</head>
+
+<script language="VBScript">
+
+
+	intButtonCount = 1
+
+	Sub AddButton
+		strHTML = DataArea.InnerHTML       
+        strHTML = strHTML & "<input id=" & intButtonCount & " type=" & Chr(34) & "button" & Chr(34) & _
+            " value= " & Chr(34) & "Button " & intButtonCount & Chr(34) & " onClick=" & Chr(34) & _
+                "NewButtonSubroutine" & Chr(34) & ">"
+        DataArea.InnerHTML = strHTML
+        intButtonCount = intButtonCount + 1
+    End Sub
+
+    Sub NewButtonSubroutine
+        Set objButton = window.event.srcelement
+        strID = objButton.id
+        Msgbox "You clicked Button ID " & strID
+    End Sub
+
+</script>
+
+<body>
+    <input id=addbutton type="button" value="Add Button" onClick="AddButton">
+    <span id=DataArea></span>
+</body>
+
+
+</html>

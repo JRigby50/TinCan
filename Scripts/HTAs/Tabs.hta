@@ -1,0 +1,59 @@
+</body>
+</html>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> 
+ <html> 
+     <head> 
+     <title>Tabs</title> 
+         <hta:application  
+          ID = "HTA"  
+          ApplicationName = "Tabs" 
+          Border = "Thin" 
+          InnerBorder="No" 
+          Navigable="Yes" 
+          SrollFlat="No" 
+          SingleInstance = "Yes" 
+          Version = "1.0" 
+          WindowState = "Maximize" /> 
+           
+         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  
+         <base target="content"/> 
+  
+         <style type="text/css"> 
+             #content{ 
+                 width:640px; 
+                 height:480px; 
+             } 
+             div{ 
+                 width:640px; 
+             } 
+             a{ 
+                 font:9pt Arial Bold; 
+                 color:black; 
+                 padding: 2px 4px 0px 4px; 
+                 background-color:wheat; 
+                 text-align:center; 
+                 border:1px solid black; 
+                 text-decoration:none; 
+             } 
+         </style> 
+         <script type="text/javascript"> 
+             self.moveTo(0,0); 
+             self.resizeTo(800,600); 
+         </script> 
+     </head> 
+     <body> 
+         <div> 
+             <a href="http://www.google.com">Google</a>  
+             <a href="http://www.google.com">Yahoo</a>  
+             <a href="http://www.visualbasicscript.com">VisualVasicScript</a> 
+             <a href="http://www.dynamicdrive.com">DynamicDrive</a> 
+             <a href="http://developer.mozilla.org">MDC</a> 
+         </div> 
+         <iframe id="content" name="content" src="about:blank"></iframe> 
+<!--Add your controls here-->
+
+<!--{{InsertControlsHere}}-Do not remove this line-->
+     </body> 
+ </html> 

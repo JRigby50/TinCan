@@ -1,0 +1,259 @@
+<HTML XMLNS:myHTA>
+<?IMPORT namespace="myHTA" implementation="Components/htaLite.htc" >
+<HEAD>
+  <TITLE>HTALite Application FrameWork</TITLE>
+  <HTA:APPLICATION 
+    ID="objMyApp" 
+    APPLICATIONNAME="htaLite" 
+    BORDER="thick"
+    BORDERSTYLE="normal"
+    CAPTION="yes"
+    CONTEXTMENU="yes"
+    ICON="Shared\Images\HTAApplication.ico"
+    INNERBORDER="yes"
+    MAXAMIZEBUTTON="yes"
+    MINIMIZEBUTTON="yes"
+    NAVIGABLE="yes"
+    SCROLL="no" 
+    SELECTION="yes"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    SYSMENU="yes"
+    VERSION="1.0"
+    WINDOWSTATE="normal"
+>
+<SCRIPT Language="javascript">
+<!--
+
+var strHelpFile  = getCurPath(window.location) + "\\Help\\HelpFile.txt";
+var strHelpFile  = getCurPath(window.location) + "\\Help\\HelpFile.htm";
+
+var fso = new ActiveXObject("Scripting.FileSystemObject");	// FileSystemObject instantiated during startup
+var strPath    = getCurPath(window.location);
+var cScreen;   // current screen
+
+
+//----------------------------------------------------
+// function : commandHandler(sCmd)
+//
+//  purpose : 
+//----------------------------------------------------
+function commandHandler(sCmd)
+{
+  bubba.updateStatus("filler", sCmd);
+  switch(sCmd)
+  {
+    case "open":
+	sFile = bubba.fileOpen();
+	if(sFile != "")
+        {
+          readFile(sFile);
+        }
+	break;
+
+    case "help":
+	bubba.showHelp();
+	break;
+
+    case "saveas":
+        sCurrFile = bubba.fileSaveAs();
+	if ( !sCurrFile == "")
+        {
+          alert("File Save : " + sCurrFile);
+	  // add your code here to write to that file
+
+        }
+	break;
+
+    case "scrn2":
+	var newScrn = (cScreen == "screen1" ? "screen2" : "screen1");
+	cScreen = showScreen(newScrn);
+	break;
+
+    case "exit":
+	var rtn = myPopUp("Exit Program\n\nDo you wish to continue and Exit this program ?", 4, 32, 0); 
+        if (rtn==6) 
+        {
+ 	  // Place you exit code here
+	  //savePgmConfig();
+          window.close();	
+	}
+	break;
+  }
+}
+
+
+//----------------------------------------------------
+// function : readFile(strFile)
+// 
+//  purpose : read the contents of the selected file
+//            and display that information in the 
+//            selected control
+//----------------------------------------------------
+function readFile(strFile)
+{
+  var nText = "";
+  var fileObj = fso.OpenTextFile(strFile, 1, false, 0);
+  while (fileObj.AtEndOfStream != true)
+  {
+    nText += fileObj.ReadLine();
+  }
+  fileObj.Close();
+  document.getElementById("txtMsg").value = nText;
+}
+
+//--------------------------------------------------
+// function : showScreen(s)
+//
+//  purpose : hide all screens, and then display the
+//            selected screen (by id)
+//--------------------------------------------------
+function showScreen(s)
+{
+  var sCol = document.all.tags("div");			// Hide all Screens	
+  for (idx=0;idx<sCol.length;idx++) if(sCol[idx].className=="screen") { sCol[idx].style.display = "none";}
+  document.getElementById(s).style.display = "";	// Show the screen we want
+
+  switch(s)
+  {
+    case "screen1":
+        setBtnMode(cmdexit, "disable", 1)
+	setBtnMode(cmdhelp, "enable", 1)
+	break;
+
+    case "screen2":
+	setBtnMode(cmdexit, "enable", 1)
+	setBtnMode(cmdhelp, "disable", 1)
+	break;
+  }
+  cScreen = s;
+  return cScreen;
+}
+
+
+//----------------------------------------------------
+// function : setBtnMode(eSrc, eMode, eStyle)
+//
+//  purpose : make buttons enabled/disabled
+//            eStyle = 0 Do NOT apply style
+//----------------------------------------------------
+function setBtnMode(eSrc, eMode, eStyle)
+{
+  if (eStyle == undefined) eStyle = 0;
+  switch(eMode)
+  {
+    case "enable":
+	eSrc.disable   = "false";
+	eSrc.setAttribute("disabled", false,0);
+	if (eStyle==1) eSrc.className = "filtnorm";
+	break;
+
+    case "disable":
+	eSrc.disable   = "true";
+	eSrc.setAttribute("disabled", true, 0);
+	if (eStyle==1) eSrc.className = "filtout";
+	break;
+  }
+}
+
+//----------------------------------------------------
+// function : getCurPath(jPath)
+//
+//  purpose : return the current path based on the
+//            window.location of this .hta application
+//----------------------------------------------------
+function getCurPath(jPath)
+{
+  fullPath = location.href;                               // fully qualified filepath 
+  fullPath = fullPath.replace(/file:\/\/\//,"");          // remove file:///
+  fullPath = fullPath.replace(/\//g,"\\");                // replace slash with backslash 
+  var i    = fullPath.lastIndexOf("\\");
+  var strDir   = fullPath.substring(0, i);
+  return strDir;
+}
+
+//----------------------------------------------------
+// function : init()
+//
+//  purpose : 
+//----------------------------------------------------
+function init()
+{
+  cScreen = showScreen("screen1");
+
+}
+
+//----------------------------------------------------
+// function : myPopUp(sMsg, btn, image)
+//
+//  purpose : use popup function to show message
+//
+//----------------------------------------------------
+function myPopUp(sMsg, btn, image, dBtn)
+{
+  // 16=Stop, 32=Question, 48=Exclamation 64=Information
+  // 0=OK, 1=Ok, Cancel,  2=Abort,Ignore, Retry  3=Yes, No, Cancel  4=Yes No  5=Retry, Cancel
+  // DBtn  0=1st Btn   256=2nd Btn   512=3rd Btn    768=4th Btn
+  b = bubba.showPopUp(sMsg, btn, image, dBtn);
+  return b;
+}
+//-->
+</Script>
+
+<STYLE TYPE="text/css">
+<!--
+BODY	        { font-family: Verdana, Arial, Helvetica, sans-serif; font:menu; background-color:Menu; color:MenuText; font-size: 8pt; cursor:default; //auto, text, pointer 	}
+  .filtout      { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=20); } 
+  .filtnorm     { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100); } 
+  .fileListTb   { Font-Family:Verdana;Font-Size:8pt; }
+-->
+</STYLE>
+</HEAD>
+<BODY Id="pageApp" TopMargin="0" LeftMargin="0" RightMargin="0" onload="init();" >
+
+<myHTA:application id="bubba">
+  <myHTA:toolBar>
+    <myHTA:toolBarButton Id="cmdgetTest"   CLASS="button" CMD="open"    SRC="Images/ct_folder.bmp"  WIDTH="23" HEIGHT="22" TEXT="File Open" />
+    <myHTA:toolBarButton Id="cmdgetTest"   CLASS="button" CMD="saveas"  SRC="Images/ct_folder.bmp"  WIDTH="23" HEIGHT="22" TEXT="Save As" />
+    <myHTA:toolBarSeparator />
+    <myHTA:toolBarButton Id="cmdScreen2"   CLASS="button" CMD="scrn2"   SRC="Images/ct_folder.bmp"  WIDTH="23" HEIGHT="22" TEXT="Switch between Screens" />
+    <myHTA:toolBarSeparator />
+    <myHTA:toolBarButton Id="cmdHelp"   CLASS="button" CMD="help"    SRC="Images/ct_help.bmp"  WIDTH="23" HEIGHT="22" TEXT="View Help File (ALT-H)" />
+    <myHTA:toolBarSeparator />
+    <myHTA:toolBarButton Id="cmdExit"   CLASS="button" CMD="exit"    SRC="Images/ct_exit.bmp"  WIDTH="23" HEIGHT="22" TEXT="Exit Program (ALT-X)" />
+  </myHTA:toolBar>
+  <myHTA:pageContent Style="display:none;" DefaultStyle="background-color:#F0F0F0;Border:1 solid #C8C8C8;">
+
+    <Div Id="screen1" Class="screen" Style="display:none">
+      <P>Here we are showing Screen1 - this is an simple application WITH Toolbar, PageContent area and a Statusbar</P>
+      <P>This simple application gives you an example of how to use the HTALite Application framework.</P>
+      <P>The following functionality is demonstated :</P>
+      <UL>
+        <LI>Using Multiple screens in your application</LI>
+        <LI>Creating and Using a ToolBar in your application</LI>
+        <LI>Creating and Using a StatusBar in your Application</LI>
+        <LI>Using the "FileOpen" method for the application</LI>
+        <LI>Using the "updateStatus" method to display information on the StatusBar</LI>
+	<LI>Using the "showHelp" method to display a Text or HTM Help File</LI>
+        <LI>Using the "showPopUp" to display popup Messages / dialogs</LI>
+	<LI>How to Enable/Disable buttons on the Toolbar</LI>
+      </UL>
+      <P>
+        <TEXTAREA Id="txtMsg" Cols=86 Rows=9></TEXTAREA>
+      </P>
+  </Div>
+    <Div Id="screen2" Class="screen" Style="display:none;">
+      Here we are showing Screen2<BR>
+  </Div>
+  </myHTA:pageContent>
+  <myHTA:statusbar>
+    <myHTA:statBarPanel Text="&nbsp;" Type="clock"   Width="20%" DefaultStyle="Font-Size:9pt;Font-Family:Arial;Font-Weight:bold;Color:darkBlue;"></myhta:statBarPanel>
+    <myHTA:statBarPanel Text="&nbsp;" Type="message" Width="50%" DefaultStyle="Font-Size:9pt;Font-Family:Arial;Font-Weight:normal;"></myhta:statBarPanel>
+    <myHTA:statBarPanel Text="&nbsp;" Type="filler"  Width="10%" DefaultStyle="Font-Size:9pt;Font-Family:Arial;Font-Weight:normal;"></myhta:statBarPanel>
+    <myHTA:statBarPanel Text="&nbsp;" Type="error"   Width="20%" DefaultStyle="Font-Size:9pt;Font-Family:Arial;Font-Weight:normal;"></myhta:statBarPanel>
+  </myHTA:statusbar>
+
+</myHTA:application>
+
+</BODY>
+</HTML>

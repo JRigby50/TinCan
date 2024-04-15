@@ -1,0 +1,22 @@
+On Error Resume Next
+
+If Wscript.Arguments.Count = 0 Then
+    Wscript.Echo "You must enter the computer name when starting this script."
+    Wscript.Quit
+End If
+
+strComputer = Wscript.Arguments.Item(0)
+
+' =====================================================================
+' Insert your code here
+' =====================================================================
+
+    Set objComputer = GetObject("WinNT://" & strComputer & "")
+    objComputer.Filter = Array("User")
+    For Each objUser in objComputer
+        Wscript.Echo objUser.Name
+    Next
+
+' =====================================================================
+' End
+' =====================================================================

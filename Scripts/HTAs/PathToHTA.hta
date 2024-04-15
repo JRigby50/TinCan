@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+<HTA:Application
+   ApplicationName = "Get Own Location"
+   BorderStyle = "dialog"
+   Caption = "Get Own Locn"
+   ContextMenu = "False"
+   MaximizeButton = "No"
+   MinimizeButton = "No"
+   Scroll = "No"
+   Selection = "False"
+   ShowInTaskBar = "False"
+   SingleInstance = "True"
+   SysMenu = "Yes"
+   WindowState = "Normal"
+>
+<TITLE>Get Own Location</TITLE>
+<SCRIPT DEFER=TRUE language = "VBScript">
+ 
+'### Define a global variable to make it visible to any function.
+Dim objCurrDir
+ 
+'###############################################################################
+'# Name: Window_OnLoad
+'# Purpose: Functions to execute at load time.
+'###############################################################################
+Sub Window_OnLoad
+   ResetOk = window.MoveTo(200, 200)
+   ResetOk = window.resizeTo(500, 200)
+   SetCurrDir()
+'### End Sub Window_OnLoad
+End Sub
+
+'###############################################################################
+'# Name: Report
+'# Purpose: Report own location.
+'###############################################################################
+Sub Report()
+MsgBox "Script's parent folder: " & VbNewLine & VbNewLine & objCurrDir '### End Sub Report
+End Sub
+'###############################################################################
+'# Name: EndApp
+'# Purpose: Exit HTA application.
+'###############################################################################
+Sub EndApp()
+self.Close()
+'### End Sub EndApp
+End Sub
+
+'###############################################################################
+'# Name: SetCurrDir
+'# Purpose: Capture and set def to folder where this HTA exists.
+'###############################################################################
+Sub SetCurrDir()
+   Set objFSO = CreateObject("Scripting.FileSystemObject")
+   Set WshShell = CreateObject("WScript.Shell")
+   '### document.location.href always returns the HTML rendering of own fully-qualified
+   '### location: "file:///" followed by fully-qualified path to curr file, but elements  
+   '### are separated by FORWARD slashes and spaces are rendered as "%20".
+   '### Capture it, strip off leading data, replace slashes and escape sequences.
+   strHtmlLocnVal = document.location.href
+   strThisHTA = Replace(Right(strHtmlLocnVal, Len(strHtmlLocnVal) - 8), "/", "\")
+   strThisHTA = UnEscape(strThisHTA)
+   '### Bind FSO to the file and capture parent directory.
+   Set objThisFile = objFSO.GetFile(strThisHTA)
+   objParentDir = objThisFile.ParentFolder
+   Set objFolder = objFSO.GetFolder(objParentDir)
+   '### To preclude problems with folder names that contain spaces, e.g.
+   '### "Documents and Settings" or "Program Files", return the 8.3 name. objFolder.ShortPath
+   objCurrDir = objFolder.Path
+   WshShell.CurrentDirectory = objCurrDir
+   '### End Sub SetCurrDir
+   End Sub
+</SCRIPT>
+<STYLE TYPE="text/css"> .Button {
+WIDTH:100;
+HEIGHT:25;
+}
+</STYLE>
+</HEAD>
+<BODY BGColor=SteelBlue>
+<Center>
+<FONT FACE="Arial" Size="4">
+<INPUT ID="LocnBtn" CLASS="BUTTON" TYPE="BUTTON" VALUE="Get Own Locn" OnClick="Report()"> <BR><BR> <INPUT ID="ExitBtn" CLASS="BUTTON" TYPE="BUTTON" VALUE="Exit" OnClick="EndApp()"> </Center> </BODY> </HTML>

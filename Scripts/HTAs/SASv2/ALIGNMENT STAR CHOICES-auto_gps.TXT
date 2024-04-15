@@ -1,0 +1,41 @@
+ 
+			  NEXSTAR ALIGNMENT STAR CHOICES
+				by Jean C. Piquette
+ 
+ MONTH:   2. DAY:   3.
+ LOCAL TIME:  20.00 hours    .00 min.
+ DAYLIGHT SAVING NOT IN EFFECT
+ TIME ZONE NUMBER:   5.
+ LATITUDE:  38.00 deg  51.00 min  58.00 sec.
+ LONGITUDE:  77.00 deg   4.00 min.  48.00 sec.
+ 
+ STAR 1		    STAR 2		   SEP.    ZEN. DIST.  MID. DIST.    HORIZ. PENALTY
+ 
+Rigel               Polaris                97.24       3.61       4.04           .00
+Sirius              Polaris               104.97      20.69      21.33           .00
+Betelgeuse          Polaris                82.13      11.52      14.28           .00
+Aldebaran           Polaris                72.86       3.70      14.48           .00
+Procyon             Polaris                84.59      30.43      30.44           .00
+Castor              Polaris                57.93      29.89      32.69           .00
+Rigel               Castor                 51.89      30.29      32.29           .00
+Aldebaran           Castor                 43.20      17.58      18.88           .00
+Aldebaran           Regulus                80.14      21.42      38.15         68.67
+Procyon             Aldebaran              46.29      22.71      31.83           .00
+Sirius              Aldebaran              45.05      18.67      39.70           .00
+Sirius              Castor                 48.65      32.84      42.85           .00
+Betelgeuse          Castor                 33.68      29.67      29.69           .00
+Rigel               Regulus                75.67      46.14      52.37         68.67
+Regulus             Polaris                78.34      49.13      53.76         68.67
+Rigel               Aldebaran              26.12      11.60      34.50           .00
+Betelgeuse          Regulus                62.44      33.53      49.67         68.67
+Rigel               Procyon                38.39      45.28      45.53           .00
+Sirius              Betelgeuse             25.87       4.10      47.19           .00
+Betelgeuse          Aldebaran              21.40      22.04      27.18           .00
+Procyon             Castor                 26.67      29.42      40.63           .00
+Procyon             Betelgeuse             25.95      30.86      41.23           .00
+Rigel               Betelgeuse             18.28      27.60      40.16           .00
+Regulus             Castor                 40.53       1.59      53.42         68.67
+Sirius              Rigel                  23.43      40.96      52.87           .00
+Sirius              Procyon                24.52      47.89      54.36           .00
+Sirius              Regulus                57.20      60.06      63.62         68.67
+Procyon             Regulus                37.43      42.19      60.91         68.67

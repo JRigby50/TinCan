@@ -1,0 +1,653 @@
+<html>
+
+<head>
+	<title>HTA Generator</title>
+	<HTA:APPLICATION
+		ID						= 'oHTAGen'
+		APPLICATIONNAME	= 'HTA Generator'
+		BORDER				= 'Thick'
+		BORDERSTYLE			= 'Complex'
+		CAPTION				= 'Yes'
+		CONTEXTMENU			= 'No'
+		ICON					= '.\app.ICO'
+		INNERBORDER			= 'Yes'
+		SHOWINTASKBAR		= 'Yes'
+		SINGLEINSTANCE		= 'Yes'
+		SYSMENU				= 'No'
+		WINDOWSTATE			= 'Normal'
+		SCROLL				= 'Auto'
+		SCROLLFLAT			= 'No'
+		VERSION				= '7.1'>
+	<base target="_blank">
+</head>
+
+<script language="vbscript">
+Option Explicit
+Dim	strApplicationName, strID, strBorder, strBorderStyle, strCaption, strContextMenu
+Dim	strIcon, strInnerBorder, strMaximizeButton, strMinimizeButton, strNavigable
+Dim	strScroll, strScrollFlat, strSelection, strShowInTaskbar, strSingleInstance
+Dim	strSysMenu, strVersion, strWindowState
+
+Sub ExecuteIt(strType)
+	strApplicationName	= "		APPLICATIONNAME	= '" & tApplicationName.Value & "'"
+	strID						= "		ID						= '" & tID.Value & "'"
+	strBorder				= "		BORDER				= '" & dBorder.Value & "'"
+	strBorderStyle			= "		BORDERSTYLE			= '" & dBorderStyle.Value & "'"
+	strCaption				= "		CAPTION				= '" & dCaption.Value & "'"
+	strContextMenu			= "		CONTEXTMENU			= '" & dContextMenu.Value & "'"
+	strIcon					= "		ICON					= '" & tIcon.Value & "'"
+	strInnerBorder			= "		INNERBORDER			= '" & dInnerBorder.Value & "'"
+	strMaximizeButton		= "		MAXIMIZEBUTTON		= '" & dMaxButton.Value & "'"
+	strMinimizeButton		= "		MINIMIZEBUTTON		= '" & dMinButton.Value & "'"
+	strNavigable			= "		NAVIGABLE			= '" & dNavigable.Value & "'"
+	strScroll				= "		SCROLL				= '" & dScroll.Value & "'"
+	strScrollFlat			= "		SCROLLFLAT			= '" & dScrollFlat.Value & "'"
+	strSelection			= "		SELECTION			= '" & dSelection.Value & "'"
+	strShowInTaskbar		= "		SHOWINTASKBAR		= '" & dShowInTaskbar.Value & "'"
+	strSingleInstance		= "		SINGLEINSTANCE		= '" & dSingleInstance.Value & "'"
+	strSysMenu				= "		SYSMENU				= '" & dSysMenu.Value & "'"
+	strVersion				= "		VERSION				= '" & tVersion.Value & "'"
+	strWindowState			= "		WINDOWSTATE			= '" & dWindowState.Value & "'"
+
+	Select Case strType
+		Case	"Paste"																				'<bPaste button functionality>
+			sDataHolder.value = GatherData
+			document.parentwindow.clipboardData.SetData "text", sDataHolder.value
+			MsgBox "Code has been pasted to the clipboard.", 0, "Completed"
+		Case	"Create"																				'<bCreate button functionality>
+			Dim	objFSO, objFile
+			Set objFSO = CreateObject("Scripting.FileSystemObject")
+			objFSO.CreateTextFile(tApplicationName.Value & ".hta")
+			Set objFile = objFSO.OpenTextFile(tApplicationName.Value & ".hta", 2)
+			objFile.WriteLine GatherData
+			objFile.Close
+			MsgBox "The file has been created.", 0, "Completed"
+			Set objFile = Nothing
+			Set objFSO = Nothing
+	End Select
+End Sub
+
+Function GatherData()
+	Dim	strVBSresult, strHTMresult
+	Dim	strWindowSize, strWinSizeStat, strMultiBegin, strMultiInit, strMultiReset, strMultiQuit, strMultiEnd
+	Dim	strStatus, strResult
+	Dim	strOnLoad, strBtnReset, strBtnQuit
+	Dim	strHeader, strFooter, strStyle, strBody, strCombined
+
+	strOnLoad	= "<body onload='vbscript:MultiFunctions " & """" & "Initialize" & """" & "'>" & vbCrLf
+	strResult	= "<p>Sample Status Window<br><textarea rows='4' cols='80' name='sResult'></textarea></p>"
+	strBtnReset	= "<p><input type='button' value='Reset' name='bReset' onclick='vbscript:MultiFunctions " & """" & "Reset" & """" & "'></p>"
+	strBtnQuit	= "<p><input type='button' value='Quit' name='bQuit' onclick='vbscript:MultiFunctions " & """" & "Quit" & """" & "'></p>"
+
+	strWindowSize	= "Sub WindowSize(iWidth, iHeight)" & VbCrLf & "	On Error Resume Next" & VbCrLf & _
+						  "	Dim	posWidth, posHeight" & VbCrLf & "	posWidth			= (window.screen.width - iWidth) / 2" & VbCrLf & _
+						  "	posHeight		= (window.screen.height - iHeight) / 2" & VbCrLf & "	If posWidth		< 0 Then posWidth = 0" & VbCrLf & _
+						  "	If posHeight	< 0 Then posHeight = 0" & VbCrLf & "	window.resizeTo iWidth, iHeight" & VbCrLf & _
+						  "	window.moveTo posWidth, posHeight" & VbCrLf & "	On Error GoTo 0" & VbCrLf & "End Sub" & VbCrLf
+
+	strWinSizeStat	= "Sub WindowSize(iWidth, iHeight)" & VbCrLf & "	On Error Resume Next" & VbCrLf & _
+						  "	Dim	posWidth, posHeight" & VbCrLf & "	posWidth			= (window.screen.width - iWidth) / 2" & VbCrLf & _
+						  "	posHeight		= (window.screen.height - iHeight) / 2" & VbCrLf & "	If posWidth		< 0 Then posWidth = 0" & VbCrLf & _
+						  "	If posHeight	< 0 Then posHeight = 0" & VbCrLf & _
+						  "	window.resizeTo iWidth, iHeight" & VbCrLf & "	StatusUpdate " & """" & "Window Size set to " & """" & " & iWidth & " & """" & "x" & """" & " & iHeight" & VbCrLf & _
+						  "	window.moveTo posWidth, posHeight" & VbCrLf & "	StatusUpdate " & """" & "Window Postion set to " & """" & " & posWidth & " & """" & "x" & """" & " & posHeight" & VbCrLf & _
+						  "	On Error GoTo 0" & VbCrLf & "End Sub" & VbCrLf
+
+
+	strMultiBegin	= "Sub MultiFunctions(strType)" & vbCrLf & "	Select Case strType" & VbCrLf
+	strMultiInit	= "		Case	" & """" & "Initialize" & """" & "	WindowSize " & tHorizontal.value & ", " & tVertical.value & VbCrLf
+	strMultiReset	= "		Case	" & """" & "Reset" & """" & "			location.Reload(True)" & VbCrLf
+	strMultiQuit	= "		Case	" & """" & "Quit" & """" & "			self.close()" & VbCrLf
+	strMultiEnd		= "	End Select" & vbCrLf & "End Sub" & VbCrLf
+
+	strStatus		= "Sub StatusUpdate(strRef)" & vbCrLf & _
+						  "	If sResult.value = " & """" & """" & " Then"  & vbCrLf & _
+						  "		sResult.value = Now() & " & """" & " | " & """" & " & strRef" & vbCrLf & _
+						  "	Else" & vbCrLf & _
+						  "		sResult.value = sResult.value & vbcrlf & Now() & " & """" & " | " & """" & " & strRef" & vbCrLf & _
+						  "	End If" & vbCrLf & _
+						  "	sResult.doScroll(" & """" & "down" & """" & ")" & vbCrLf & _
+						  "End Sub" & vbCrLf
+
+
+	If cAddCode.Checked Then
+		strVBSResult = vbCrLf & strMultiBegin
+		If cInitialize.Checked Then 
+			strVBSResult = strVBSResult & strMultiInit
+			strHTMresult = strHTMresult & strOnLoad
+		Else
+			strHTMresult = "<body>" & vbCrLf
+		End If
+		If cStatus.Checked Then
+			strHTMresult = strHTMresult & vbCrlF & strResult
+		End If
+		If cReset.Checked Then
+			strVBSResult = strVBSResult & strMultiReset
+			strHTMresult = strHTMresult & vbCrlF & strBtnReset
+		End If
+		If cQuit.Checked Then
+			strVBSResult = strVBSResult & strMultiQuit
+			strHTMresult = strHTMresult & vbCrlF & strBtnQuit & vbCrLf
+		End If
+
+		strVBSResult = strVBSResult & strMultiEnd & vbCrlf
+		strHTMresult = strHTMresult & vbCrlF & "</body>" & vbCrLf
+		
+		If cInitialize.Checked Then
+			If cStatus.checked Then
+				strVBSResult = strVBSResult & strWinSizeStat
+			Else
+				strVBSResult = strVBSResult & strWindowSize
+			end If
+		End If
+
+		If cStatus.Checked Then
+			strVBSResult = strVBSResult & vbCrLf & strStatus
+		End If
+
+	Else
+		strVBSResult = ""
+		strHTMresult = "<body>" & VbCrLf & VbCrLf & "</body>"
+	End If
+
+	strHeader	= "<html>" & VbCrLf & "<head>" & VbCrLf & "	<title>" & tTitle.Value & "</title>" & VbCrLf & "	<HTA:APPLICATION" & VbCrLf
+	strBody		= strApplicationName & VbCrLf & strID & VbCrLf & strBorder & VbCrLf & strBorderStyle & VbCrLf & strCaption & VbCrLf & _
+					  strContextMenu & VbCrLf & strIcon & VbCrLf & strInnerBorder & VbCrLf & strMaximizeButton & VbCrLf & _
+					  strMinimizeButton & VbCrLf & strNavigable & VbCrLf & strScroll & VbCrLf & strScrollFlat & VbCrLf & _
+					  strSelection & VbCrLf & strShowInTaskbar & VbCrLf & strSingleInstance & VbCrLf & strSysMenu & VbCrLf & _
+					  strVersion & VbCrLf & strWindowState & ">"
+	strFooter	= VbCrLf & "</head>" & VbCrLf & "<script language='vbscript'>" & vbCrLf & "Option Explicit" & vbCrLf & strVBSResult & VbCrLf & "</" & "script" & ">" & vbCrLf & vbCrLf & strHTMresult & VbCrLf & _
+					  "</html>" & VbCrLf & "<!-- Created with HTA Generator v" & oHTAGen.version & " Tool by J. Libenson : htatools@yahoo.com -->"
+	strStyle		= VbCrLf & "<STYLE>" & VbCrLf & _
+					  "	BODY		{background-color: buttonface; font-family: tahoma; font-size: 10pt; margin-top: 1px; margin-left: 1px; margin-right: 1px; margin-bottom: 1px;}" & VbCrLf & _
+					  "	button	{font-family: tahoma;	font-size: 8pt;}" & VbCrLf & "	textarea	{font-family: tahoma;	font-size: 10pt;}" & VbCrLf & "	select	{font-family: tahoma;	font-size: 10pt;}" & VbCrLf & "	td			{font-family: tahoma;	font-size: 10pt;}" & VbCrLf & "	input		{font-family: tahoma;	font-size: 10pt;}" & VbCrLf & "</STYLE>"
+
+	Select Case dIncludeStyle.Value
+		Case	"Yes"	strCombined = strHeader & strBody & strFooter & strStyle
+		Case	"No"	strCombined = strHeader & strBody & strFooter
+	End Select
+	GatherData = strCombined
+End Function
+
+Sub AdditionalCode(strType)
+	Select Case strType
+		Case	"Body"
+			If cInitialize.Checked = True Then
+				document.getElementById("cAddCode").checked		= True
+			Else
+				document.getElementById("cAddCode").checked		= False
+				document.getElementById("cStatus").checked		= False
+				document.getElementById("cReset").checked			= False
+				document.getElementById("cQuit").checked			= False
+			End If
+		Case	"Status"
+			If cStatus.Checked = True Then
+				document.getElementById("cAddCode").checked		= True
+			Else
+				document.getElementById("cAddCode").checked		= False
+				document.getElementById("cInitialize").checked	= False
+				document.getElementById("cReset").checked			= False
+				document.getElementById("cQuit").checked			= False
+			End If
+		Case	"Reset"
+			If cReset.Checked = True Then
+				document.getElementById("cAddCode").checked		= True
+			Else
+				document.getElementById("cAddCode").checked		= False
+				document.getElementById("cInitialize").checked	= False
+				document.getElementById("cStatus").checked		= False
+				document.getElementById("cQuit").checked			= False
+			End If
+		Case	"Quit"
+			If cQuit.Checked = True Then
+				document.getElementById("cAddCode").checked		= True
+			Else
+				document.getElementById("cAddCode").checked		= False
+				document.getElementById("cInitialize").checked	= False
+				document.getElementById("cStatus").checked		= False
+				document.getElementById("cReset").checked			= False
+			End If
+	End Select
+End Sub
+
+Sub WindowSize(iWidth, iHeight)
+	On Error Resume Next
+	Dim	posWidth, posHeight
+	posWidth			= (window.screen.width - iWidth) / 2
+	posHeight		= (window.screen.height - iHeight) / 2
+	If posWidth		< 0 Then posWidth = 0
+	If posHeight	< 0 Then posHeight = 0
+	window.resizeTo iWidth, iHeight
+	window.moveTo posWidth, posHeight
+	On Error GoTo 0
+End Sub
+
+Sub MultiFunctions(strType)
+	Select Case strType
+		Case	"Initialize"
+			WindowSize 400, 250
+			document.getElementById("tDetails").style.display		= "None"
+			document.getElementById("bHide").style.display			= "None"
+			document.getElementById("sDataHolder").style.display	= "None"
+			spVersion.innerText = oHTAGen.version
+			bPaste.title	= "Will paste the code directly to the clipboard for access via Ctrl-V"
+			bCreate.title	= "Will create a HTA named the same as the ApplicationName property at the same location as this tool"
+			bShow.title		= "Will show all of the expanded options available to customize your HTA"
+			bHide.title		= "Will hide all of the expanded options"
+			bReset.title	= "Will reset the tool back to it's beginning state"
+			bQuit.title		= "Will quit the tool"
+		Case	"Show"
+			WindowSize 955, 600
+			document.getElementById("tDetails").style.display	= "inline"
+			document.getElementById("bShow").style.display		= "None"
+			document.getElementById("bHide").style.display		= "inline"
+		Case	"Hide"
+			WindowSize 400, 250
+			document.getElementById("bShow").style.display		= "inline"
+			document.getElementById("tDetails").style.display	= "None"
+			document.getElementById("bHide").style.display		= "None"
+		Case	"Reset"
+			location.Reload(True)
+		Case	"Quit"
+			self.close()
+	End Select
+End Sub
+</script>
+
+<body onload='vbscript:MultiFunctions "Initialize"' bgcolor="#CCCCCC" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight="0">
+
+<table border="0" width="100%" id="table69">
+	<tr>
+		<td>
+		<p align="center"><font face="MS Sans Serif"><b>HTA Generator<sup><span id="spVersion"></span></sup></b></font></td>
+	</tr>
+</table>
+
+<table id="tDetails" border="0" width="100%" cellspacing="0" cellpadding="0">
+	<tr>
+		<td width="100%" valign="top" colspan="2">
+		<table border="0" width="100%" id="table58">
+			<tr><td>
+				<p align="center"><font face="MS Sans Serif"><b>
+				<a href="http://msdn.microsoft.com/workshop/author/hta/overview/htaoverview.asp"><font size="2">overview</font></a></b></font></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td width="50%" valign="top">
+		<table border="0" width="100%" id="table29">
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/applicationname.asp">APPLICATIONNAME</a> / ID</font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves the name or ID of the HTML Application (HTA).</font>
+				<table border="0" width="100%" id="table48"><tr>
+						<td><input type="text" name="tApplicationName" size="25" value="TestApp"> / <input type="text" name="tID" size="25" value="oTestApp"></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">BORDER</font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves the type of window border for the HTML Application (HTA). </font>
+				<table border="0" id="table45">
+					<tr><td rowspan="4">
+						<select size="4" name="dBorder">
+						<option selected value="Thick">Thick</option>
+						<option value="Dialog">Dialog</option>
+						<option value="Thin">Thin</option>
+						<option value="None">None</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Thick window border, a size grip and sizing border for resizing</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Dialog window border.</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Thin window border with a caption.</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">No window border.</td></tr>
+				</table>
+				</font></fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/borderstyle.asp">BORDERSTYLE</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves the style set for the content border within the HTML Application (HTA) window.</font>
+				<table border="0" id="table43">
+					<tr><td rowspan="5">
+						<select size="5" name="dBorderStyle">
+						<option selected value="Normal">Normal</option>
+						<option value="Complex">Complex</option>
+						<option value="Raised">Raised</option>
+						<option value="Static">Static</option>
+						<option value="Sunken">Sunken</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Normal border.</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Raised and sunken border.</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Raised 3-D border.</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">3-D border typically used for windows that do Not accept user input.</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Sunken 3-D border.</font></td>
+					</tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/caption.asp">CAPTION</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves a Boolean value that indicates whether the window is set to display a title bar or caption, for the HTML Application (HTA).</font>
+				<table border="0" id="table41">
+					<tr><td rowspan="2">
+						<select size="2" name="dCaption">
+						<option selected value="Yes">Yes</option>
+						<option value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Title bar is displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Title bar is Not displayed</font></td></tr><tr>
+						<td colspan="2"><font face="MS Sans Serif" size="1">Sets the title for the HTA's Title Bar</font></td></tr><tr>
+						<td colspan="2"><input type="text" name="tTitle" size="25" value="Title"></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/contextmenu.asp">CONTEXTMENU</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves whether the context menu is displayed when the right mouse button is clicked</font>
+				<table border="0" id="table39">
+					<tr><td rowspan="2">
+						<select size="2" name="dContextMenu">
+						<option value="Yes">Yes</option>
+						<option selected value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Context menus are displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Context menus are Not displayed</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">ICON</font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves the name and location of the icon specified in the HTML Application (HTA).</font>
+				<table border="0" width="100%" id="table38">
+					<tr><td>
+						<input type="text" name="tIcon" size="25" value=".\Icon.ico"></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/innerborder.asp">INNERBORDER</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves whether the inside 3-D border is displayed</font>
+				<table border="0" id="table34">
+					<tr><td rowspan="2">
+						<select size="2" name="dInnerBorder">
+						<option selected value="Yes">Yes</option>
+						<option value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Three-dimensional inner border is displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Inner border is Not displayed</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/maximizebutton.asp">MAXIMIZEBUTTON</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves a Boolean value that indicates whether a Maximize button is displayed in the title bar of the HTML Application (HTA) window</font><table border="0" id="table33">
+					<tr><td rowspan="2">
+						<select size="2" name="dMaxButton">
+						<option selected value="Yes">Yes</option>
+						<option value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Maximize button is displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Maximize button is Not displayed</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/minimizebutton.asp">MINIMIZEBUTTON</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves a Boolean value that indicates whether a Minimize button is displayed in the title bar of the HTML Application (HTA) window</font><table border="0" id="table31">
+					<tr><td rowspan="2">
+						<select size="2" name="dMinButton">
+						<option selected value="Yes">Yes</option>
+						<option value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Minimize button is displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Minimize button is Not displayed</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+		</table>
+		</td>
+		<td width="50%" valign="top">
+		<table border="0" width="100%" id="table30">
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/navigable.asp">NAVIGABLE</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves whether linked documents will be loaded in the main HTML Application (HTA) window or in a new browser window</font>
+					<table border="0" id="table47"><tr><td rowspan="2">
+						<select size="2" name="dNavigable">
+						<option value="Yes">Yes</option>
+						<option selected value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Links in the main HTA window will be loaded in a new browser window</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Links in the main HTA window will be loaded in the main HTA window</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/scroll.asp">SCROLL</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves whether the scroll bars are displayed</font>
+					<table border="0" id="table46"><tr><td rowspan="3">
+						<select size="3" name="dScroll">
+						<option value="Yes">Yes</option>
+						<option value="No">No</option>
+						<option value="Auto" selected>Auto</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Default. Scroll bars are displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Scroll bars are Not displayed</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Scroll bars are displayed only when the content exceeds what can fit in the client area</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/scrollflat.asp">SCROLLFLAT</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves whether the scroll bar is 3D or Not</font>
+					<table border="0" id="table57"><tr><td rowspan="2">
+						<select size="2" name="dScrollFlat">
+						<option value="Yes">Yes</option>
+						<option selected value="No">No</option>
+						</select></td>
+						<td><font face="MS Sans Serif" size="1">Scroll bars are flat</font></td></tr><tr>
+						<td><font face="MS Sans Serif" size="1">Default, scroll bars are 3D</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/selection.asp">SELECTION</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves whether the content can be selected with the mouse or keyboard</font>
+				<table border="0" id="table55"><tr><td rowspan="2">
+					<select size="2" name="dSelection">
+					<option selected value="Yes">Yes</option>
+					<option value="No">No</option>
+					</select></td>
+					<td><font face="MS Sans Serif" size="1">Default. Content can be selected with the mouse or keyboard</font></td></tr><tr>
+					<td><font face="MS Sans Serif" size="1">Content canNot be selected with the mouse or keyboard</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/showintaskbar.asp">SHOWINTASKBAR</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves a value that indicates whether the HTML Application (HTA) is displayed in the Microsoft Windows taskbar</font>
+				<table border="0" id="table54"><tr><td rowspan="2">
+					<select size="2" name="dShowInTaskbar">
+					<option selected value="Yes">Yes</option>
+					<option value="No">No</option>
+					</select></td>
+					<td><font face="MS Sans Serif" size="1">Default. Application is displayed in the Windows taskbar</font></td></tr><tr>
+					<td><font face="MS Sans Serif" size="1">Application is Not displayed in the Windows taskbar</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/singleinstance.asp">SINGLEINSTANCE</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves a value that indicates whether only one instance of the specified HTML Application (HTA) can run at a time</font>
+				<table border="0" id="table53"><tr><td rowspan="2">
+					<select size="2" name="dSingleInstance">
+					<option selected value="Yes">Yes</option>
+					<option value="No">No</option>
+					</select></td>
+					<td><font face="MS Sans Serif" size="1">Default, only one instance of the specified application can run at a time</font></td></tr><tr>
+					<td><font face="MS Sans Serif" size="1">Multiple instances of the specified application can run at the same time</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/sysmenu.asp">SYSMENU</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves a Boolean value that indicates whether a system menu is displayed in the HTML Application (HTA)</font>
+				<table border="0" id="table52"><tr><td rowspan="2">
+					<select size="2" name="dSysMenu">
+					<option selected value="Yes">Yes</option>
+					<option value="No">No</option>
+					</select></td>
+					<td><font face="MS Sans Serif" size="1">Default. System menu is displayed in the title bar</font></td></tr><tr>
+					<td><font face="MS Sans Serif" size="1">System menu is Not displayed in the title bar</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/version.asp">VERSION</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves the version number of the HTML Application (HTA)</font>
+				<table border="0" width="100%" id="table51">
+					<tr>
+						<td><input type="text" name="tVersion" size="10" value="1.0"></td>
+					</tr>
+				</table>
+				</fieldset></td>
+			</tr>
+			<tr>
+				<td><fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">
+				<a href="http://msdn.microsoft.com/workshop/author/hta/reference/properties/windowstate.asp">WINDOWSTATE</a></font></legend>
+				<font face="MS Sans Serif" size="1">Sets or retrieves the initial size of the HTML Application (HTA) window</font>
+				<table border="0" id="table50"><tr><td rowspan="3">
+					<select size="3" name="dWindowState">
+					<option selected value="Normal">Normal</option>
+					<option value="Minimize">Minimize</option>
+					<option value="Maximize">Maximize</option>
+					</select></td>
+					<td><font face="MS Sans Serif" size="1">Default. Window is the default size for Microsoft Internet Explorer</font></td></tr>
+					<tr><td><font face="MS Sans Serif" size="1">Window does Not display on launch. Instead, it is minimized in the taskbar</font></td></tr><tr>
+					<td><font face="MS Sans Serif" size="1">Window is sized to fill the screen</font></td></tr>
+				</table>
+				</fieldset></td>
+			</tr>
+		</table>
+		<fieldset style="padding: 2">
+				<legend><font face="MS Sans Serif" size="1">INCLUDESTYLE</font></legend>
+				<font face="MS Sans Serif" size="1">Includes the style block section at the end of HTA</font>
+				<table border="0" id="table49"><tr><td rowspan="2">
+					<select size="2" name="dIncludeStyle">
+					<option selected value="Yes">Yes</option>
+					<option value="No">No</option>
+					</select></td>
+					<td><font face="MS Sans Serif" size="1">Default. Will include the styles seen here</font></td></tr>
+					<tr><td><font face="MS Sans Serif" size="1">Will Not include the style section</font></td></tr>
+				</table>
+				</fieldset></td>
+	</tr>
+	<tr>
+		<td width="100%" valign="top" colspan="2">
+		<p align="right"><i><font size="1">All links go to Microsoft for reference purposes.</font></i></p>
+		<p align="center"><textarea rows="2" name="sDataHolder" cols="100">Created by J. Libenson
+htatools@yahoo.com </textarea></td>
+	</tr>
+	</table>
+
+<div align="center">
+	<table border="0" id="table70">
+		<tr>
+			<td>
+			<div align="center">
+				<table border="0" id="table71" width="225" cellspacing="0" cellpadding="0">
+					<tr>
+						<td>
+		<fieldset style="padding: 2">
+		<legend><font face="MS Sans Serif" size="1">CODE OPTIONS:</font></legend>
+		<table border="0" id="table73">
+			<tr><td width="2%">
+				<p align="right"><font size="1"><input type="checkbox" name="cAddCode" value="ON" disabled></font></td>
+				<td colspan="2" width="100%"><font face="MS Sans Serif" size="1">Include additional code</font></td>
+			</tr>
+			<tr><td width="2%">&nbsp;</td>
+				<td width="2%">
+				<p align="right"><font size="1"><input type="checkbox" name="cInitialize" value="ON" onclick='vbscript:AdditionalCode "Body"'></font></td>
+				<td width="100%"><font face="MS Sans Serif" size="1">Body: onload Size Window</font></td>
+			</tr>
+			<tr><td width="2%">&nbsp;</td>
+				<td width="2%">&nbsp;</td>
+				<td width="100%"><font face="MS Sans Serif" size="1">H:</font><font size="1"><input type="text" name="tHorizontal" size="4" value="600"></font><font face="MS Sans Serif" size="1"> V:</font><font size="1"><input type="text" name="tVertical" size="4" value="480"></font></td>
+			</tr>
+			<tr><td width="2%">&nbsp;</td>
+				<td width="2%">
+				<font size="1">
+				<input type="checkbox" name="cStatus" value="ON" onclick='vbscript:AdditionalCode "Status"'></font></td>
+				<td width="100%"><font face="MS Sans Serif" size="1">Status Window</font></td>
+			</tr>
+			<tr><td width="2%">&nbsp;</td>
+				<td width="2%">
+				<p align="right"><font size="1"><input type="checkbox" name="cReset" value="ON" onclick='vbscript:AdditionalCode "Reset"'></font></td>
+				<td width="100%"><font face="MS Sans Serif" size="1">Reset Button</font></td>
+			</tr>
+			<tr><td width="2%">&nbsp;</td>
+				<td width="2%">
+				<p align="right"><font size="1"><input type="checkbox" name="cQuit" value="ON" onclick='vbscript:AdditionalCode "Quit"'></font></td>
+				<td width="100%"><font face="MS Sans Serif" size="1">Quit Button</font></td>
+			</tr>
+		</table>
+		</fieldset></td>
+					</tr>
+				</table>
+			</div>
+			</td>
+			<td valign="bottom">
+			<div align="center">
+				<table border="0" id="table72" cellspacing="0" cellpadding="0">
+					<tr><td><button name="bPaste"  style="width: 100; height: 26" onclick='vbscript:ExecuteIt "Paste"'><font size="1">Paste to Clipboard</font></button></td></tr>
+					<tr><td><button name="bCreate" style="width: 100; height: 26" onclick='vbscript:ExecuteIt "Create"'><font size="1">Create a HTA</font></button></td></tr>
+					<tr><td><button name="bShow"   style="width: 100; height: 26" onclick='vbscript:MultiFunctions "Show"'><font size="1">Show Settings</font></button><button name="bHide" style="width: 100px; height: 26" onclick='vbscript:MultiFunctions "Hide"'><font size="1">Hide Settings</font></button></td></tr>
+					<tr><td><button name="bReset"  style="width: 100; height: 26" onclick='vbscript:MultiFunctions "Reset"'><font size="1">Reset</font></button></td></tr>
+					<tr><td><button name="bQuit"   style="width: 100; height: 26" onclick='vbscript:MultiFunctions "Quit"'><font size="1">Quit</font></button></td></tr>
+				</table>
+			</div>
+			</td>
+		</tr>
+	</table>
+</div>
+</body>
+</html>
+<!--
+Revision Notes: Newest to Oldest
+2006-08-07: added Window Sizing Code and Status Window Code, all code additions remain optional.
+2006-07-11:	Revised Interface, updated look and feel
+				updated code to work with IE 7.x (PasteToClipboard needed work)
+				Added ID field and descriptions
+2006-07-12:	Code consolidation; Initilization, Hide, Show, Reset & Quit moved to MultiFunctions
+-->

@@ -1,0 +1,2 @@
+Port cannot be ReNamed
+Drivers cannot be Added but cand be deleted

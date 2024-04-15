@@ -1,0 +1,2281 @@
+<html>
+<head>
+<title>Hardware Inventory</title>
+
+<HTA:APPLICATION 
+     id="HardwInv"
+     VERSION="5.40"
+     APPLICATIONNAME="Basic Hardware Inventory"
+     SCROLL="yes"
+     SINGLEINSTANCE="yes"
+     WINDOWSTATE="maximize"
+>
+
+<style type="text/css">
+a { color: red; }
+.Button { width: 6em; }
+</style>
+
+</head>
+
+<script language="VBScript">
+Option Explicit
+
+Const HKEY_LOCAL_MACHINE = &H80000002
+Const REG_SZ             = 1
+
+
+' Variable to tell if the program should check for updates at startup
+' If True then a check for updates is performed at startup
+' If False then the check is skipped
+' Command line switch /NOUPDCHK sets variable to False
+Dim blnUpdateCheck
+blnUpdateCheck = True
+
+' Variable to limit the inventory to CPU, memory and HDDs only
+' If False then only CPU, memory and HDDs are selected
+' If True then all components are selected
+' Command line switch /BASIC sets variable to False
+Dim blnFullInventory
+blnFullInventory = True
+
+' Variables for a tweak for Internet Explorer 7 and older versions
+' If blnIE7 is False then multiple HDDs, CDROMs etc. are revealed using style.display = "table-row"
+' If blnIE7 is True then multiple HDDs, CDROMs etc. are revealed using style.display = "inline"
+Dim blnIE7, strTableRowStyle
+blnIE7           = False
+strTableRowStyle = "table-row"
+
+' Variable for testing purposes
+' If True then the values in some fields will be replaced by fixed numbers or strings
+' If False then all results will be displayed unaltered
+' Command line switch /TEST sets variable to True
+Dim blnTest
+blnTest = False
+
+' Variable to hold the command line, converted to upper case
+Dim strCmdLine
+strCmdLine = UCase( HardwInv.CommandLine )
+
+' Other global variables
+Dim arrCDR( ), arrHDC( ), arrHDD( ), arrHost( ), arrRawEDID
+Dim clrBgErr, clrTxtErr
+Dim cntBnk, cntCDR, cntCPU, cntHDD, cntMem, cntMon, cntNIC, cntVDU
+Dim intCDR, intHDC, intHDD, intHost, numOS, sizMem, spdMem
+Dim objWMIService
+Dim strComputer, strCSV, strDetails, strHeader, strMonitorModel, strMonitorSerial
+
+' Reset counters
+cntBnk = 0
+cntCDR = 0
+cntCPU = 0
+cntHDD = 0
+cntMem = 0
+cntMon = 0
+cntNIC = 0
+cntVDU = 0
+sizMem = 0
+spdMem = 0
+numOS  = 0
+
+' Color changes on WMI connection errors
+clrBgErr  = "Red"
+clrTxtErr = "White"
+
+
+Sub Basic( )
+	blnFullInventory       = Not blnFullInventory
+	CheckboxBIOS.Checked   = blnFullInventory
+	CheckboxCDR.Checked    = blnFullInventory
+	CheckboxCPU.Checked    = True
+	CheckboxHDU.Checked    = True
+	CheckboxMB.Checked     = blnFullInventory
+	CheckboxMem.Checked    = True
+	CheckboxMon.Checked    = blnFullInventory
+	CheckboxNIC.Checked    = blnFullInventory
+	CheckboxPorts.Checked  = blnFullInventory
+	CheckboxVDU.Checked    = blnFullInventory
+	CheckboxSound.Checked  = blnFullInventory
+	If blnFullInventory Then
+		BasicButton.Value      = "Basic"
+	Else
+		BasicButton.Value      = "Full"
+	End If
+End Sub
+
+
+Function Chassis( strComputer )
+' VBScript to interrogate a machine's chassis type.
+' Author Guy Thomas http://computerperformance.co.uk/
+' Version 2.3 - November 2005
+	Dim colChassis, objChassis, objItem
+
+	Chassis = "Unknown"
+
+	Set colChassis = objWMIService.ExecQuery( "Select ChassisTypes from Win32_SystemEnclosure" )
+	For Each objChassis in colChassis
+		For Each objItem in objChassis.ChassisTypes
+			Select Case objItem
+				Case  1 Chassis = "Maybe Virtual Machine"
+				Case  3 Chassis = "Desktop"
+				Case  4 Chassis = "Thin Desktop"
+				Case  5 Chassis = "Pizza Box"
+				Case  6 Chassis = "Mini Tower"
+				Case  7 Chassis = "Full Tower"
+				Case  8 Chassis = "Portable"
+				Case  9 Chassis = "Laptop"
+				Case 10 Chassis = "Notebook"
+				Case 11 Chassis = "Hand Held"
+				Case 12 Chassis = "Docking Station"
+				Case 13 Chassis = "All in One"
+				Case 14 Chassis = "Sub Notebook"
+				Case 15 Chassis = "Space-Saving"
+				Case 16 Chassis = "Lunch Box"
+				Case 17 Chassis = "Main System Chassis"
+				Case 18 Chassis = "Lunch Box"
+				Case 19 Chassis = "SubChassis"
+				Case 20 Chassis = "Bus Expansion Chassis"
+				Case 21 Chassis = "Peripheral Chassis"
+				Case 22 Chassis = "Storage Chassis"
+				Case 23 Chassis = "Rack Mount Unit"
+				Case 24 Chassis = "Sealed-Case PC"
+			End Select
+		Next
+	Next
+End Function
+
+
+Sub CheckUpdate( )
+	Dim lenLatestVer, strCurrentVer, strLatestVer
+
+	If blnUpdateCheck Then
+		' Change cursor to hourglass while checking for update
+		Document.Body.Style.Cursor = "wait"
+	
+		strLatestVer  = TextFromHTML( "http://www.robvanderwoude.com/updates/hardware.txt" )
+		lenLatestVer  = Len( strLatestVer )
+		If lenLatestVer = 4 Then
+			strCurrentVer = Split( HardwInv.Version )(0)
+			If strLatestVer < strCurrentVer Then
+				Update.InnerHTML = "<p>You seem to be using an invalid version (" & strCurrentVer & ") of the Basic Hardware Inventory.<br>The latest valid version is " & strLatestVer & " and it is available " & "<a href=""http://www.robvanderwoude.com/hardware.php"">here</a>.</p>"
+				Update.style.border = "2px solid red"
+			End If
+			If strLatestVer > strCurrentVer Then
+				Update.InnerHTML = "<p>You are using version " & strCurrentVer & " of the Basic Hardware Inventory.<br>An update to version " & strLatestVer & " is available " & "<a href=""http://www.robvanderwoude.com/hardware.php"">here</a>.</p>"
+				Update.style.border = "2px solid red"
+			End If
+			If strLatestVer = strCurrentVer Then
+				Update.style.display = "none"
+			End If
+		End If
+	
+		' Change cursor back to default
+		Document.Body.Style.Cursor = "default"
+	End If
+End Sub
+
+
+Sub CopyClipboard
+	Document.ParentWindow.ClipboardData.SetData "text", strHeader & vbCrLf & strCSV & vbCrLf
+End Sub
+
+
+Sub CheckWindowSize( )
+	If InStr( strCmdLine, "/SIZE:" ) > 0 Then WxH InStr( strCmdLine, "/SIZE:" ) + 5
+End Sub
+
+
+Function CreateLine( strProperty )
+	' This subroutine will split up a string into separate words:
+	' "SCSILogicalUnit" will be converted to "SCSI Logical Unit"
+
+	'On Error Resume Next
+
+	Dim chrA, chrB, chrC
+	Dim i, j, k
+	Dim strCaps, strLowc, strPad, strPropDescr
+
+	strPropDescr = strProperty
+	strCaps      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	strPad       = String( 30, " " )
+	strLowc      = LCase( strCaps )
+
+	i = 0
+	Do
+		i = i + 1
+		j = i + 1
+		If j >= Len( strPropDescr ) Then Exit Do
+		chrA = Mid( strPropDescr, i, 1 )
+		chrB = Mid( strPropDescr, j, 1 )
+		If InStr( strLowc, chrA ) > 0 And InStr( strCaps, chrB ) > 0 Then
+			strPropDescr = Left( strPropDescr, i ) & " " & Mid( strPropDescr, j )
+			i = i + 2
+			j = i + 1
+		End If
+	Loop
+
+	If Len( strPropDescr ) > 2 Then
+		i = 0
+		Do
+			i = i + 1
+			j = i + 1
+			k = i + 2
+			If k >= Len( strPropDescr ) Then Exit Do
+			chrA = Mid( strPropDescr, i, 1 )
+			chrB = Mid( strPropDescr, j, 1 )
+			chrC = Mid( strPropDescr, k, 1 )
+			If InStr( strCaps, chrA ) > 0 And InStr( strCaps, chrB ) > 0 And InStr( strLowc, chrC ) > 0 Then
+				strPropDescr = Left( strPropDescr, i ) & " " & Mid( strPropDescr, j )
+				i = i + 3
+				j = i + 1
+				k = i + 2
+			End If
+		Loop
+	End If
+
+	CreateLine = Left( strPropDescr & strPad, 31 ) & ": "
+	On Error Goto 0
+End Function
+
+
+Sub Credits( )
+	Dim objDoc, objIE, strHTML
+
+	Set objIE = CreateObject( "InternetExplorer.Application" )
+	objIE.Navigate( "about:blank" )
+	objIE.Document.Title = "Credits " & String( 1500, ":" )
+	objIE.AddressBar     = False
+	objIE.MenuBar        = False
+	objIE.Resizable      = False
+	objIE.StatusBar      = False
+	objIE.ToolBar        = False
+	objIE.Width          = 900
+	objIE.Height         = 600
+	objIE.Left           = Int( ( window.screen.width  - objIE.Width  ) / 2 )
+	objIE.Top            = Int( ( window.screen.height - objIE.Height ) / 2 )
+	Set objDoc           = objIE.Document.Body
+	strHTML              = "<h1 style=""text-align: center;"">Basic Hardware Inventory</h1>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<h2 style=""text-align: center;"">Version " & HardwInv.Version & "</h1>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p style=""text-align: center;"">&copy; 2007 - 2011, Rob van der Woude<br>" & vbCrLf _
+	                     & "<a href=""http://www.robvanderwoude.com/"">" _
+	                     & "www.robvanderwoude.com</a></p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>&nbsp;</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>Created using the Microsoft Scripting Guys' " _
+	                     & "<a href=""http://www.microsoft.com/technet/scriptcenter/tools/scripto2.mspx"">" _
+	                     & "Scriptomatic 2.0</a> and " _
+	                     & "<a href=""http://www.microsoft.com/downloads/details.aspx?FamilyId=231D8143-F21B-4707-B583-AE7B9152E6D9&displaylang=en"">" _
+	                     & "HTA Helpomatic</a> tools, and Adersoft's " _
+	                     & "<a href=""http://www.htaedit.com/"">HTAEdit</a>.</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>Chassis subroutine based on a script by " _
+	                     & "<a href=""http://www.computerperformance.co.uk/ezine/ezine94.htm"">" _
+	                     & "Guy Thomas</a>.</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>Monitor EDID data parsing based on a script by Michael Baird (no longer available online).</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>HandleClass function based on the Microsoft TechNet ScriptCenter article " _
+	                     & "<a href=""http://www.microsoft.com/technet/scriptcenter/resources/guiguy/default.mspx"">" _
+	                     & "Scripting Eye for the GUI Guy</a>.</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>Code optimized for speed and compatibility by Steve Robertson.</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p>&nbsp;</p>" & vbCrLf _
+	                     & vbCrLf _
+	                     & "<p style=""text-align: center; margin: 0 auto 0 auto;""><input type=""button"" onclick=""window.close()"" value="" OK "" style=""width: 200px;""></p>"
+	objDoc.InnerHTML     = strHTML
+	objIE.Visible        = True
+End Sub
+
+
+Sub DetailsBIOS
+	'On Error Resume Next
+	DetailsWindow "BIOS", HandleClass( "Win32_BIOS" )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsCDR
+	'On Error Resume Next
+	DetailsWindow "CD/DVD-ROM Drives and Controllers", HandleClass( "Win32_CDROMDrive"     ) & vbCrLf & vbCrLf _
+	                                                 & HandleClass( "Win32_IDEController"  ) & vbCrLf & vbCrLf _
+	                                                 & HandleClass( "Win32_SCSIController" )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsCPU
+	'On Error Resume Next
+	DetailsWindow "CPU", HandleClass( "Win32_Processor" )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsHDU
+	'On Error Resume Next
+	DetailsWindow "Disk Drives and Controllers", HandleClass( "Win32_DiskDrive"      ) & vbCrLf & vbCrLf _
+	                                           & HandleClass( "Win32_IDEController"  ) & vbCrLf & vbCrLf _
+	                                           & HandleClass( "Win32_SCSIController" )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsMB
+	'On Error Resume Next
+	DetailsWindow "Main Board &amp; Chassis", HandleClass( "Win32_BaseBoard" ) & vbCrLf & vbCrLf & HandleClass( "Win32_SystemEnclosure" )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsMem
+	'On Error Resume Next
+	DetailsWindow "Memory", HandleClass( "Win32_PhysicalMemoryArray" ) & vbCrLf & vbCrLf _
+	                      & HandleClass( "Win32_PhysicalMemory"      )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsNIC
+	'On Error Resume Next
+	DetailsWindow "Network Adapter", HandleClass( "Win32_NetworkAdapter" )
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsPorts
+	'On Error Resume Next
+	strDetails = HandleClass( "Win32_ParallelPort"            ) & vbCrLf & vbCrLf _
+	           & HandleClass( "Win32_SerialPort"              ) & vbCrLf & vbCrLf _
+	           & HandleClass( "Win32_SerialPortConfiguration" ) & vbCrLf & vbCrLf _
+	           & HandleClass( "Win32_USBController"           ) & vbCrLf & vbCrLf _
+	           & HandleClass( "Win32_SystemSlot"              ) & vbCrLf & vbCrLf _
+	           & HandleClass( "Win32_PortConnector"           )
+	DetailsWindow "Ports and Slots", strDetails
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsSound
+	'On Error Resume Next
+	strDetails = HandleClass( "Win32_SoundDevice" )
+	DetailsWindow "Sound Device", strDetails
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsVDU
+	'On Error Resume Next
+	strDetails = HandleClass( "Win32_VideoController"         ) & vbCrLf & vbCrLf _
+	           & HandleClass( "CIM_VideoControllerResolution" )
+	DetailsWindow "Display Adapter", strDetails
+	On Error Goto 0
+End Sub
+
+
+Sub DetailsWindow( strType, strDetails )
+	Dim objDoc, objIE, strHTML
+
+	Set objIE = CreateObject( "InternetExplorer.Application" )
+	objIE.Navigate( "about:blank" )
+	objIE.Document.Title = strType & " Details for " & strComputer
+	objIE.ToolBar        = 0
+	objIE.StatusBar      = 0
+	Set objDoc           = objIE.Document.Body
+	strHTML              = "<h1 style=""text-align: center;"">" & strType & " details for " & strComputer & "</h1>" & vbCrLf _
+	                     & "<pre style=""font-family: courier,monospace"">" & strDetails & "</pre>"
+	objDoc.InnerHTML     = strHTML
+	objIE.Visible        = True
+End Sub
+
+
+Sub EDIDTest( ByVal myIndex )
+	Dim idx, arrTemp, arrTestModel, arrTestSerial, blnModel, blnSerial, strTemp
+	arrTestModel  = Split( "0 0 0 252" )
+	arrTestSerial = Split( "0 0 0 255" )
+	blnModel      = True
+	blnSerial     = True
+
+	For idx = 0 To 3
+		If CInt( arrTestModel( idx )  ) <> CInt( arrRawEDID( idx + myIndex ) ) Then blnModel  = False
+		If CInt( arrTestSerial( idx ) ) <> CInt( arrRawEDID( idx + myIndex ) ) Then blnSerial = False
+	Next
+
+	If blnModel Or blnSerial Then
+		For idx = 4 To 17
+			Select Case arrRawEDID( myIndex + idx )
+				Case 0
+					strTemp = strTemp & " "
+				Case 7
+					strTemp = strTemp & " "
+				Case 10
+					strTemp = strTemp & " "
+				Case 13
+					strTemp = strTemp & " "
+				Case Else
+					strTemp = strTemp & Chr( arrRawEDID( myIndex + idx ) )
+			End Select
+		Next
+		strTemp = Trim( strTemp )
+		If InStr( strTemp, " " ) Then
+			arrTemp = Split( strTemp, " " )
+			strTemp = arrTemp(0)
+		End If
+		If blnModel  Then strMonitorModel  = strTemp
+		If blnSerial Then strMonitorSerial = strTemp
+	End If
+End Sub
+
+
+Function GetComputerName( )
+	Dim objSysInfo
+
+	'On Error Resume Next
+	GetComputerName = ""
+	Set objSysInfo = CreateObject( "WinNTSystemInfo" )
+	GetComputerName = objSysInfo.ComputerName
+	On Error Goto 0
+End Function
+
+
+Function GetOSVer( )
+	Dim arrOS, colItems, objItem
+
+	GetOSVer = 0
+
+	'On Error Resume Next
+
+	Set colItems = objWMIService.ExecQuery( "SELECT Version FROM Win32_OperatingSystem" )
+
+	For Each objItem In colItems
+		arrOS = Split( objItem.Version, "." )
+		If UBound( arrOS )> 1 Then
+			GetOSVer = arrOS(0) & "." & arrOS(1)
+		Else
+			GetOSVer = arrOS(0)
+		End If
+	Next
+
+	On Error Goto 0
+End Function
+
+
+Sub GetAllDiskInterfaces( )
+	Dim i, intDescLen, intSizeLen, j, lngSize
+	Dim colItems, objItem
+	Dim strInterface
+
+	'On Error Resume Next
+	If Err Then
+		WScript.Echo vbCrLf & "ERROR: " & Err.Description
+		Syntax
+	End If
+	On Error Goto 0
+	
+	' Query HDD properties and save results in HDD array
+	Set colItems = objWMIService.ExecQuery( "SELECT Caption,Index,PnpDeviceID,Size FROM Win32_DiskDrive" )
+	intHDD = colItems.Count - 1
+	' Adjust size of HDD array
+	ReDim arrHDD( 3, intHDD )
+	For Each objItem in colItems
+		With objItem
+			If IsNull( objItem.Size ) Then
+				lngSize = 0
+			Else
+				lngSize = CInt( .Size / 1073741824 )
+			End If
+			If Left( .PnpDeviceID, 3 ) = "USB" Then
+				strInterface = "USB"
+			Else
+				strInterface = "-"
+			End If
+			arrHDD( 0, .Index ) = .Caption
+			arrHDD( 1, .Index ) = .PnpDeviceID
+			arrHDD( 2, .Index ) = lngSize
+			arrHDD( 3, .Index ) = strInterface
+		End With
+	Next
+	
+	' Count number of CDROM drives, query CDR properties and save results in CDR array
+	Set colItems = objWMIService.ExecQuery( "SELECT Caption,Drive,PnpDeviceID FROM Win32_CDROMDrive" )
+	intCDR = colItems.Count - 1
+	' Adjust size of CDR array
+	ReDim arrCDR( 3, intCDR )
+	i = 0
+	For Each objItem in colItems
+		With objItem
+			If Left( .PnpDeviceID, 3 ) = "USB" Then
+				strInterface = "USB"
+			Else
+				strInterface = "-"
+			End If
+			arrCDR( 0, i ) = .Caption
+			arrCDR( 1, i ) = .PnpDeviceID
+			arrCDR( 2, i ) = .Drive
+			arrCDR( 3, i ) = strInterface
+		End With
+		i = i + 1
+	Next
+	
+	' Query harddisk controller properties and save results in HDC array
+	Set colItems = objWMIService.ExecQuery( "SELECT Caption,Description,PnpDeviceID FROM Win32_IDEController" )
+	intHDC = colItems.Count - 1
+	' Adjust size of HDC array
+	ReDim arrHDC( 2, intHDC )
+	i = 0
+	For Each objItem in colItems
+		With objItem
+			arrHDC( 0, i ) = UCase( .Caption & " (" & .Description & ")" )
+			arrHDC( 1, i ) = .PNPDeviceID
+			' This is the "weakest link" in this script: differentiating between IDE and SATA depends
+			' on the words SATA or S-ATA or Serial ATA in the harddisk controller's description field
+			If InStr( arrHDC( 0, i ), "SATA" ) Then
+				arrHDC( 2, i ) = "SATA"
+			ElseIf InStr( arrHDC( 0, i ), "S-ATA" ) Then
+				arrHDC( 2, i ) = "SATA"
+			ElseIf InStr( arrHDC( 0, i ), "SERIAL ATA" ) Then
+				arrHDC( 2, i ) = "SATA"
+			Else
+				arrHDC( 2, i ) = "IDE"
+			End If
+		End With
+		i = i + 1
+	Next
+	Set colItems = objWMIService.ExecQuery( "SELECT Caption,Description,PnpDeviceID FROM Win32_SCSIController" )
+	If colItems.Count > 0 Then
+		intHDC = intHDC + colItems.Count
+		' Adjust size of HDC array
+		ReDim Preserve arrHDC( 2, intHDC )
+		For Each objItem in colItems
+			With objItem
+				arrHDC( 0, i ) = UCase( .Caption & " (" & .Description & ")" )
+				arrHDC( 1, i ) = .PNPDeviceID
+				arrHDC( 2, i ) = "SCSI"
+			End With
+			i = i + 1
+		Next
+	End If
+
+	' Query hosted drives and save results in Host array
+	Set colItems = objWMIService.ExecQuery( "SELECT Antecedent,Dependent FROM Win32_IDEControllerDevice" )
+	intHost = colItems.Count - 1
+	' Adjust size of Host array
+	ReDim arrHost( 2, intHost )
+	i = 0
+	For Each objItem in colItems
+		With objItem
+			arrHost( 0, i ) = Replace( .Antecedent, "\\", "\", 3 )
+			arrHost( 1, i ) = Replace( .Dependent,  "\\", "\", 3 )
+		End With
+		i = i + 1
+	Next
+	Set colItems = objWMIService.ExecQuery( "SELECT Antecedent,Dependent FROM Win32_SCSIControllerDevice" )
+	intHost = intHost + colItems.Count
+	' Adjust size of Host array
+	ReDim Preserve arrHost( 2, intHost )
+	For Each objItem in colItems
+		With objItem
+			arrHost( 0, i ) = Replace( .Antecedent, "\\", "\", 3 )
+			arrHost( 1, i ) = Replace( .Dependent,  "\\", "\", 3 )
+		End With
+		i = i + 1
+	Next
+	
+	' Check interface per hosted disk
+	For i = 0 To intHost
+		For j = 0 To intHDC
+			If InStr( arrHost( 0, i ), arrHDC( 1, j ) ) Then
+				arrHost( 2, i ) = arrHDC( 2, j )
+			End If
+		Next
+	Next
+	
+	' Match hosted disks array with HDD and CDR arrays
+	For i = 0 To intHDD
+		For j = 0 To intHost
+			If InStr( arrHost( 1, j ), arrHDD( 1, i ) ) Then
+				arrHDD( 3, i ) = arrHost( 2, j )
+			End If
+		Next
+	Next
+	For i = 0 To intCDR
+		For j = 0 To intHost
+			If InStr( arrHost( 1, j ), arrCDR( 1, i ) ) Then
+				arrCDR( 3, i ) = arrHost( 2, j )
+			End If
+		Next
+	Next
+End Sub
+
+
+Function HandleClass( strClass )
+' This subroutine lists all properties and their values for a specified class.
+' Created using an example from a Microsoft TechNet ScriptCenter article:
+' http://www.microsoft.com/technet/scriptcenter/resources/guiguy/default.mspx
+	Dim colItems, objClass, objItem, objProperty, strProperties
+
+	On Error Resume Next
+
+	strProperties = "<h2>" & strClass & "</h2>" & vbCrLf & vbCrLf
+
+	Set colItems = objWMIService.ExecQuery( "SELECT * FROM " & strClass )
+	Set objClass = objWMIService.Get( strClass )
+
+	For Each objItem In colItems
+		For Each objProperty In objClass.Properties_
+			strProperties = strProperties _
+			              & CreateLine( objProperty.Name ) _
+			              & Eval( "objItem." & objProperty.Name ) & vbCrLf
+		Next
+		strProperties = strProperties & vbCrLf & vbCrLf
+	Next
+   
+	HandleClass = strProperties
+End Function
+
+
+Sub HelpMsg( )
+	Dim strMsg
+	strMsg = "Basic Hardware Inventory,  Version " & HardwInv.Version _
+	       & vbCrLf _
+	       & "Perform a basic hardware inventory for any computer in the network" _
+	       & vbCrLf & vbCrLf _
+	       & "Usage:  " & vbTab & "HARDWARE.HTA  [ options ]" _
+	       & vbCrLf & vbCrLf _
+	       & "Options:" & vbTab & "/HELP or /?   " & vbTab & "Show this message" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/BASIC        " & vbTab & "Very basic inventory (CPU, memory, HDD)" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/COMPUTER:name" & vbTab & "Specify computer to be queried" _
+	       & vbCrLf _
+	       & "        " & vbTab & "                      " & vbTab & "(starts inventory immediately)" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/COPY         " & vbTab & "Copy results to clipboard and close program" _
+	       & vbCrLf _
+	       & "        " & vbTab & "                      " & vbTab & "(starts inventory immediately)" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/NOUPDCHK     " & vbTab & "Skip check for updates at startup" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/SIZE:WxH     " & vbTab & "Resize window to W x H, e.g. 1024x768" _
+	       & vbCrLf & vbCrLf _
+	       & "Written by Rob van der Woude" _
+	       & vbCrLf _
+	       & "http://www.robvanderwoude.com"
+	MsgBox strMsg, vbOKOnly, "Hardware " & HardwInv.Version
+End Sub
+
+
+Function IE7( )
+	Dim objReg, strIEVer
+
+	IE7 = False
+
+	On Error Resume Next
+
+	' Read the computer's IE version from the registry
+	Set objReg = GetObject( "winmgmts:{impersonationLevel=impersonate}!//" & strComputer & "/root/default:StdRegProv" )
+	GetStringValue HKEY_LOCAL_MACHINE, "SOFTWARE\Microsoft\Internet Explorer", "Version", strIEVer
+	Set objReg = Nothing
+
+	If CInt( Split( strIEVer, "." )(0) ) < 8 Then IE7 = True
+
+	On Error Goto 0
+End Function
+
+
+Sub Inventory
+	CheckboxBIOS.Disabled  = True
+	CheckboxCDR.Disabled   = True
+	CheckboxCPU.Disabled   = True
+	CheckboxHDU.Disabled   = True
+	CheckboxMB.Disabled    = True
+	CheckboxMem.Disabled   = True
+	CheckboxMon.Disabled   = True
+	CheckboxNIC.Disabled   = True
+	CheckboxPorts.Disabled = True
+	CheckboxVDU.Disabled   = True
+	CheckboxSound.Disabled = True
+	BasicButton.Disabled   = True
+	PasteButton.Disabled   = True
+	RunButton.Disabled     = True
+	ResetButton.Disabled   = True
+	ComputerName.Disabled  = True
+
+	'On Error Resume Next
+
+	strComputer = Trim( ComputerName.Value )
+	If strComputer = "" Or strComputer = "." Then
+		strComputer = GetComputerName( )
+		If blnTest Then
+			ComputerName.Value = "MYPC"
+		Else
+			ComputerName.Value = strComputer
+		End If
+	End If
+
+	Sleep 1
+
+	Set objWMIService = GetObject( "winmgmts://" & strComputer & "/root/CIMV2" )
+	If Err Then
+		RunButton.Disabled                 = False
+		ComputerName.Style.backgroundColor = clrBgErr
+		ComputerName.Style.Color           = clrTxtErr
+		ComputerName.Disabled              = False
+		ComputerName.Focus( )
+		MsgBox "Error while trying to connect to computer " & strComputer & vbCrLf & vbCrLf & Err.Description, vbOKOnly, "WMI Error" 
+		Location.Reload( True )
+		Exit Sub
+	Else
+		RunButton.Disabled                 = True
+		ComputerName.Style.backgroundColor = "White"
+		ComputerName.Style.Color           = "Black"
+		ComputerName.Disabled              = True
+'		CopyButton.Focus( )
+	End If
+
+	numOS = GetOSVer( )
+
+	On Error Goto 0
+
+	strHeader = "Computer:"
+	strCSV    = strComputer
+
+	InventoryCPU( strComputer )
+	InventoryMem( strComputer )
+	GetAllDiskInterfaces
+	InventoryHDD( strComputer )
+	InventoryCDR( strComputer )
+	InventoryVDU( strComputer )
+	InventoryMon( strComputer )
+	InventorySound( strComputer )
+	InventoryNIC( strComputer )
+	InventoryMB( strComputer )
+	InventoryPorts( strComputer )
+	InventoryBIOS( strComputer )
+
+	CopyButton.Disabled  = False
+	ResetButton.Disabled = False
+End Sub
+
+
+Sub InventoryBIOS( strComputer )
+	Dim colItems, objItem, strBIOSDate, strBIOSVersion
+
+	'On Error Resume Next
+
+	If CheckBoxBIOS.Checked Then
+'		Set objWMIService = GetObject( "winmgmts://" & strComputer & "/root/CIMV2" )
+		Set colItems = objWMIService.ExecQuery( "SELECT Manufacturer,Name,ReleaseDate,Version FROM Win32_BIOS WHERE PrimaryBIOS = True" )
+		For Each objItem In colItems
+			strBIOSVersion = objItem.Version
+			strBIOSDate    = Mid( objItem.ReleaseDate, 5, 2 ) & "/" & Mid( objItem.ReleaseDate, 7, 2 ) & "/" & Left( objItem.ReleaseDate, 4 )
+			If blnTest Then
+				strBIOSVersion = "0.00"
+				strBIOSDate    = "12/31/1980"
+			End If
+			BIOSManufacturer.Value = objItem.Manufacturer
+			BIOSModel.Value        = objItem.Name
+			BIOSVersion.Value      = strBIOSVersion
+			BIOSDate.Value         = strBIOSDate
+		Next
+
+		BIOSDetailButton.Disabled = False
+
+		strHeader = strHeader              & vbTab _
+		          & "BIOS Manufacturer:"   & vbTab _
+		          & "BIOS Model:"          & vbTab _
+		          & "BIOS Version:"        & vbTab _
+		          & "BIOS Date:"
+		strCSV    = strCSV                 & vbTab _
+		          & BIOSManufacturer.Value & vbTab _
+		          & BIOSModel.Value        & vbTab _
+		          & BIOSVersion.Value      & vbTab _
+		          & BIOSDate.Value
+	End If
+
+	On Error Goto 0
+End Sub
+
+
+Sub InventoryCDR( strComputer )
+	Dim arrDevID, arrFirmware
+	Dim colItems, objItem
+	Dim strCDR, strDeviceId, strElement, strFirmware, strInterface
+
+	If CheckBoxCDR.Checked Then
+		'On Error Resume Next
+
+		Set colItems = objWMIService.ExecQuery( "SELECT DeviceID,Drive,Name FROM Win32_CDROMDrive" )
+		For Each objItem In colItems
+			' Parse the PNP Device ID string to get the interface and firmware revision
+			' Example:
+			' IDE\CDROM_NEC_DVD_RW_ND-3520AW___________________3.05____\5&2E27B08F&0&0.0.0
+			' ===  <-  interface                               ====  <-  firmware revision
+			' The array arrDevID will contain 3 elements: "IDE",
+			' "CDROM_NEC_DVD_RW_ND-3520AW___________________3.05____" and "5&2E27B08F&0&0.0.0"
+			arrDevID     = Split( objItem.DeviceID, "\", 3, vbTextCompare )
+			strInterface = arrDevID(0)
+			strDeviceId  = arrDevID(1)
+			' In our example, strDeviceID will contain "CDROM_NEC_DVD_RW_ND-3520AW___________________3.05____"
+			' The array arrFirmware will contain the elements "CDROM", "NEC", "DVD", "RW", "ND-3520AW", "3.05" and ""
+			' strFirmware is assigned the value of the last non-empty element in the array
+			arrFirmware  = Split( strDeviceId, "_", -1, vbTextCompare )
+			For Each strElement In arrFirmware
+				If CStr( strElement ) <> "" Then strFirmware = strElement
+			Next
+
+			Select Case cntCDR
+				Case 0
+					CDROM0Index.Value        = objItem.Drive
+					CDROM0Model.Value        = objItem.Name
+					CDROM0Firmware.Value     = strFirmware
+					CDROM0Interface.Value    = arrCDR( 3, 0 )
+					CDRDetailButton.Disabled = False
+				Case 1
+					MultipleCDROMs.style.display = "inline"
+					CDROM1.style.display     = strTableRowStyle
+					CDROM1Index.Value        = objItem.Drive
+					CDROM1Model.Value        = objItem.Name
+					CDROM1Firmware.Value     = strFirmware
+					CDROM1Interface.Value    = arrCDR( 3, 1 )
+				Case 2
+					CDROM2.style.display     = strTableRowStyle
+					CDROM2Index.Value        = objItem.Drive
+					CDROM2Model.Value        = objItem.Name
+					CDROM2Firmware.Value     = strFirmware
+					CDROM2Interface.Value    = arrCDR( 3, 2 )
+				Case 3
+					CDROM3.style.display     = strTableRowStyle
+					CDROM3Index.Value        = objItem.Drive
+					CDROM3Model.Value        = objItem.Name
+					CDROM3Firmware.Value     = strFirmware
+					CDROM3Interface.Value    = arrCDR( 3, 3 )
+			End Select
+			cntCDR = cntCDR + 1
+		Next
+		If cntCDR > 4 Then
+			CDROM3Index.Value = CDROM3Index.Value & "*"
+		End If
+
+		On Error Goto 0
+
+		strHeader = strHeader             & vbTab _
+		          & "CDROM 0 Model:"      & vbTab _
+		          & "CDROM 0 Firmware:"   & vbTab _
+		          & "CDROM 0 Interface:"  & vbTab _
+		          & "CDROM 1 Model:"      & vbTab _
+		          & "CDROM 1 Firmware:"   & vbTab _
+		          & "CDROM 1 Interface:"  & vbTab _
+		          & "CDROM 2 Model:"      & vbTab _
+		          & "CDROM 2 Firmware:"   & vbTab _
+		          & "CDROM 2 Interface:"  & vbTab _
+		          & "CDROM 3 Model:"      & vbTab _
+		          & "CDROM 3 Firmware:"   & vbTab _
+		          & "CDROM 3 Interface:"
+		strCSV    = strCSV & vbTab _
+		          & CDROM0Model.Value     & vbTab _
+		          & CDROM0Firmware.Value  & vbTab _
+		          & CDROM0Interface.Value & vbTab _
+		          & CDROM1Model.Value     & vbTab _
+		          & CDROM1Firmware.Value  & vbTab _
+		          & CDROM1Interface.Value & vbTab _
+		          & CDROM2Model.Value     & vbTab _
+		          & CDROM2Firmware.Value  & vbTab _
+		          & CDROM2Interface.Value & vbTab _
+		          & CDROM3Model.Value     & vbTab _
+		          & CDROM3Firmware.Value  & vbTab _
+		          & CDROM3Interface.Value
+	End If
+End Sub
+
+
+Sub InventoryCPU( strComputer )
+	Dim colItems, objItem
+
+	If CheckBoxCPU.Checked Then
+		'On Error Resume Next
+
+		Set colItems = objWMIService.ExecQuery( "SELECT CurrentClockSpeed,Name,SocketDesignation FROM Win32_Processor" )
+		cntCPU = colItems.Count
+		CPUNumber.Value = cntCPU
+		If cntCPU > 1 Then MultipleCPU.InnerHTML  = "s"
+		For Each objItem In colItems
+			CPUModel.Value  = Trim( objItem.Name )
+			CPUSpeed.Value  = objItem.CurrentClockSpeed
+			CPUSocket.Value = objItem.SocketDesignation
+		Next
+
+		On Error Goto 0
+
+		CPUDetailButton.Disabled = False
+
+		strHeader = strHeader       & vbTab _
+		          & "# CPUs:"       & vbTab _
+	              & "CPU Type:"     & vbTab _
+	              & "CPU Speed:"    & vbTab _
+	              & "CPU Socket:"
+		strCSV    = strCSV          & vbTab _
+	              & CPUNumber.Value & vbTab _
+	              & CPUModel.Value  & vbTab _
+	              & CPUSpeed.Value  & vbTab _
+	              & CPUSocket.Value
+	End If
+End Sub
+
+
+Sub InventoryHDD( strComputer )
+	Dim colItems, intDisk, objItem
+
+	If CheckBoxHDU.Checked Then
+		'On Error Resume Next
+
+		Set colItems = objWMIService.ExecQuery( "SELECT Index,Model,SCSITargetId,Size FROM Win32_DiskDrive WHERE SCSITargetId >= 0" )
+		cntHDD = colItems.Count
+		For Each objItem In colItems
+			intDisk = CInt( objItem.Index )
+			Select Case intDisk
+				Case 0
+					HardDisk0Index.Value       = objItem.Index
+					HardDisk0Model.Value       = objItem.Model
+					HardDisk0Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk0Interface.Value   = arrHDD( 3, 0 )
+					HDUDetailButton.Disabled   = False
+				Case 1
+					HardDisk1.style.display    = strTableRowStyle
+					MultipleHDUs.style.display = "inline"
+					HardDisk1Index.Value       = objItem.Index
+					HardDisk1Model.Value       = objItem.Model
+					HardDisk1Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk1Interface.Value   = arrHDD( 3, 1 )
+				Case 2
+					HardDisk2.style.display    = strTableRowStyle
+					HardDisk2Index.Value       = objItem.Index
+					HardDisk2Model.Value       = objItem.Model
+					HardDisk2Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk2Interface.Value   = arrHDD( 3, 2 )
+				Case 3
+					HardDisk3.style.display    = strTableRowStyle
+					HardDisk3Index.Value       = objItem.Index
+					HardDisk3Model.Value       = objItem.Model
+					HardDisk3Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk3Interface.Value   = arrHDD( 3, 3 )
+				Case 4
+					HardDisk4.style.display    = strTableRowStyle
+					HardDisk4Index.Value       = objItem.Index
+					HardDisk4Model.Value       = objItem.Model
+					HardDisk4Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk4Interface.Value   = arrHDD( 3, 4 )
+				Case 5
+					HardDisk5.style.display    = strTableRowStyle
+					HardDisk5Index.Value       = objItem.Index
+					HardDisk5Model.Value       = objItem.Model
+					HardDisk5Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk5Interface.Value   = arrHDD( 3, 5 )
+				Case 6
+					HardDisk6.style.display    = strTableRowStyle
+					HardDisk6Index.Value       = objItem.Index
+					HardDisk6Model.Value       = objItem.Model
+					HardDisk6Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk6Interface.Value   = arrHDD( 3, 6 )
+				Case 7
+					HardDisk7.style.display    = strTableRowStyle
+					HardDisk7Index.Value       = objItem.Index
+					HardDisk7Model.Value       = objItem.Model
+					HardDisk7Size.Value        = Round( objItem.Size / 1073741824 )
+					HardDisk7Interface.Value   = arrHDD( 3, 7 )
+			End Select
+		Next
+		If cntHDD > 8 Then
+			HardDisk7Index.Value = HardDisk7Index.Value & "*"
+		End If
+
+		On Error Goto 0
+
+		strHeader = strHeader & vbTab _
+		          & "HDD 0 Model:"           & vbTab _
+		          & "HDD 0 Size (GB):"       & vbTab _
+		          & "HDD 0 Interface:"       & vbTab _
+		          & "HDD 1 Model:"           & vbTab _
+		          & "HDD 1 Size (GB):"       & vbTab _
+		          & "HDD 1 Interface:"       & vbTab _
+		          & "HDD 2 Model:"           & vbTab _
+		          & "HDD 2 Size (GB):"       & vbTab _
+		          & "HDD 2 Interface:"       & vbTab _
+		          & "HDD 3 Model:"           & vbTab _
+		          & "HDD 3 Size (GB):"       & vbTab _
+		          & "HDD 3 Interface:"       & vbTab _
+		          & "HDD 4 Model:"           & vbTab _
+		          & "HDD 4 Size (GB):"       & vbTab _
+		          & "HDD 4 Interface:"       & vbTab _
+		          & "HDD 5 Model:"           & vbTab _
+		          & "HDD 5 Size (GB):"       & vbTab _
+		          & "HDD 5 Interface:"       & vbTab _
+		          & "HDD 6 Model:"           & vbTab _
+		          & "HDD 6 Size (GB):"       & vbTab _
+		          & "HDD 6 Interface:"       & vbTab _
+		          & "HDD 7 Model:"           & vbTab _
+		          & "HDD 7 Size (GB):"       & vbTab _
+		          & "HDD 7 Interface:"
+		strCSV    = strCSV                   & vbTab _
+		          & HardDisk0Model.Value     & vbTab _
+		          & HardDisk0Size.Value      & vbTab _
+		          & HardDisk0Interface.Value & vbTab _
+		          & HardDisk1Model.Value     & vbTab _
+		          & HardDisk1Size.Value      & vbTab _
+		          & HardDisk1Interface.Value & vbTab _
+		          & HardDisk2Model.Value     & vbTab _
+		          & HardDisk2Size.Value      & vbTab _
+		          & HardDisk2Interface.Value & vbTab _
+		          & HardDisk3Model.Value     & vbTab _
+		          & HardDisk3Size.Value      & vbTab _
+		          & HardDisk3Interface.Value & vbTab _
+		          & HardDisk4Model.Value     & vbTab _
+		          & HardDisk4Size.Value      & vbTab _
+		          & HardDisk4Interface.Value & vbTab _
+		          & HardDisk5Model.Value     & vbTab _
+		          & HardDisk5Size.Value      & vbTab _
+		          & HardDisk5Interface.Value & vbTab _
+		          & HardDisk6Model.Value     & vbTab _
+		          & HardDisk6Size.Value      & vbTab _
+		          & HardDisk6Interface.Value & vbTab _
+		          & HardDisk7Model.Value     & vbTab _
+		          & HardDisk7Size.Value      & vbTab _
+		          & HardDisk7Interface.Value
+	End If
+End Sub
+
+
+Sub InventoryMB( strComputer )
+	Dim colItems, objItem, strMBVersion
+
+	If CheckBoxMB.Checked Then
+		'On Error Resume Next
+
+		Set colItems = objWMIService.ExecQuery( "SELECT Manufacturer,Product,Version FROM Win32_BaseBoard" )
+		For Each objItem In colItems
+			If blnTest Then
+				strMBVersion = "0.00"
+			Else
+				strMBVersion = objItem.Version
+			End If
+			MBManufacturer.Value = objItem.Manufacturer
+			MBModel.Value        = objItem.Product
+			MBVersion.Value      = strMBVersion
+		Next
+
+		On Error Goto 0
+
+		ChassisType.Value = Chassis( strComputer )
+
+		MBDetailButton.Disabled = False
+
+		strHeader = strHeader            & vbTab _
+		          & "Chassis:"           & vbTab _
+		          & "MB Manufacturer:"   & vbTab _
+		          & "MB Model:"          & vbTab _
+		          & "MB Version:"
+		strCSV    = strCSV               & vbTab _
+		          & ChassisType.Value    & vbTab _
+		          & MBManufacturer.Value & vbTab _
+		          & MBModel.Value        & vbTab _
+		          & MBVersion.Value
+	End If
+
+	CheckBoxMB.Disabled = True
+End Sub
+
+
+Sub InventoryMem( strComputer )
+	Dim colItems, objItem
+
+	If CheckBoxMem.Checked Then
+		'On Error Resume Next
+
+		' Capacity filter intended for HP/COMPAQ EVO models
+		Set colItems = objWMIService.ExecQuery( "SELECT Capacity,Speed FROM Win32_PhysicalMemory WHERE Capacity > 524288" )
+		For Each objItem in colItems
+			cntMem = cntMem + 1
+			sizMem = sizMem + objItem.Capacity
+			If spdMem = 0 Or objItem.Speed < spdMem Then spdMem = objItem.Speed
+		Next
+		MemoryModules.Value = cntMem
+		MemorySize.Value    = Round( sizMem / 1048576 )
+
+		Set colItems = objWMIService.ExecQuery( "SELECT * FROM Win32_PhysicalMemoryArray" )
+		For Each objItem In colItems
+			If objItem.MemoryDevices > cntBnk Then cntBnk = objItem.MemoryDevices
+		Next
+
+		On Error Goto 0
+
+		MemoryBanks.Value = cntBnk
+
+		MemDetailButton.Disabled = False
+
+		strHeader = strHeader            & vbTab _
+		          & "# Memory Banks:"    & vbTab _
+	              & "# Memeory Modules:" & vbTab _
+	              & "Total Memory (MB):"
+	    strCSV    = strCSV               & vbTab _
+		          & cntBnk               & vbTab _
+		          & cntMem               & vbTab _
+		          & MemorySize.Value
+	End If
+End Sub
+
+
+Sub InventoryMon( strComputer )
+	Dim arrKeys, arrMfg, arrSubKeys, arrSubSubKeys
+	Dim blnControl
+	Dim i, idxMonI, idxMonJ
+	Dim objReg
+	Dim strDeviceDesc, strMfg, strKeyPath
+	Dim strSubKeyPath, strSubSubKey, strSubSubKeyPath
+
+	If CheckBoxMon.Checked Then
+		'On Error Resume Next
+
+		Set objReg = GetObject( "winmgmts:{impersonationLevel=impersonate}!//" & strComputer & "/root/default:StdRegProv" )
+		If Err Then Exit Sub
+
+		strKeyPath = "SYSTEM\CurrentControlSet\Enum\DISPLAY"
+		objReg.EnumKey  HKEY_LOCAL_MACHINE, strKeyPath, arrKeys
+		If Not IsArray( arrKeys ) Then Exit Sub
+
+		For idxMonI = 0 To UBound( arrKeys )
+			If InStr( 1, arrKeys( idxMonI ), "default", vbTextCompare ) < 1 Then
+				strSubKeyPath = strKeyPath & "\" & arrKeys( idxMonI )
+				objReg.EnumKey HKEY_LOCAL_MACHINE, strSubKeyPath, arrSubKeys
+				If IsArray( arrSubKeys ) Then
+					For idxMonJ = 0 To UBound( arrSubKeys )
+						strSubSubKeyPath = strSubKeyPath & "\" & arrSubKeys( idxMonJ )
+						objReg.EnumKey HKEY_LOCAL_MACHINE, strSubSubKeyPath, arrSubSubKeys
+						blnControl = False
+						If IsArray( arrSubSubKeys ) Then
+							For Each strSubSubKey In arrSubSubKeys
+								If strSubSubKey = "Control" Then blnControl = True
+							Next
+						End If
+						If blnControl Then
+							objReg.GetStringValue HKEY_LOCAL_MACHINE, strSubSubKeyPath, "Mfg", strMfg
+							If Not IsNull( strMfg ) Then
+								If Left( strMfg, 1 ) <> "(" Then
+									arrMfg = Split( strMfg, ";" )
+									If IsArray( arrMfg ) Then
+										i = UBound( arrMfg )
+										strMfg = arrMfg(i)
+									End If
+									objReg.GetStringValue HKEY_LOCAL_MACHINE, strSubSubKeyPath, "DeviceDesc", strDeviceDesc
+									objReg.GetBinaryValue HKEY_LOCAL_MACHINE, strSubSubKeyPath & "\Device Parameters", "EDID", arrRawEDID
+									If IsArray( arrRawEDID ) Then
+										EDIDTest 54
+										EDIDTest 72
+										EDIDTest 90
+										EDIDTest 108
+									End If
+	
+									If strMonitorModel = "" Then strMonitorModel  = strDeviceDesc
+									If blnTest              Then strMonitorSerial = "0123456789"
+	
+									Select Case cntMon
+										Case 0
+											MonitorIndex0.Value        = cntMon
+											MonitorModel0.Value        = strMonitorModel
+											MonitorManufacturer0.Value = strMfg
+											MonitorSerial0.Value       = strMonitorSerial
+										Case 1
+											MultipleMonitors.style.display = "inline"
+											Monitor1.style.display     = strTableRowStyle
+											MonitorIndex1.Value        = cntMon
+											MonitorModel1.Value        = strMonitorModel
+											MonitorManufacturer1.Value = strMfg
+											MonitorSerial1.Value       = strMonitorSerial
+										Case 2
+											Monitor2.style.display     = strTableRowStyle
+											MonitorIndex2.Value        = cntMon
+											MonitorModel2.Value        = strMonitorModel
+											MonitorManufacturer2.Value = strMfg
+											MonitorSerial2.Value       = strMonitorSerial
+										Case 3
+											Monitor3.style.display     = strTableRowStyle
+											MonitorIndex3.Value        = cntMon
+											MonitorModel3.Value        = strMonitorModel
+											MonitorManufacturer3.Value = strMfg
+											MonitorSerial3.Value       = strMonitorSerial
+										Case Else
+											If Not Right( MonitorIndex3.Value, 1 ) = "*" Then
+												MonitorIndex3.Value = MonitorIndex3.Value & "*"
+											End If
+									End Select
+									cntMon = cntMon + 1
+								End If
+							End If
+						End If
+					Next
+				End If
+			End If
+		Next
+
+		On Error Goto 0
+
+		strHeader = strHeader & vbTab _
+		          & "Monitor 0 Model:"          & vbTab _
+		          & "Monitor 0 Manufacturer:"   & vbTab _
+		          & "Monitor 0 Serial:"         & vbTab _
+		          & "Monitor 1 Model:"          & vbTab _
+		          & "Monitor 1 Manufacturer:"   & vbTab _
+		          & "Monitor 1 Serial:"         & vbTab _
+		          & "Monitor 2 Model:"          & vbTab _
+		          & "Monitor 2 Manufacturer:"   & vbTab _
+		          & "Monitor 2 Serial:"         & vbTab _
+		          & "Monitor 3 Model:"          & vbTab _
+		          & "Monitor 3 Manufacturer:"   & vbTab _
+		          & "Monitor 3 Serial:"
+		strCSV    = strCSV                      & vbTab _
+		          & MonitorModel0.Value         & vbTab _
+		          & MonitorManufacturer0.Value  & vbTab _
+		          & MonitorSerial0.Value        & vbTab _
+		          & MonitorModel1.Value         & vbTab _
+		          & MonitorManufacturer1.Value  & vbTab _
+		          & MonitorSerial1.Value        & vbTab _
+		          & MonitorModel2.Value         & vbTab _
+		          & MonitorManufacturer2.Value  & vbTab _
+		          & MonitorSerial2.Value        & vbTab _
+		          & MonitorModel3.Value         & vbTab _
+		          & MonitorManufacturer3.Value  & vbTab _
+		          & MonitorSerial3.Value
+	End If
+End Sub
+
+
+Sub InventoryNIC( strComputer )
+	Dim colItems, objItem
+	Dim strMACAddress, strQuery
+	
+	If CheckBoxNIC.Checked Then
+		'On Error Resume Next
+
+		strQuery = "SELECT * FROM Win32_NetworkAdapter WHERE NOT Manufacturer='Microsoft' AND AdapterType LIKE 'Ethernet%' AND AdapterTypeId=0 AND NOT ProductName LIKE '%miniport%' AND NOT MACAddress='' AND MACAddress IS NOT NULL"
+		Set colItems = objWMIService.ExecQuery( strQuery & " AND PhysicalAdapter='TRUE'" )
+		' Check if any instance was returned, if not, widen the search criteria by skipping PhysicalAdapter requirement
+		If colItems.Count = 0 Or numOS < 6 Then
+			Set colItems = objWMIService.ExecQuery( strQuery )
+		End If
+		For Each objItem In colItems
+			strMACAddress = Join( Split( objItem.MACAddress, ":", -1, vbTextCompare ), "" )
+			If blnTest Then strMACAddress = "0123456789ABCDEF"
+			Select Case cntNIC
+				Case 0
+					MACAddress0.Value = strMACAddress
+					NICIndex0.Value   = cntNIC
+					NICModel0.Value   = objItem.ProductName
+					NICSpeed0.Value   = InventoryNICSpeed( objItem.ProductName )
+					NICDetailButton.Disabled = False
+				Case 1
+					MultipleNICs.style.display = "inline"
+					NIC1.style.display = strTableRowStyle
+					MACAddress1.Value  = strMACAddress
+					NICIndex1.Value    = cntNIC
+					NICModel1.Value    = objItem.ProductName
+					NICSpeed1.Value    = InventoryNICSpeed( objItem.ProductName )
+				Case 2
+					NIC2.style.display = strTableRowStyle
+					MACAddress2.Value  = strMACAddress
+					NICIndex2.Value    = cntNIC
+					NICModel2.Value    = objItem.ProductName
+					NICSpeed2.Value    = InventoryNICSpeed( objItem.ProductName )
+				Case 3
+					NIC3.style.display = strTableRowStyle
+					MACAddress3.Value  = strMACAddress
+					NICIndex3.Value    = cntNIC
+					NICModel3.Value    = objItem.ProductName
+					NICSpeed3.Value    = InventoryNICSpeed( objItem.ProductName )
+				Case Else
+					If Not Right( NICIndex3.Value, 1 ) = "*" Then
+						NICIndex3.Value = NICIndex3.Value & "*"
+					End If
+			End Select
+			cntNIC = cntNIC + 1
+		Next
+
+		On Error Goto 0
+
+		strHeader = strHeader            & vbTab _
+		          & "NIC 0 Model:"       & vbTab _
+		          & "NIC 0 MAC Address:" & vbTab _
+		          & "NIC 0 Speed:"       & vbTab _
+		          & "NIC 1 Model:"       & vbTab _
+		          & "NIC 1 MAC Address:" & vbTab _
+		          & "NIC 1 Speed:"       & vbTab _
+		          & "NIC 2 Model:"       & vbTab _
+		          & "NIC 2 MAC Address:" & vbTab _
+		          & "NIC 2 Speed:"       & vbTab _
+		          & "NIC 3 Model:"       & vbTab _
+		          & "NIC 3 MAC Address:" & vbTab _
+		          & "NIC 3 Speed:"
+		strCSV    = strCSV               & vbTab _
+		          & NICModel0.Value      & vbTab _
+		          & MACAddress0.Value    & vbTab _
+		          & NICSpeed0.Value      & vbTab _
+		          & NICModel1.Value      & vbTab _
+		          & MACAddress1.Value    & vbTab _
+		          & NICSpeed1.Value      & vbTab _
+		          & NICModel2.Value      & vbTab _
+		          & MACAddress2.Value    & vbTab _
+		          & NICSpeed2.Value      & vbTab _
+		          & NICModel3.Value      & vbTab _
+		          & MACAddress3.Value    & vbTab _
+		          & NICSpeed3.Value
+
+		NICDetailButton.Disabled = False
+	End If
+End Sub
+
+
+Function InventoryNICSpeed( strInstance )
+	Dim colItems, objItem, objWMIService, strNICSpeed
+
+	'On Error Resume Next
+
+	Set objWMIService = GetObject( "winmgmts://" & strComputer & "/root/WMI"   )
+	Set colItems = objWMIService.ExecQuery( "SELECT NdisLinkSpeed FROM MSNdis_LinkSpeed WHERE InstanceName = '" & strInstance & "' AND Active = True" )
+	For Each objItem In colItems
+		If objItem.NdisLinkSpeed < 10000 Then
+			strNICSpeed = objItem.NdisLinkSpeed /    10 & " kb/s"
+		Else
+			strNICSpeed = objItem.NdisLinkSpeed / 10000 & " Mb/s"
+		End If
+	Next
+	InventoryNICSpeed = strNICSpeed
+
+	On Error Goto 0
+End Function
+
+
+Sub InventoryPorts( strComputer )
+	Dim cntAGP, cntOth, cntPar, cntPCI, cntSer, cntUSB, colItems, objItem, strSlots
+
+	cntAGP = 0
+	cntOth = 0
+	cntPar = 0
+	cntPCI = 0
+	cntSer = 0
+	cntUSB = 0
+
+	If CheckBoxPorts.Checked Then
+		'On Error Resume Next
+
+		' Check for USB controllers
+		Set colItems = objWMIService.ExecQuery( "SELECT * FROM Win32_USBController" )
+		cntUSB = colItems.Count
+		USB.Value = cntUSB
+
+		' Count parallel ports
+		Set colItems = objWMIService.ExecQuery( "SELECT * FROM Win32_ParallelPort" )
+		cntPar = colItems.Count
+		Parallel.Value = cntPar
+
+		' Count serial ports
+		Set colItems = objWMIService.ExecQuery( "SELECT * FROM Win32_SerialPort" )
+		cntSer = colItems.Count
+		Serial.Value = cntSer
+
+		' Count system slots (PCI/AGP)
+		Set colItems = objWMIService.ExecQuery( "SELECT SlotDesignation FROM Win32_SystemSlot" )
+		For Each objItem In colItems
+			If Left( objItem.SlotDesignation, 3 ) = "AGP" Then cntAGP = cntAGP + 1
+			If Left( objItem.SlotDesignation, 3 ) = "PCI" Then cntPCI = cntPCI + 1
+			If InStr( "AGPCI", Left( objItem.SlotDesignation, 3 ) ) = 0 Then cntOth = cntOth + 1
+		Next
+
+		On Error Goto 0
+
+		Slots.Value = cntPCI & " x PCI, " & cntAGP & " x AGP"
+		strSlots    = cntPCI &   "xPCI "  & cntAGP &   "xAGP"
+		If cntOth > 0 Then
+			Slots.Value = Slots.Value & ", " & cntOth & " x Other"
+			strSlots    = strSlots    & " "  & cntOth &   "xOther"
+		End If
+
+		strHeader = strHeader         & vbTab _
+		          & "USB:"            & vbTab _
+		          & "System Slots:"   & vbTab _
+		          & "Parallel Ports:" & vbTab _
+		          & "Serial Ports:"
+		strCSV    = strCSV            & vbTab _
+		          & USB.Value         & vbTab _
+		          & strSlots          & vbTab _
+		          & Parallel.Value    & vbTab _
+		          & Serial.Value
+
+		PortsDetailButton.Disabled = False
+	End If
+End Sub
+
+
+Sub InventorySound( strComputer )
+	Dim colItems, objItem
+
+	If CheckBoxSound.Checked Then
+		'On Error Resume Next
+
+		Set colItems = objWMIService.ExecQuery( "SELECT Manufacturer,ProductName FROM Win32_SoundDevice" )
+		For Each objItem In colItems
+			SoundCardManufacturer.Value = objItem.Manufacturer
+			SoundCardModel.Value        = objItem.ProductName
+		Next
+
+		On Error Goto 0
+
+		SoundDetailButton.Disabled = False
+
+		strHeader = strHeader                   & vbTab _
+		          & "Sound Card Model:"         & vbTab _
+		          & "Sound Card Manufacturer:"
+		strCSV    = strCSV                      & vbTab _
+		          & SoundCardManufacturer.Value & vbTab _
+		          & SoundCardModel.Value
+	End If
+End Sub
+
+
+Sub InventoryVDU( strComputer )
+	Dim colItems, objItem
+
+	If CheckBoxVDU.Checked Then
+		'On Error Resume Next
+
+'		Set objWMIService = GetObject( "winmgmts://" & strComputer & "/root/CIMV2" )
+		Set colItems = objWMIService.ExecQuery( "Select AdapterRAM,Name,VideoModeDescription from Win32_VideoController" )
+		For Each objItem in colItems
+			Select Case cntVDU
+				Case 0
+					VDUIndex0.Value    = cntVDU
+					VideoModel0.Value  = objItem.Name
+					VideoMemory0.Value = Round( objItem.AdapterRAM / 1048576 )
+					VideoMode0.Value   = objItem.VideoModeDescription
+					VDUDetailButton.Disabled = False
+				Case 1
+					VDU1.style.display = strTableRowStyle
+					VDUIndex1.Value    = cntVDU
+					VideoModel1.Value  = objItem.Name
+					VideoMemory1.Value = Round( objItem.AdapterRAM / 1048576 )
+					VideoMode1.Value   = objItem.VideoModeDescription
+				Case 2
+					VDU2.style.display = strTableRowStyle
+					VDUIndex2.Value    = cntVDU
+					VideoModel2.Value  = objItem.Name
+					VideoMemory2.Value = Round( objItem.AdapterRAM / 1048576 )
+					VideoMode2.Value   = objItem.VideoModeDescription
+				Case 3
+					VDU3.style.display = strTableRowStyle
+					VDUIndex3.Value    = cntVDU
+					VideoModel3.Value  = objItem.Name
+					VideoMemory3.Value = Round( objItem.AdapterRAM / 1048576 )
+					VideoMode3.Value   = objItem.VideoModeDescription
+			End Select
+			cntVDU = cntVDU + 1
+		Next
+
+		If cntVDU > 4 Then
+			VDUIndex3.Value = VDUIndex3.Value & "*"
+		End If
+
+		On Error Goto 0
+
+		strHeader = strHeader                   & vbTab _
+		          & "Video Card 0 Model:"       & vbTab _
+		          & "Video Card 0 Memory (MB):" & vbTab _
+		          & "Video Card 0 Video Mode:"  & vbTab _
+		          & "Video Card 1 Model:"       & vbTab _
+		          & "Video Card 1 Memory (MB):" & vbTab _
+		          & "Video Card 1 Video Mode:"  & vbTab _
+		          & "Video Card 2 Model:"       & vbTab _
+		          & "Video Card 2 Memory (MB):" & vbTab _
+		          & "Video Card 2 Video Mode:"  & vbTab _
+		          & "Video Card 3 Model:"       & vbTab _
+		          & "Video Card 3 Memory (MB):" & vbTab _
+		          & "Video Card 3 Video Mode:"
+		strCSV    = strCSV                      & vbTab _
+		          & VideoModel0.Value           & vbTab _
+		          & VideoMemory0.Value          & vbTab _
+		          & VideoMode0.Value            & vbTab _
+		          & VideoModel1.Value           & vbTab _
+		          & VideoMemory1.Value          & vbTab _
+		          & VideoMode1.Value            & vbTab _
+		          & VideoModel2.Value           & vbTab _
+		          & VideoMemory2.Value          & vbTab _
+		          & VideoMode2.Value            & vbTab _
+		          & VideoModel3.Value           & vbTab _
+		          & VideoMemory3.Value          & vbTab _
+		          & VideoMode3.Value
+	End If
+End Sub
+
+
+Function Max( num1, num2 )
+	If num1 > num2 Then
+		Max = num1
+	Else
+		Max = num2
+	End If
+End Function
+
+
+Function Min( num1, num2 )
+	If num1 < num2 Then
+		Min = num1
+	Else
+		Min = num2
+	End If
+End Function
+
+
+Sub PasteClipboard
+	ComputerName.Value = Document.ParentWindow.ClipboardData.GetData( "text" )
+End Sub
+
+
+Sub Sleep( seconds )
+	Dim objShell, strCmd
+	Set objShell = CreateObject( "Wscript.Shell" )
+	strCmd = "%COMSPEC% /C PING -n " & seconds & " 127.0.0.1 > NUL 2>&1"
+	objShell.Run strCmd, 0, 1
+	Set objShell = Nothing
+End Sub
+
+
+Function TextFromHTML( URL )
+	' Basic routine borrowed from http://dev.remotenetworktechnology.com/wsh/rubegoldberg.htm
+	' Improved wait-until-ready routine for HTAs by McKirahan on
+	' http://support.microsoft.com/newsgroups/default.aspx?dg=microsoft.public.scripting.scriptlets&tid=be461ec2-b444-440c-8155-ad0e8e839ca6&lang=en&cr=US&sloc=en-us&p=1
+	Dim objIE
+
+	Set objIE = CreateObject( "InternetExplorer.Application" )
+ 	objIE.Navigate URL
+	While objIE.Busy
+		Sleep 1
+	Wend
+	TextFromHTML = objIE.Document.Body.InnerText
+	objIE.Quit
+End Function
+
+
+Function UnTag( strString )
+	' This function replaces special characters by their "ampersand code".
+	' The lines strPre = "" etc. are there to make sure that strPre has
+	' a value even if the next line fails.
+	Dim posAmp, posGt, posLt, posPost, posPre
+
+	'On Error Resume Next
+
+	If InStr( strString, "&" ) > 0 Then
+		posAmp = -1
+		Do Until posAmp = 0
+			posAmp    = InStr( posAmp + 2, strString, "&" )
+			strPre    = ""
+			strPre    = Mid( strString, 1, posAmp - 1 )
+			strPost   = ""
+			strPost   = Mid( strString, posAmp + 1 )
+			If posAmp > 0 Then strString = strPre & "&amp;" & strPost
+		Loop
+	End If
+
+	If InStr( strString, "<" ) > 0 Then
+		posLt = -1
+		Do Until posLt = 0
+			posLt     = InStr( posLt + 2, strString, "<" )
+			strPre    = ""
+			strPre    = Mid( strString, 1, posLt - 1 )
+			strPost   = ""
+			strPost   = Mid( strString, posLt + 1 )
+			If posLt > 0 Then strString = strPre & "&lt;" & strPost
+		Loop
+	End If
+
+	If InStr( strString, ">" ) > 0 Then
+		posGt = -1
+		Do Until posGt = 0
+			posGt     = InStr( posGt + 2, strString, ">" )
+			strPre    = ""
+			strPre    = Mid( strString, 1, posGt - 1 )
+			strPost   = ""
+			strPost   = Mid( strString, posGt + 1 )
+			If posGt > 0 Then strString = strPre & "&gt;" & strPost
+		Loop
+	End If
+	UnTag = strString
+End Function
+
+
+Sub Window_Onload
+	AppVersion.InnerHTML = HardwInv.Version
+	document.title = "Basic Hardware Inventory " & HardwInv.Version
+	CopyButton.Disabled        = True
+	PasteButton.Disabled       = False
+	RunButton.Disabled         = False
+	ResetButton.Disabled       = True
+	If InStr( strCmdLine, "/BASIC" ) Then
+		blnFullInventory  = False
+		BasicButton.Value = "Full"
+	End If
+	CheckboxBIOS.Checked       = blnFullInventory
+	CheckboxCDR.Checked        = blnFullInventory
+	CheckboxCPU.Checked        = True
+	CheckboxHDU.Checked        = True
+	CheckboxMB.Checked         = blnFullInventory
+	CheckboxMem.Checked        = True
+	CheckboxMon.Checked        = blnFullInventory
+	CheckboxNIC.Checked        = blnFullInventory
+	CheckboxPorts.Checked      = blnFullInventory
+	CheckboxVDU.Checked        = blnFullInventory
+	CheckboxSound.Checked      = blnFullInventory
+	BIOSDetailButton.Disabled  = True
+	CPUDetailButton.Disabled   = True
+	HDUDetailButton.Disabled   = True
+	CDRDetailButton.Disabled   = True
+	MBDetailButton.Disabled    = True
+	MemDetailButton.Disabled   = True
+	NICDetailButton.Disabled   = True
+	PortsDetailButton.Disabled = True
+	SoundDetailButton.Disabled = True
+	VDUDetailButton.Disabled   = True
+
+	If InStr( strCmdLine, "?" ) Or InStr( strCmdLine, "HELP" ) Then HelpMsg
+	If InStr( strCmdLine, "/COMPUTER:" ) Then
+		strComputer = Mid( strCmdLine, InStr( strCmdLine, "/COMPUTER:" ) + 10 )
+		If InStr( strComputer, " " ) Then strComputer = Left( strComputer, InStr( strComputer, " " ) - 1 )
+		ComputerName.Value = strComputer
+	End If
+	If InStr( strCmdLine, "/TEST"     ) Then blnTest        = True
+	If InStr( strCmdLine, "/SIZE:"    ) Then WxH InStr( strCmdLine, "/SIZE:" ) + 5
+	If InStr( strCmdLine, "/NOUPDCHK" ) Then
+		blnUpdateCheck       = False
+		Update.style.display = "none"
+	End If
+	CheckUpdate
+	window.offscreenBuffering = True
+
+	'On Error Resume Next
+	ComputerName.Focus( )
+	On Error Goto 0
+
+	' Tweak for Internet Explorer 7 and older versions
+	blnIE7 = IE7( )
+	If blnIE7 Then strTableRowStyle = "inline"
+
+	If InStr( strCmdLine, "/COPY" ) Or InStr( strCmdLine, "/COMPUTER:" ) Then Inventory
+	If InStr( strCmdLine, "/COPY" ) Then
+		CopyClipboard
+		window.close( )
+	End If
+End Sub
+
+
+Sub WindowSize( iWidth, iHeight )
+	'On Error Resume Next
+	Dim posWidth, posHeight
+	posWidth  = ( window.screen.width  - iWidth ) / 2
+	posHeight = ( window.screen.height - iHeight ) / 2
+	If posWidth  < 0 Then posWidth = 0
+	If posHeight < 0 Then posHeight = 0
+	window.resizeTo iWidth, iHeight
+	window.moveTo posWidth, posHeight
+	On Error GoTo 0
+End Sub
+
+
+Sub WxH( posColon )
+	Dim myHeight, myWidth, posSpace, posX, reqHeight, reqWidth
+	Dim strWxH
+
+	Const minHeight = 600
+	Const minWidth  = 1024
+
+	strWxH = Mid( strCmdLine, posColon + 1 )
+	posSpace = InStr( strWxH, " " )
+	If posSpace > 0 Then
+		strWxH = Left( strWxH, posSpace - 1 )
+	End If
+	posX = InStr( strWxH, "X" )
+	If posX > 0 Then
+		reqWidth = CInt( Left( strWxH, posX - 1 ) )
+		reqHeight = CInt( Mid( strWxH, posX + 1 ) )
+		If IsNumeric( reqHeight ) And IsNumeric( reqWidth ) Then
+			If Not blnTest Then
+				reqHeight = Max( reqHeight, minHeight )
+				reqWidth  = Max( reqWidth,  minWidth )
+			End If
+			reqHeight = Min( reqHeight, CInt( window.screen.height ) )
+			reqWidth  = Min( reqWidth,  CInt( window.screen.width  ) )
+			WindowSize reqWidth, reqHeight
+		End If
+	End If
+End Sub
+</script>
+
+<body style="font:12 pt arial; color:white; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#0000FF', EndColorStr='#000000')" onhelp="HelpMsg()">
+
+<div align="center">
+
+<div id="Update" style="margin: 10px auto 10px auto; width: 750px; padding: 10px;"></div>
+
+<table id="Controls" border="0" cellpadding="0" cellspacing="10">
+<tr>
+    <td><input id="pastebutton" class="Button" type="button" value=" Paste " name="PasteButton" onclick="PasteClipboard" title="Click here to paste a remote computer name from the clipboard into the Computer Name field. Then click the [Go] button to start the inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><B>Computer:</B></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="ComputerName" size="20" title="Paste or type a remote computer name, or leave this field blank to query the local computer. Then click the [Go] button to start the inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="runbutton" class="Button" type="button" value="    Go    " name="RunButton" onclick="Inventory" title="Click here to start the inventory"></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="copybutton" class="Button" type="button" value="  Copy  " name="CopyButton" onclick="CopyClipboard" title="Click here to copy the results to the clipboard. The data in the clipboard will be in tab delimited format. Paste the data in a spreadsheet, using tab as the only delimiter, to create reports."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="resetbutton" class="Button" type="button" value=" Reset " name="ResetButton" onclick="Location.Reload(True)" title="Click here to clear all fields"></td>
+</tr>
+</table>
+
+<table id="Results" border="0" cellpadding="0" cellspacing="0" align="center">
+<thead>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+</thead>
+<tbody>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Number:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Speed (MHz):</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Socket:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td><input type="checkbox" id="CheckboxCPU" name="CheckboxCPU" checked=True title="Deselect this checkbox if you want to exclude the processor(s) from the inventory."></td>
+    <td><label for="CheckboxCPU">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxCPU">CPU<span id="MultipleCPUs" style="display: none;">s</span>:</label></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CPUNumber" size="10" readonly title="This read-only field will display the number of (logical) processors found. For processors with hyperthreading the displayed number will be twice the number of physical processors."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CPUModel"  size="40" readonly title="This read-only field will display the processor type."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CPUSpeed"  size="16" readonly title="This read-only field will display the processor clock speed in MHz."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CPUSocket" size="16" readonly title="This read-only field will display the processor socket type."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="cpudetailbutton" class="Button" type="button" value=" Details " name="CPUDetailButton" onclick="DetailsCPU" title="Click here to display more processor details in a separate window."></td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Banks:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Modules:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Total (MB):</td>
+    <td colspan="4">&nbsp;</td>
+</tr>
+<tr>
+    <td><input type="checkbox" id="CheckboxMem" name="CheckboxMem" checked=True title="Deselect this checkbox if you want to exclude the memory from the inventory."></td>
+    <td><label for="CheckboxMem">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxMem">Memory:</label></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MemoryBanks"   size="10" readonly title="This read-only field will display the number of memory banks (sockets total)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MemoryModules" size="10" readonly title="This read-only field will display the number of memory modules (sockets used)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MemorySize"    size="16" readonly title="This read-only field will display the total amount of physical memory in MB."></td>
+    <td colspan="2">&nbsp;</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="memdetailbutton" class="Button" type="button" value=" Details " name="MemDetailButton" onclick="DetailsMem" title="Click here to display more memory details in a separate window."></td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Disk #:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Size (GB):</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Interface:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk0">
+    <td><input type="checkbox" id="CheckboxHDU" name="CheckboxHDU" checked=True title="Deselect this checkbox if you want to exclude the harddisk(s) from the inventory."></td>
+    <td><label for="CheckboxHDU">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxHDU">Harddisk<span id="MultipleHDUs" style="display: none;">s</span>:</label></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk0Index"     size="10" readonly title="This read-only field will display the disk number (zero based: 0...3)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk0Model"     size="40" readonly title="This read-only field will display the harddisk model."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk0Size"      size="16" readonly title="This read-only field will display the harddisk size (capacity) in GB."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk0Interface" size="16" readonly title="This read-only field will display the harddisk's interface type (IDE/SCSI/S-ATA)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="hdudetailbutton" class="Button" type="button" value=" Details " name="HDUDetailButton" onclick="DetailsHDU" title="Click here to display more harddisk details in a separate window."></td>
+</tr>
+<tr id="HardDisk1" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk1Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk1Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk1Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk1Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk2" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk2Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk2Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk2Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk2Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk3" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk3Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk3Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk3Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk3Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk4" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk4Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk4Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk4Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk4Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk5" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk5Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk5Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk5Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk5Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk6" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk6Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk6Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk6Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk6Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="HardDisk7" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="HardDisk7Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk7Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk7Size"      size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="HardDisk7Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Drive:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Firmware:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Interface:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="CDROM0">
+    <td><input type="checkbox" id="CheckboxCDR" name="CheckboxCDR" checked=True title="Deselect this checkbox if you want to exclude the CD/DVD-ROM drive(s) from the inventory."></td>
+    <td><label for="CheckboxCDR">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxCDR">CDROM<span id="MultipleCDROMs" style="display: none;">s</span>:</label></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM0Index"     size="10" readonly title="This read-only field will display the CD/DVD-ROM drive letter."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM0Model"     size="40" readonly title="This read-only field will display the CD/DVD-ROM drive model."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM0Firmware"  size="16" readonly title="This read-only field will display the CD/DVD-ROM drive's firmware revision number."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM0Interface" size="16" readonly title="This read-only field will display the CD/DVD-ROM drive's interface type (IDE/SCSI/S-ATA)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="cdrdetailbutton" class="Button" type="button" value=" Details " name="CDRDetailButton" onclick="DetailsCDR" title="Click here to display more CD/DVD-ROM details in a separate window."></td>
+</tr>
+<tr id="CDROM1" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="CDROM1Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM1Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM1Firmware"  size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM1Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="CDROM2" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="CDROM2Index"     size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM2Model"     size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM2Firmware"  size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM2Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="CDROM3" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="CDROM3Index"     size="10"     readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM3Model"     size="40"     readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM3Firmware"  size="16"  readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="CDROM3Interface" size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>VDU #:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Memory (MB):</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Resolution:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="VDU0">
+    <td><input type="checkbox" id="CheckboxVDU" name="CheckboxVDU" checked=True title="Deselect this checkbox if you want to exclude the display adapter(s) from the inventory."></td>
+    <td><label for="CheckboxVDU">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxVDU">Video:</label></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VDUIndex0"    size="10" readonly title="This read-only field will display the (logical) display adapter number (zero based)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoModel0"  size="40" readonly title="This read-only field will display the display adapter model."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMemory0" size="16" readonly title="This read-only field will display the amount of video memory in MB."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMode0"   size="16" readonly title="This read-only field will display the current video mode."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="vdudetailbutton" class="Button" type="button" value=" Details " name="VDUDetailButton" onclick="DetailsVDU" title="Click here to display more display adapter details in a separate window."></td>
+</tr>
+<tr id="VDU1" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="VDUIndex1"    size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoModel1"  size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMemory1" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMode1"   size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="VDU2" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="VDUIndex2"    size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoModel2"  size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMemory2" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMode2"   size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="VDU3" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="VDUIndex3"    size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoModel3"  size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMemory3" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="VideoMode3"   size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Monitor #:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Manufacturer:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Serial #:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="Monitor0">
+    <td><input type="checkbox" id="CheckboxMon" name="CheckboxMon" checked=True title="Deselect this checkbox if you want to exclude the monitor(s) from the inventory."></td>
+    <td><label for="CheckboxMon">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxMon">Monitor<span id="MultipleMonitors" style="display: none;">s</span>:</labe></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorIndex0"        size="10" readonly title="This read-only field will display the monitor number (zero based)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorModel0"        size="40" readonly title="This read-only field will display the monitor model."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorManufacturer0" size="16" readonly title="This read-only field will display the monitor manufacturer."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorSerial0"       size="16" readonly title="This read-only field will display the monitor serial number."></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="Monitor1" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="MonitorIndex1"        size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorModel1"        size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorManufacturer1" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorSerial1"       size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="Monitor2" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="MonitorIndex2"        size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorModel2"        size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorManufacturer2" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorSerial2"       size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="Monitor3" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="MonitorIndex3"        size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorModel3"        size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorManufacturer3" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MonitorSerial3"       size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="6">&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Manufacturer:</td>
+    <td colspan="4">&nbsp;</td>
+</tr>
+<tr>
+    <td><input type="checkbox" name="CheckboxSound" checked=True title="Deselect this checkbox if you want to exclude the sound card from the inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <th align="left">Sound:</th>
+    <td colspan="3">&nbsp;</td>
+    <td><input type="text" name="SoundCardModel" size="40" readonly title="This read-only field will display the sound card model."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="SoundCardManufacturer" size="16" readonly title="This read-only field will display the name of the sound card manufacturer."></td>
+    <td colspan="3">&nbsp;</td>
+    <td><input id="sounddetailbutton" class="Button" type="button" value=" Details " name="SoundDetailButton" onclick="DetailsSound" title="Click here to display more sound card details in a separate window."></td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>NIC #:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Address:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Speed:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="NIC0">
+    <td><input type="checkbox" id="CheckboxNIC" name="CheckboxNIC" checked=True title="Deselect this checkbox if you want to exclude the network adapter(s) from the inventory."></td>
+    <td><label for="CheckboxNIC">&nbsp;&nbsp;&nbsp;</label></td>
+    <th align="left"><label for="CheckboxNIC">NIC<span id="MultipleNICs" style="display: none;">s</span>:</label></th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICIndex0"   size="10" readonly title="This read-only field will display the network adapter number (zero based: 0...3)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICModel0"   size="40" readonly title="This read-only field will display the network adapter model."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MacAddress0" size="16" readonly title="This read-only field will display the network adapter's MAC address."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICSpeed0"   size="16" readonly title="This read-only field will display the network adapter's link speed in kB/s."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="nicdetailbutton" class="Button" type="button" value=" Details " name="NICDetailButton" onclick="DetailsNIC" title="Click here to display more network adapter details in a separate window."></td>
+</tr>
+<tr id="NIC1" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="NICIndex1"   size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICModel1"   size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MacAddress1" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICSpeed1"   size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="NIC2" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="NICIndex2"   size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICModel2"   size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MacAddress2" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICSpeed2"   size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr id="NIC3" style="display: none;">
+    <td colspan="4">&nbsp;</td>
+    <td><input type="text" name="NICIndex3"   size="10" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICModel3"   size="40" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MacAddress3" size="16" readonly></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="NICSpeed3"   size="16" readonly></td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Chassis:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Model:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Manufacturer:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Version:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td><input type="checkbox" name="CheckboxMB" checked=True title="Deselect this checkbox if you want to exclude the main board and system enclosure from the inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <th align="left">Main Board:</th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="ChassisType"    size="10" readonly title="This read-only field will display the computer's chassis type."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MBModel"        size="40" readonly title="This read-only field will display the main board type."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MBManufacturer" size="16" readonly title="This read-only field will display the name of the main board manufacturer."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="MBVersion"      size="16" readonly title="This read-only field will display the main board version."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="mbdetailbutton" class="Button" type="button" value=" Details " name="MBDetailButton" onclick="DetailsMB" title="Click here to display more main board and system enclosure details."></td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>USB:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>System Slots:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Parallel:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Serial:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td><input type="checkbox" name="CheckboxPorts" checked=True title="Deselect this checkbox if you want to exclude the ports summary from the inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <th align="left">Ports:</th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="USB"      size="10" readonly title="This read-only field will tell if USB is supported."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="Slots"    size="40" readonly title="This read-only field will display the number and types of system slots (AGP/PCI)."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="Parallel" size="16" readonly title="This read-only field will display the number of parallel ports."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="Serial"   size="16" readonly title="This read-only field will display the number of serial ports."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="portsdetailbutton" class="Button" type="button" value=" Details " name="PortsDetailButton" onclick="DetailsPorts" title="Click here to display more details on the available ports."></td>
+</tr>
+<tr>
+    <td colspan="13">&nbsp;</td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+    <td>Manufacturer:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Type:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Version:</td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td>Date:</td>
+    <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+    <td><input type="checkbox" name="CheckboxBIOS" checked=True title="Deselect this checkbox if you want to exclude the BIOS from the inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <th align="left">BIOS:</th>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="BIOSManufacturer" size="10" readonly title="This read-only field will display the name of the BIOS manufacturer."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="BIOSModel"        size="40" readonly title="This read-only field will display the BIOS description."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="BIOSVersion"      size="16" readonly title="This read-only field will display the BIOS version number."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="text" name="BIOSDate"         size="16" readonly title="This read-only field will display the BIOS release date."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input id="biosdetailbutton" class="Button" type="button" value=" Details " name="BIOSDetailButton" onclick="DetailsBIOS" title="Click here to display more BIOS details."></td>
+</tr>
+</tbody>
+</table>
+
+<p>Basic Hardware Inventory,&nbsp; Version <span id="AppVersion">0.00</span><br>
+<span style="font-size: 80%;">&copy; 2007 - 2011, Rob van der Woude<br>
+<a href="http://www.robvanderwoude.com/" target="_blank">http://www.robvanderwoude.com</a></span></p>
+
+<table id="Controls" border="0" cellpadding="0" cellspacing="10">
+<tr>
+    <td><input class="Button" type="button" value="Basic"   id="BasicButton"   name="BasicButton"   onclick="Basic"   title="Click this button to toggle between Basic and Full Inventory."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input class="Button" type="button" value="Help"    id="HelpButton"    name="HelpButton"    onclick="HelpMsg" title="Click this button to display the Command Line Help."></td>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td><input class="Button" type="button" value="Credits" id="CreditsButton" name="CreditsButton" onclick="Credits" title="Click this button to display the Credits window."></td>
+</tr>
+</table>
+
+</div>
+
+</body>
+</html>

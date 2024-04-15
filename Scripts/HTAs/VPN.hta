@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>VPN Start</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="VPN Start"
+  ID="MyHTMLapplication"
+  VERSION="1.0"
+  CAPTION="no"
+  SYSMENU="no"
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="no"
+  SCROLL="no"
+  SINGLEINSTANCE="yes"/>
+</head>
+<script language="VBScript">
+Option Explicit
+Dim strRegKey, strProxy, i
+Dim objReg, arrKey
+Const HKEY_CURRENT_USER = &H80000001
+Const strProxy1="http://autoproxy1.northgrum.com/proxy/bceast.pac"
+Const strProxy2="http://autoproxy2.northgrum.com/proxy/bccentral.pac"
+Const strProxy3="http://proxycfg.it.northgrum.com/proxy/ngit.pac"
+Const strProxy4="http://www.md.essd.northgrum.com/proxy/essd.pac"
+Const strProxy0=""
+Const strKeyPath = "Software\Microsoft\Windows\Currentversion\Internet Settings"
+Const strKeyName = "AutoConfigURL"
+Const strComputer = "."
+' Retrieve and display the current Proxy setting
+On Error Resume Next
+Set objReg=GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\default:StdRegProv")
+objReg.GetExpandedStringValue HKEY_CURRENT_USER, strKeyPath, strKeyName, strRegKey
+arrKey = Split (strRegKey,"/",-1,1)
+
+Sub Window_OnLoad
+self.Focus()
+self.ResizeTo 425,200
+self.moveto (24)/2, (24)/2
+CurrentProxy
+End Sub
+
+Sub CurrentProxy
+On Error Resume Next
+Set objReg=GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\default:StdRegProv")
+objReg.GetExpandedStringValue HKEY_CURRENT_USER, strKeyPath, strKeyName, strRegKey
+'arrKey = Split (strRegKey,"/",-1,1)
+CProxy.InnerHTML=strRegKey
+End Sub
+
+Sub OnClickButtonVPNstart()
+strProxy=GetSProxyRadioValue()
+Select Case strProxy
+Case "PROXY1"
+objReg.SetExpandedStringValue HKEY_CURRENT_USER, strKeyPath, strKeyName, strProxy1
+Case "PROXY2"
+objReg.SetExpandedStringValue HKEY_CURRENT_USER, strKeyPath, strKeyName, strProxy2
+Case "PROXY3"
+objReg.SetExpandedStringValue HKEY_CURRENT_USER, strKeyPath, strKeyName, strProxy3
+Case "PROXY4"
+objReg.SetExpandedStringValue HKEY_CURRENT_USER, strKeyPath, strKeyName, strProxy4
+End Select
+
+  'net start cvpnd
+'"C:\Program Files\Cisco Systems\VPN Client\ipsecdialer.exe"
+ window.close
+End Sub
+Sub OnClickButtonVPNstop()
+'net stop cvpnd
+'taskkill /im ipsecdialer.exe /F
+ 
+End Sub
+
+Function GetSProxyRadioValue()
+  For i=0 to SProxy.length-1
+    If SProxy.Item(i).Checked Then
+      GetSProxyRadioValue = SProxy.Item(i).Value
+      Exit Function
+    End If
+  Next
+  'GetSProxyRadioValue = ""
+End Function
+
+Sub OnClickButtonQuit()
+  window.close
+End Sub
+</script>
+
+<body bgcolor="lightblue">
+
+<!--Add your controls here-->
+<input type="button" name="VPNstart" id="VPNstart" value="Start VPN" onclick="OnClickButtonVPNstart">
+<input type="button" name="VPNstop" id="VPNstop" value="Stop VPN" onclick="OnClickButtonVPNstop">
+<input type="button" name="Quit" id="Quit" value="Cancel" onclick="OnClickButtonQuit"><BR><BR>
+<font  face="arial" size="1"><B>Current Proxy: </B><span name="CProxy" id="CProxy" rows="1" cols="80" title="Displays the current Proxy."></span><BR><BR>
+<input type="radio" name="SProxy" value="Proxy1" CHECKED>http://autoproxy1.northgrum.com/proxy/bceast.pac<BR>
+<input type="radio" name="SProxy" value="Proxy2">http://autoproxy2.northgrum.com/proxy/bccentral.pac<BR>
+<input type="radio" name="SProxy" value="Proxy3">http://proxycfg.it.northgrum.com/proxy/ngit.pac<BR>
+<input type="radio" name="SProxy" value="Proxy4">http://www.md.essd.northgrum.com/proxy/essd.pac<BR>
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</body>
+</html>

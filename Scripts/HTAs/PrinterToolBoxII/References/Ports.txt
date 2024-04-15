@@ -1,0 +1,2123 @@
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.206
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.205
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.204
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.203
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.202
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.201
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.90.200
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.151.141
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.148.60
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.53
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.46
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.45
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.140
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.124
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.115
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.126.106
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.83
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.7
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.66
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.6
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.5
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.48
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.47
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.44
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.43
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.42
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.41
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.4
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.38
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.24
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.22
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.131
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.125.10
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.47
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.45
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.43
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.38
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.152
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.12
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.124.11
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.123.254
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.122.150
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.72
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.71
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.70
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.69
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.68
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.67
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.65
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.63
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.62
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.43
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.41
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.39
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.38
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.20
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.121.131
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.120.16
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.48
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.47
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.46
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.45
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.43
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.42
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.41
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.39
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.38
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.24
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.22
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.21
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.20
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.119.106
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.39
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.24
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.22
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.21
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.118.19
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.9
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.89
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.80
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.8
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.73
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.41
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.4
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.24
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.22
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.21
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.19
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.15
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.141
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.140
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.14
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.129
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.109
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.117.10
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.9
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.8
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.58
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.57
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.56
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.55
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.53
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.52
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.51
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.50
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.5
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.49
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.48
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.47
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.46
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.45
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.44
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.43
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.42
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.41
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.130
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.118
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.116.10
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.9
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.8
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.7
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.57
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.56
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.55
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.54
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.53
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.52
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.51
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.115.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.88
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.81
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.65
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.57
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.54
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.53
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.50
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.49
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.48
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.47
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.46
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.4
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.39
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.38
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.24
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.22
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.21
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.20
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.19
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.18
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.17
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.16
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.156
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.15
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.13
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.128
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.11
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.114.10
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.53
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.52
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.51
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.50
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.48
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.47
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.46
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.45
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.44
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.43
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.42
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.41
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.40
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.39
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.38
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.37
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.36
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.35
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.34
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.33
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.32
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.31
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.30
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.29
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.28
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.27
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.26
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.25
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.24
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.23
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.21
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.209
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.20
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.172
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.113.170
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     IP_158.114.112.9
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+
+ServerName   \\resva-prn01
+PortName     FILE:
+MonitorName  Local Monitor
+Description  Local Port
+
+ServerName   \\resva-prn01
+PortName     COM4:
+MonitorName  Local Monitor
+Description  Local Port
+
+ServerName   \\resva-prn01
+PortName     COM3:
+MonitorName  Local Monitor
+Description  Local Port
+
+ServerName   \\resva-prn01
+PortName     COM2:
+MonitorName  Local Monitor
+Description  Local Port
+
+ServerName   \\resva-prn01
+PortName     COM1:
+MonitorName  Local Monitor
+Description  Local Port
+
+ServerName   \\resva-prn01
+PortName     158.114.60.240:RSVA-356-HP5SI
+
+ServerName   \\resva-prn01
+PortName     158.114.124.50:hold
+
+ServerName   \\resva-prn01
+PortName     158.114.122.215:dt90hold
+
+ServerName   \\resva-prn01
+PortName     158.114.122.150:hold
+
+ServerName   \\resva-prn01
+PortName     158.114.121.62
+MonitorName  TCPMON.DLL
+Description  Standard TCP/IP Port
+Getting extended information about the TCP port
+Unable to get port configuration, error: 0x80070005. Access is denied. 
+Success: Lising ports

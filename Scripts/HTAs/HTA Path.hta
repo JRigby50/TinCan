@@ -1,0 +1,33 @@
+<html> 
+<head> 
+<title>HTA Path Info</title> 
+
+<HTA:APPLICATION 
+     ID="objHTA_Info" 
+     APPLICATIONNAME="HTA_Info" 
+     SINGLEINSTANCE="yes" 
+> 
+</head> 
+
+<SCRIPT Language="VBScript"> 
+self.resizeTo 500,260 
+
+FullName = replace(objHTA_Info.commandLine,chr(34),"") 
+arrFN=split(FullName,"\") 
+FileName = arrFN(ubound(arrFN)) 
+SourceDir=replace(FullName,FileName,"") 
+
+Sub Window_onLoad 
+        html = "<TABLE><TR><TD><B>Full Name:</B><TD>" & FullName & "</TR>" 
+        html = html & "<TR><TD><B>File Name:</B><TD>" & FileName & "</TR>" 
+        html = html & "<TR><TD><B>Source Dir:</B><TD>" & SourceDir & "</TR></TABLE>" 
+        BLAH.InnerHTML = html 
+End Sub 
+
+</SCRIPT> 
+
+<body> 
+<H2>HTA Path info:</H2> 
+<SPAN ID=BLAH></SPAN> 
+</body> 
+</html>

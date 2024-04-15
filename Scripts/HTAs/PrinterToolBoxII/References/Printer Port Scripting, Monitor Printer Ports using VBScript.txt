@@ -1,0 +1,328 @@
+Printer Port Scripting, Monitor Printer Ports using VBScriptProduct 
+                  overview
+
+
+
+                  ActiveXperts Network Monitor
+
+                  ActiveXperts SMS Messaging Server
+
+                  ActiveXperts SMS and MMS Toolkit
+
+                  ActiveComport Serial Port Toolkit
+
+                  ActiveSocket Network Toolkit
+
+                  ActiveEmail SMTP/POP3 Toolkit
+
+                  ActiveXperts Scripting Toolkit
+
+
+                  Choose a product
+
+
+                  Pricing
+
+                  Ordering
+
+                  Find a Reseller
+
+                  Reseller Area
+
+                  Contact Sales
+
+
+                  Technical Support
+
+                  Contact Support
+
+
+                  About the Company
+
+                  Contact Us
+
+
+             
+
+                                Home  
+                              |
+                                Products  
+                              |
+                                Downloads  
+                              |
+                                Purchase  
+                              |
+                                Support  
+                              |
+                                About ActiveXperts  
+
+
+             
+
+
+                              Windows Management
+
+
+                               Introduction
+
+
+                               Scripts Collection (1) 
+
+                               Scripts Collection (2) 
+
+                               Windows Scripting
+                               Host (WSH)
+
+
+                               WMI
+
+
+                               ADSI
+
+
+                               Windows 2000
+                               Resource Kit
+
+
+                               Miscellaneous
+
+
+
+
+                              ActiveXperts
+                              Network Monitor
+
+
+                               Product Overview
+
+
+                               Built-in checks:
+
+                                [ select a check ] Active Directory CPU Usage 
+                                Directory Size Disk Drives Disk Spaces DNS Event 
+                                Logs Exchange 2000 File FTP sites HTTP/HTTPS 
+                                Humidity ICMP/Ping IMAP Mail LDAP Memory Usage 
+                                MS SQL & ADO NNTP Novell NDS NTDS (NT4 DS) NTP 
+                                ODBC Db Oracle Db POP3 Mail Printer Process 
+                                Services SMTP Mail SNMP TCP ports Temperature 
+                                UDP Users & groups UNIX Scripts VBScript Wetness 
+                                WMI 
+
+                                 Brochure (.pdf file)  
+
+
+                                 Whitepaper (.pdf)  
+
+
+                                 Manual (.pdf file)  
+
+
+                                 Presentation (.ppt)  
+
+
+                                 Download (.exe file)  
+
+
+
+
+                              Some quotes
+
+
+                               
+                               Windows&.NET Magazine:
+                               "Small, smart and very
+                               very handy" 
+
+                               
+                               MonitorTools.com Review:
+                               "Extremely easy to use,
+                               great value for money!" 
+
+
+
+
+
+
+
+                          Download ActiveXperts Network Monitor 7.0  (6239 KB - 
+                        .exe file)
+                          Download Manual  (653 KB - .pdf file)
+
+
+                              ActiveXperts.com > ActiveXperts Network Monitor > 
+                              WindowsManagement > Scripts > Printing > Printer 
+                              Ports and Drivers 
+
+
+                        Script to manage Printer Ports and Drivers
+                        Deleting A Printer Port
+                        Deleting Unused Printer Ports
+                        Determining Printer Port Availability
+                        Enumerating Printer Drivers
+                        Enumerating Printer Port Properties
+                        Installing a Printer Driver not Found in Drivers Cab
+                        Installing Printer Drivers
+                        Installing Printer Ports
+
+
+
+
+
+
+                        Deleting A Printer Port
+
+                        Deletes a TCP/IP printer port from a computer. 
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colInstalledPorts =  objWMIService.ExecQuery _
+    ("Select * from Win32_TCPIPPrinterPort Where Name = 'IP_169.254.110.14'")
+For Each objPort in colInstalledPorts 
+    objPort.Delete
+Next
+
+                        Deleting Unused Printer Ports
+
+                        Deletes any printer ports that have been installed on a 
+                        computer but are not in use.
+
+Set objDictionary = CreateObject("Scripting.Dictionary")
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colPrinters =  objWMIService.ExecQuery _
+    ("Select * from Win32_Printer")
+For Each objPrinter in colPrinters 
+    objDictionary.Add objPrinter.PortName, objPrinter.PortName
+Next
+Set colPorts = objWMIService.ExecQuery _
+    ("Select * from Win32_TCPIPPrinterPort")
+For Each objPort in colPorts
+    If objDictionary.Exists(objPort.Name) Then
+    Else
+        ObjPort.Delete_
+    End If
+Next
+
+                        Determining Printer Port Availability
+
+                        Identifies all the TCP/IP printer ports on a computer, 
+                        and indicates which ports are being used and which ports 
+                        are available. 
+
+Set objDictionary = CreateObject("Scripting.Dictionary")
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colPrinters =  objWMIService.ExecQuery _
+    ("Select * from Win32_Printer")
+For Each objPrinter in colPrinters 
+    objDictionary.Add objPrinter.PortName, objPrinter.PortName
+Next
+Set colPorts = objWMIService.ExecQuery _
+    ("Select * from Win32_TCPIPPrinterPort")
+For Each objPort in colPorts
+    If objDictionary.Exists(objPort.Name) Then
+        strUsedPorts = strUsedPorts & _
+            objDictionary.Item(objPort.Name) & VbCrLf
+    Else
+        strFreePorts = strFreePorts & objPort.Name & vbCrLf
+    End If
+Next
+Wscript.Echo "The following ports are in use: " & VbCrLf & strUsedPorts
+Wscript.Echo "The following ports are available: " & VbCrLf & strFreePorts
+
+                        Enumerating Printer Drivers
+
+                        Lists all the printer drives that have been installed on 
+                        a computer. 
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colInstalledPrinters =  objWMIService.ExecQuery _
+    ("Select * from Win32_PrinterDriver")
+For each objPrinter in colInstalledPrinters
+    Wscript.Echo "Config File: " & objPrinter.ConfigFile
+    Wscript.Echo "Data File: " & objPrinter.DataFile
+    Wscript.Echo "Description: " & objPrinter.Description
+    Wscript.Echo "Driver Path: " & objPrinter.DriverPath
+    Wscript.Echo "File Path: " & objPrinter.FilePath
+    Wscript.Echo "Help File: " & objPrinter.HelpFile
+    Wscript.Echo "INF Name: " & objPrinter.InfName
+    Wscript.Echo "Monitor Name: " & objPrinter.MonitorName
+    Wscript.Echo "Name: " & objPrinter.Name
+    Wscript.Echo "OEMUrl: " & objPrinter.OEMUrl
+    Wscript.Echo "Supported Platform: " & objPrinter.SupportedPlatform
+    Wscript.Echo "Version: " & objPrinter.Version
+Next
+
+                        Enumerating Printer Port Properties
+
+                        Lists properties of all the TCP/IP printer ports 
+                        installed on a computer. 
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+Set colPorts =  objWMIService.ExecQuery _
+    ("Select * from Win32_TCPIPPrinterPort")
+For Each objPort in colPorts
+    Wscript.Echo "Description: " & objPort.Description
+    Wscript.Echo "Host Address: " & objPort.HostAddress
+    Wscript.Echo "Name: " & objPort.Name
+    Wscript.Echo "Port Number: " & objPort.PortNumber
+    Wscript.Echo "Protocol: " & objPort.Protocol
+    Wscript.Echo "SNMP Community: " & objPort.SNMPCommunity
+    Wscript.Echo "SNMP Dev Index: " & objPort.SnMPDevIndex
+    Wscript.Echo "SNMP Enabled: " & objPort.SNMPEnabled
+Next
+
+                        Installing a Printer Driver not Found in Drivers Cab
+
+                        Installs a hypothetical printer using a print driver not 
+                        found in Drivers.cab. 
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+set objDriver = objWMIService.Get("Win32_PrinterDriver")
+objDriver.Name = "NewPrinter Model 2900"
+objDriver.SupportedPlatform = "Windows NT x86"
+objDriver.Version = "3"
+objDriverPath = "C:\Scripts\NewPrinter.dll"
+objInfname = "C:\Scripts\NewPrinter.inf"
+intResult = objDriver.AddPrinterDriver(objDriver)
+Wscript.Echo intResult
+
+                        Installing Printer Drivers
+
+                        Installs the printer driver for an Apple LaserWriter 
+                        8500 printer. 
+
+Set objWMIService = GetObject("winmgmts:")
+Set objDriver = objWMIService.Get("Win32_PrinterDriver")
+objDriver.Name = "Apple LaserWriter 8500"
+objDriver.SupportedPlatform = "Windows NT x86"
+objDriver.Version = "3"
+errResult = objDriver.AddPrinterDriver(objDriver)
+
+                        Installing Printer Ports
+
+                        Installs a TCP/IP printer port on a computer. 
+
+Set objWMIService = GetObject("winmgmts:")
+Set objNewPort = objWMIService.Get _
+    ("Win32_TCPIPPrinterPort").SpawnInstance_
+objNewPort.Name = "IP_169.254.110.14"
+objNewPort.Protocol = 1
+objNewPort.HostAddress = "169.254.110.14"
+objNewPort.PortNumber = "9999"
+objNewPort.SNMPEnabled = False
+objNewPort.Put_
+
+
+
+
+      Copyright ©1999-2007 ActiveXperts Software. All rights reserved. 
