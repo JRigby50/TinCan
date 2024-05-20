@@ -1,0 +1,1087 @@
+<html>
+<head>
+<title>Printer Tool Box II</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="Printer Tool Box II"
+  ID="PrinterToolBoxII"
+  VERSION="1.0 Beta"
+  SCROLL="auto"
+  SINGLEINSTANCE="yes"
+  NAVIGABLE="yes"/>
+ </head>
+<script language="VBScript">
+Option Explicit
+'*****Global Variables/Constants*****
+Dim strHeaderQueues,strHeaderPorts,strWorkDirectory
+strWorkDirectory = "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\config"
+Dim dicMenus,strMenuOpen,strItem,strPath,strFileName,strFullPath
+Dim QueueNameLength,PortNameLength, objDoc
+Dim objOption,objShell,objFSO,objServerList,objTextFile,objErrorsOut,objMaster,objPort,objPrinter,objFolder,objFolderItem,objFile
+Dim objDriverList,objWMIService,objService
+Dim colServiceList
+Dim WshShell
+Dim nLeft,ntop,blnAnswer,errReturn
+Dim strWarning,strServer,strStatus,strCommand,strCmdLine,strSNMP,strPortName,strQueue,strPrinterName,strDriver,strOK,strError,strWav,strSoundFile
+Dim strToggle,strOpenTable,strCloseTable,strLinkOpen,strLinkMid,strLinkClose,strLink,strMode
+Dim strIP,strIP1,strIP2,strIP3,strIP4
+Const ForReading = 1
+Const ForWriting = 2
+Const ForAppending = 8
+Const OverwriteExisting = True
+' Define menu items
+Const strMenuItems = "File,Edit,Help"
+Const strFile = "Print Report,Save Report,Exit"
+Const strEdit = "Edit Server List"
+Const strHelp = "Register dll,About"
+Const strHTML = "&nbsp;&nbsp;&nbsp;#strItem#&nbsp;&nbsp;&nbsp;"
+' Port Types
+Const conTcpRaw           = 1
+Const conTcpLPr           = 2
+Const conLocal            = 3
+Const conLocalDownLevel   = 4
+Const conLprMon           = 5
+Const conHPdlc            = 7
+Const conUnknown          = 8
+
+''******HTML strings used later ********************************************************************
+'Toggle Table
+strToggle = "</font></td><td><font face=arial font size=" & chr(34) & "2" & chr(34) & ">"
+'Open Table
+strOpenTable = "<tr><td><font face=arial font size=" & chr(34) & "2" & chr(34) & ">"
+'Close Table
+strCloseTable = "</font></td></tr>"
+'LinkOpen
+strLinkOpen= "<a href="& chr(34)& "http://"
+'LinkMid
+strLinkMid= chr(34) & " target=" & chr(34) & "blank" & chr(34) & ">"
+'LinkClose
+strLinkClose = chr(34) & " target=" & chr(34) & "blank" & chr(34) & ">W</a href>"
+
+strWarning= ("<font color=yellow>") 'font size=" & chr(34) & "2" & chr(34) & "face=arial" & ">")
+strOK= ("<font color=green>") 'font size=" & chr(34) & "2" & chr(34) & "face=arial" & ">")
+strError= ("<font color=lightred>")
+'Headers
+strHeaderQueues = "<th><font color=blue font face=arial font size=" & chr(34) & "1" & chr(34) & _
+	">Web</font></th><th><font color=blue font face=arial font size=" & chr(34) & "2" & chr(34) & _
+	">Queue</font></th><th><font color=blue font face=arial font size=" & chr(34) & "2" & chr(34) & _
+	">Port</font></th><th><font color=blue font face=arial font size=" & chr(34) & "2" & chr(34) & _
+    ">Status</font></th><th><font color=blue font face=arial font size=" & chr(34) & "2" & chr(34) & _
+	">Jobs</font></th><th><font color=blue font face=arial font size=" & chr(34) & "2" & chr(34) & _
+	">Driver</font></th></tr>"
+strHeaderPorts = "<th><font color=blue font size=" & chr(34) & "2" & chr(34) & _
+	">Port Name</font></th><th><font color=blue font size=" & chr(34) & "2" & chr(34) & _
+	">Description</font></th><th><font color=blue font size=" & chr(34) & "2" & chr(34) & _
+	">SNMP</font></th></tr>"
+	'">Queue Name</font></th><th><font color=blue font size=" & chr(34) & "2" & chr(34) & _
+'*****************************************************************************************************
+Sub Window_OnLoad
+self.Focus()
+self.ResizeTo 1020,730
+self.moveto (4)/2, (4)/2
+Dim entry
+set dicMenus = createObject("Scripting.Dictionary")
+	for each entry in Split(strMenuItems, ",")
+	menu.innerHTML = menu.innerHTML & "&nbsp;<span id=" & entry & " style='padding-bottom:2px' onselectstart=cancelEvent>&nbsp;" & entry & "&nbsp;</span>&nbsp;&nbsp;"
+	dicMenus.Add entry, Split(eval("str" & entry), ",")
+	next
+strMenuOpen = ""
+HTAStatus.InnerHTML= strOK & "Ready"
+'errors.Checked=True
+Pservers
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Const OverwriteExisting = TRUE
+objFSO.CopyFile "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\PTBWelcome.htm" , "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\display.htm", OverwriteExisting'"C:\Users\Rigbyja\Documents\Scripts\HTAs\Printer\html\PTBWelcome.htm" , "C:\Users\Rigbyja\Documents\Scripts\HTAs\Printer\html\display.htm", OverwriteExisting
+Reload()
+'Call Audio("halfunc.wav")
+'set objDoc = display.document
+'set objDoc.all.HiddenTextControl.onclick = getRef("GetData")
+
+End Sub
+'********************************************************************************************************
+Sub Reload()
+	  Display.location.href = "file:///C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\display.htm"
+	  End Sub
+Sub HTASleep(intSeconds)
+	Set objShell = CreateObject("Wscript.Shell")
+	strCommand = "%COMSPEC% /c ping -n " & 1 + intSeconds & " 127.0.0.1>nul"
+	objShell.Run strCommand, 0, True
+	Set objShell = Nothing
+End Sub
+'**********************************************************************
+Sub PortRename
+dim objMaster
+dim objPrinter
+set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+set objPrinter = CreateObject("Printer.Printer.1")
+strServer=Server.InnerHTML
+strServer="\\" & strServer
+strQueue=Queue.Value
+strStatus=("Changing the Port for " & strQueue & "...")
+HTAStatus.InnerHTML=strStatus
+Call HTASleep(1)
+objMaster.PrinterGet strServer, strQueue, objPrinter
+strNewPort=NewPort.Value
+objPrinter.PortName = strNewPort
+
+'The following code saves the printer settings.
+objMaster.PrinterSet objPrinter
+
+'The following uses the Err object to determine whether the printer settings were updated successfully.
+If Err = 0 Then
+	strStatus=("Port for " & strQueue & "changed to" & strNewPort)
+	HTAStatus.InnerHTML=strStatus
+Else
+	strStatus=("Error " & Err & " occured while changing the port.")
+	HTAStatus.InnerHTML=strStatus
+end if
+End Sub
+'**********************************************************************
+Sub QueueRename
+strServer=Server.InnerHTML
+strQueue=Queue.Value
+strNewName=NewQueue.Value
+strStatus=("Changing the Queue Name for " & strQueue & "...")
+HTAStatus.InnerHTML=strStatus
+Call HTASleep(1)
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+
+Set colPrinters =  objWMIService.ExecQuery _
+    ("Select * from Win32_Printer Where DeviceID = '" & strQueue & "'")
+
+For Each objPrinter in colPrinters
+    objPrinter.RenamePrinter(strNewName)
+Next
+
+Set colPrinters = objWMIService.ExecQuery _
+    ("Select * From Win32_Printer Where DeviceID = '" & strNewName& "'")
+
+For Each objPrinter in colPrinters
+    objPrinter.ShareName = strNewName
+    objPrinter.Put_
+Next
+strStatus=(strQueue & " changed to " & strNewName)
+HTAStatus.InnerHTML=strStatus
+End Sub
+'**********************************************************************
+Function Description(value)
+    On Error Resume Next
+    Select Case value
+           Case conTcpRaw
+                Description = "TCP RAW"
+           Case conTcpLpr
+                Description = "TCP LPR"
+           Case conLocal
+                Description = "Standard Local"
+           Case conLocalDownLevel
+                Description = "Standard Local Down Level"
+           Case conLprMon
+                Description = "LPR Mon"
+           Case conHPdlc
+                Description = "HP DLC"
+           Case conUnknown
+                Description = "Unknown Port"
+           Case Else
+                Description = "Invalid PortType"
+    End Select
+End Function
+'********************************************************************
+Function GetModeRadioValue()
+Dim i
+	For i=0 to Mode.length-1
+		If Mode.Item(i).Checked Then
+		GetModeRadioValue = Mode.Item(i).Value
+		Exit Function
+		End If
+	Next
+	GetModeRadioValue = "Queue"
+End Function
+'********************************************************************
+Sub KeyCheck
+        If Window.Event.KeyCode < 48 OR Window.Event.KeyCode > 57 Then 
+            Window.Event.returnValue = False    
+        End If
+    End Sub
+'****************************************
+Sub Audio(strWav)
+  Set objShell = CreateObject("Wscript.Shell")
+  strSoundFile = "C:\Users\Rigbyja\Documents\Scripts\HTAs\Printer\wav\" & strWav
+  strCommand = "sndrec32 /play /close " & chr(34) & strSoundFile & chr(34)
+  objShell.Run strCommand, 0, False    
+  Set objShell = Nothing
+End Sub
+Sub Editor
+Dim objSHL
+Set objSHL = CreateObject("WScript.Shell")
+objSHL.Run "%comspec% /C C:\Windows\System32\mshta.exe C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\ServerEditor.hta",1,True
+Set objSHL = Nothing
+End Sub
+Sub Pservers
+Dim i
+ServerListBox.innerhtml=""
+i = 0
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objServerList = objFSO.OpenTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\Pservers.txt", ForReading)
+Do Until objServerList.AtEndOfStream
+strServer = objServerList.ReadLine
+ On Error Resume Next
+	Set objOption = Document.createElement("OPTION")
+        objOption.Text = strServer
+        objOption.Value = i
+        ServerListBox.Add(objOption)
+    i = i+1
+Loop
+objServerList.Close
+ServerListBox(0).selected = True
+Server.InnerHTML = ServerListBox(0).Text
+End Sub
+'**********************************************************************************************************
+Sub DriverEnum
+'Enumerates Installed Printer Drivers
+Dim i
+For i=0 To ServerListBox.length-1
+    If ServerListBox(i).selected Then
+	strServer = "\\" & ServerListBox(i).Text
+strStatus=("Checking the Drivers on " & strServer & "...")
+HTAStatus.InnerHTML=strStatus
+Call HTASleep(1)
+Set WshShell = CreateObject("WScript.Shell")
+strCmdLine = "Cmd /C Cscript //NoLogo Drivers.vbs " & strServer
+WshShell.Run strCmdLine,1,True
+	End If
+Next
+DriverListBox.innerhtml=""
+i = 0
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objDriverList = objFSO.OpenTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\config\drivers.txt", ForReading)
+Do Until objDriverList.AtEndOfStream
+strDriver = objDriverList.ReadLine
+ On Error Resume Next
+	Set objOption = Document.createElement("OPTION")
+        objOption.Text = strDriver
+        objOption.Value = i
+        DriverListBox.Add(objOption)
+    i = i+1
+Loop
+objDriverList.Close
+DriverListBox(0).selected = True
+
+Reload()
+HTAStatus.InnerHTML=strOK & "Drivers on " & strServer & " Checked."
+End Sub
+'*************************************************************************************************************
+Sub PortEnum
+'Enumerates Printer Ports
+Dim i
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objTextFile = objFSO.CreateTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\display.htm", True)
+set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+objTextFile.writeline "<html><head><title>Print Drivers</title>"
+objTextFile.writeline "</head>"
+objTextFile.writeline "<body><table border=" & chr(34) & "1" & chr(34) & "width=" & chr(34) & _
+    "900" & chr(34) & "id=" & chr(34) & "table1" & chr(34) & ">" & strHeaderPorts
+Set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+For i=0 To ServerListBox.length-1
+    If ServerListBox(i).selected Then
+	strServer = "\\" & ServerListBox(i).Text
+	strStatus=("Checking the Ports on " & strServer & "...")
+HTAStatus.InnerHTML=strStatus
+Call HTASleep (1)
+On Error Resume Next
+	For Each objPort in objMaster.Ports(strServer)
+		If objPort.SNMP = 0 Then
+		strSNMP = "Disabled"
+		Else strSNMP = "Enabled"
+		End If
+'	If objPort.QueueName="" Then
+'	strQueueStatus="Available"
+'	Else
+'	strQueueStatus=objPort.QueueName
+'	End If
+'	strDescription = Description(objPort.PortType)
+	objTextFile.writeline strOpenTable & objPort.PortName & strToggle & objPort.Description & strToggle & strSNMP & strCloseTable
+	Next
+	End If
+Next	
+objTextFile.writeline "</font></table></body></html>"
+objTextFile.Close
+objHeaderFile.Close
+objErrorsOut.Close
+Reload()
+HTAStatus.InnerHTML=strOK & "Ports Checked."
+End Sub
+'************************************************************************************************************
+Sub PortProp
+'Enumerates Printer Port Properties
+'Create the Port object.
+set objPort = CreateObject("Port.Port.1")
+'Create the PrintMaster object.
+set objPort = CreateObject("PrintMaster.PrintMaster.1")
+'The first argument is the server name; can be "" for the local computer. The second argument is the name
+'of the port. The third argument is a Port object, which will receive the settings of the specified port.
+objMaster.PortGet "\\server", "IP_1.2.3.4", objPort
+'Test for success.
+If Err = 0 Then
+	'The name of the port.
+	wscript.echo "PortName" & objPort.PortName
+'The type of the port. “Description” is a function in Portmgr.vbs that converts a number that
+'represents a port type to a string.
+	wscript.echo "PortType" & Description(objPort.PortType)
+	wscript.echo "HostAddress" & objPort.HostAddress
+	'The name of the queue (applies to LPR ports).
+	wscript.echo "QueueName" & objPort.QueueName
+	'Applies to TCP RAW ports.
+	wscript.echo "PortNumber" & CStr(objPort.PortNumber)
+'Check if SNMP is enabled.
+	If objPort.SNMP Then
+		'The SNMP device index.
+		wscript.echo "SNMP Index" & CStr(objPort.SNMPDeviceIndex)
+		'The community name.
+		wscript.echo "Community" & objPort.CommunityName
+	End If 
+	If objPort.DoubleSpool Then
+		'Byte counting is enabled.
+	else
+		'Byte counting is disabled.
+	End If
+End If
+End Sub
+'**********************************************************************************************************
+Sub PurgeQueue
+Dim i,q
+Set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+For i=0 To ServerListBox.length-1
+    If ServerListBox(i).selected Then
+	For q=0 To QueueListBox.length-1
+	    If QueueListBox(q).selected Then
+		strServer = "\\" & ServerListBox(i).Text
+		strQueue = QueueListBox(q).Text
+		End If
+	Next
+strStatus=("Clearing the " & strQueue & " Queue on " & strServer)
+HTAStatus.InnerHTML=strWarning& strStatus
+HTASleep(1)
+'purges a remote printer.
+objMaster.PrinterPurge strServer, strQueue
+		If Err = 0 Or Err= 424 Then
+			strStatus=(strQueue & "has been Cleared.  What's next?")
+			HTAStatus.InnerHTML=strOK & strStatus
+			Else
+			strStatus=("Error " & Err & " occurred while clearing the queue")
+			HTAStatus.InnerHTML=strError & strStatus
+		End If
+	End If
+Next
+End Sub
+
+
+'Set WshShell = Wscript.CreateObject("Wscript.Shell")
+'Set objDictionary = CreateObject("Scripting.Dictionary")
+
+'strComputer = "."
+'Set objWMIService = GetObject("winmgmts:" _
+'    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+'Set colInstalledPrintJobs =  objWMIService.ExecQuery _
+'    ("Select * from Win32_PrintJob")
+
+'For Each objPrintJob in colInstalledPrintJobs
+'    strPrinterName = Split(objPrintJob.Name,",",-1,1)
+'    If objDictionary.Exists(objPrintJob.Notify) Then
+'    Else
+'        objDictionary.Add objPrintJob.Notify, strPrinterName(0)
+'    End If
+'Next
+
+'arrKeys = objDictionary.Keys
+'arrItems = objDictionary.Items
+
+'For i = 0 to objDictionary.Count - 1
+'    Message = "The documents you were printing on printer "
+'    Message = Message & arrItems(i)
+'    Message = Message & " had to be deleted from the print queue. "
+'    Message = Message & "You will need to reprint these documents."
+'    CommandString = "%comspec% /c msg " & arrKeys(i) & " " & Chr(34) _
+'        & Message & Chr(34)
+'    WshShell.Run CommandString, 0, True
+'Next
+
+'Set colInstalledPrinters = objWMIService.ExecQuery _
+'    ("Select * from Win32_Printer")
+'For Each objPrinter in colInstalledPrinters
+'    objPrinter.CancelAllJobs()
+'Next
+
+
+'****************************************************************************************************
+Sub PortCreate
+'add a port by using the Port object. The Port object can add Standard TCP RAW, Standard TCP LPR, or Standard Local ports.
+
+If Server.InnerHTML<>"" And IP1.Value<>"" And IP2.Value<>"" And IP3.Value<>"" And IP4.Value<>"" Then
+strIP1=IP1.Value
+strIP2=IP2.Value
+strIP3=IP3.Value
+strIP4=IP4.Value
+strIP=strIP1 & "." & strIP2 & "." & strIP3 & "." & strIP4
+strPortName= "IP_" & strIP
+strServer=Server.InnerHTML
+set objPort = CreateObject("Port.Port.1")
+set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+strStatus=("Creating TCP/IP Port IP_" & strIP & " on " & strServer)
+HTAStatus.InnerHTML=strStatus
+Call HTASleep(1)
+objPort.ServerName = "\\" & strServer
+objPort.PortName = strPortName
+'The type of the port can be 1 (TCP RAW), 2 (TCP LPR), or 3 (standard local).
+objPort.PortType = 1
+'This is the address of the device to which the port connects.
+objPort.HostAddress = strIP
+objPort.PortNumber = 9100
+objPort.SNMP = false
+'Add the port.
+objMaster.PortAdd objPort
+'Test for the status.
+	If Err = 0 Then
+	strStatus=("Port IP_" & strIP & " has been created on " & strServer)
+	HTAStatus.InnerHTML=strOK & strStatus
+	Else
+	strStatus=("Error " & Err & " occurred while creating the Port.")
+	HTAStatus.InnerHTML=strError & strStatus
+	End If
+Else	
+	If strServer="" Then
+	strStatus=("Check the Server Name")
+	'Call Audio("enufinfo.wav")
+	HTAStatus.InnerHTML=strError& strStatus
+	Else
+	strStatus="Check the IP Address."
+	'Call Audio("enufinfo.wav")
+	HTAStatus.InnerHTML=strError & strStatus
+	End If
+End If
+End Sub
+'********************************************************************************************
+Sub PortDelete
+'Deleting Printer Ports
+set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+set objPort= CreateObject("Port.Port.1")
+If Server.InnerHTML<>"" And Queue.Value<>"" Then
+strServer=Server.InnerHTML
+strServer= "\\" & strServer
+strPortName=Queue.Value
+strStatus=("Port " & strPortName & " is being Removed from " & strServer)
+HTAStatus.InnerHTML=strStatus
+Call HTASleep(1)
+'The first argument is the server name. The second argument is the name of a port.
+objPort.ServerName = strServer
+objPort.PortName   = strPortName
+objMaster.PortDel objPort
+'strDeletePort= strServer & "," & strPortName
+'objMaster.PortDel (strDeletePort)
+
+'Test for the status.
+	If Err = 0  Or Err=424 Then
+	strStatus=(strPortName & " has been removed from " & strServer)
+	HTAStatus.InnerHTML=strOK & strStatus
+	Else
+	strStatus=("Error " & Err & " occurred while removing the Port.")
+	HTAStatus.InnerHTML=strError & strStatus
+	End If
+Else	
+	If strServer="" Then
+	strStatus=("Check the Server Name")
+	'Call Audio("enufinfo.wav")
+	HTAStatus.InnerHTML=strError & strStatus
+	Else
+	strStatus="Check the Port Name."
+	'Call Audio("enufinfo.wav")
+	HTAStatus.InnerHTML=strError & strStatus
+	End If
+End If 
+End Sub
+
+Sub GetData
+Dim strText
+strText = objDoc.all.HiddenTextControl.Value
+msgBox "In Main: " & strText
+'	SelectQueue.Value=Window.Event.SrcElement.innerText
+End Sub
+
+
+'***********************************************************************************************************
+Sub PrinterEnum
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objTextFile = objFSO.CreateTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\display.htm", True)
+set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+objTextFile.writeline "<html><head><title>Print Queue Monitor</title>"
+objTextFile.WriteLine "<script language=VBScript>"
+objTextFile.WriteLine "Sub GetData"
+
+
+'Sub GetData
+  objTextFile.WriteLine "HiddenTextControl.Value = Window.Event.SrcElement.innerText"
+  objTextFile.WriteLine "MsgBox HiddenTextControl.Value"
+  objTextFile.WriteLine "HiddenTextControl.click"
+'End Sub
+
+'objTextFile.WriteLine "Dim strClickData"
+'objTextFile.WriteLine "strClickData=Window.Event.SrcElement.innerText"
+'objTextFile.WriteLine "MsgBox strClickData"
+'objTextFile.WriteLine "SelectQueue.Value=strClickData"
+
+objTextFile.WriteLine "End Sub"
+objTextFile.WriteLine "</" & "script>"
+
+objTextFile.writeline "</head>"
+objTextFile.writeline "<body><table border=" & chr(34) & "1" & chr(34) & "width=" & chr(34) & _
+    "900" & chr(34) & "id=" & chr(34) & "table1" & chr(34) & ">" & strHeaderQueues
+'*****Routine for printer listing***************************************************************
+Dim i,p, arrLink, strLink2
+  For i=0 To ServerListBox.length-1
+    If ServerListBox(i).selected Then
+strServer = "\\" & ServerListBox(i).Text
+strStatus=("Checking the Queues on " & strServer & "...")
+HTAStatus.InnerHTML=strStatus
+HTASleep(1)
+'QueueListBox.innerhtml = ""
+On Error Resume Next
+If IsEmpty(objMaster.Printers(strServer)) Then
+objTextFile.writeline strOpenTable & "There are no Printers on " & ServerListBox(i).Text & strCloseTable
+strStatus=("There are no Printers on " & strServer)
+HTAStatus.InnerHTML=strError & strStatus
+HTASleep(1)
+Else
+p=0
+For Each objPrinter in objMaster.Printers(strServer)
+	strQueue = objPrinter.PrinterName
+	QueueNameLength = Len (strQueue) - Len(strServer) - 1
+	strQueue = Right (objPrinter.PrinterName, QueueNameLength)
+	strLink2 = "<a href=""#"" onclick=""GetData"">"
+	strLink2End = "</a>"
+	strQueue = strLink2 & strQueue & strLink2End
+	Select Case objPrinter.Status
+	Case 0
+	strStatus = "Ready"
+	Case 8
+	strStatus = "Paper Jam"
+	Case 16
+	strStatus = "Out of Paper"
+	Case 128
+	strStatus = "Offline"
+	Case 65536
+	strStatus = "Error-Warming Up"
+	Case 131072
+	strStatus = "Low Toner"
+	Case 262144
+	strStatus = "No Toner"
+	Case Else
+	strStatus = "Error"
+	End Select
+	strPortName=objPrinter.PortName
+	PortNameLength = Len (strPortName) -3
+	strLink= Right(objPrinter.PortName, PortNameLength)
+		If Instr(strLink,":") Then
+		arrLink = Split(strLink, ":")
+		strLink=arrLink(0)
+		End If
+		
+	If errors.checked Then
+		If objPrinter.Status <> "0" Then
+		objTextFile.writeline strOpenTable & strLinkOpen & strLink & strLinkClose & strToggle & strQueue & strToggle & objPrinter.PortName & strToggle & strStatus & strToggle & _
+	    objPrinter.Jobs & strToggle & objPrinter.DriverName & strCloseTable
+	    Set objOption = Document.createElement("OPTION")
+		objOption.Text = strQueue
+		objOption.Value = p
+		QueueListBox.Add(objOption)
+		p = p+1
+		End If
+    Else
+	    objTextFile.writeline strOpenTable & strLinkOpen & strLink & strLinkClose & strToggle  & strQueue & strToggle & objPrinter.PortName & strToggle & strStatus & strToggle & _
+	    objPrinter.Jobs & strToggle & objPrinter.DriverName & strCloseTable
+	    Set objOption = Document.createElement("OPTION")
+	    objOption.Text = strQueue
+	    objOption.Value = p
+	    QueueListBox.Add(objOption)
+	    p = p+1
+	    End If
+Next
+End If
+	If Err <> 0 And Err <> 451 And Err <> 454 And Err <> 424 And Err <> -2147023174 Then
+	objErrorsOut.WriteLine "Sorry but an error occured with server " & strServer & " Error: " & Err
+	MsgBox "Sorry but an error occured with server " & strServer & " Error: " & Err
+	End If
+End If
+  Next
+objTextFile.writeline "</font></table>"
+objTextFile.writeline "<input type=hidden id=HiddenTextControl name=HiddenTextControl>"
+objTextFile.writeline "</body></html>"
+objTextFile.Close
+objErrorsOut.Close
+Reload()
+	strQueue = QueueListBox(0).Text
+	Queue.Value=strQueue
+HTAStatus.InnerHTML=strOK & "Queues Checked!"
+set objDoc = display.document
+set objDoc.all.HiddenTextControl.onclick = getRef("GetData")
+
+End Sub
+'**********************************************************************************************************
+Sub PrinterAdd
+'MsgBox "Printer Add has not been implemented as yet."
+strServer=Server.InnerHTML
+strPrinterName=Queue.Value
+strIP1=IP1.Value
+strIP2=IP2.Value
+strIP3=IP3.Value
+strIP4=IP4.Value
+strIP=strIP1 & "." & strIP2 & "." & strIP3 & "." & strIP4
+
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+
+Set objPrinter = objWMIService.Get("Win32_Printer").SpawnInstance_
+
+objPrinter.DriverName = "HP LaserJet 4000 Series PS"
+objPrinter.PortName   = "IP_169.254.110.160"
+objPrinter.DeviceID   = "ScriptedPrinter"
+objPrinter.Location = "USA/Redmond/Building 37/Room 114"
+objPrinter.Network = True
+objPrinter.Shared = True
+objPrinter.ShareName = "ScriptedPrinter"
+objPrinter.Put_
+
+
+
+
+
+'set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+'set objPrinter = CreateObject("Printer.Printer.1")
+'If Server.InnerHTML<>"" And Queue.Value<>"" And IP1.Value<>"" And IP2.Value<>"" And IP3.Value<>"" And IP4.Value<>"" Then
+'Always precede the name of a computer with two backslashes (\\).
+'objPrinter.ServerName  = strServer
+'The following code assigns a name to the printer. The string is required and cannot be empty. 
+'objPrinter.PrinterName = strPrinterName
+'objPrinter.Shared = True
+'objPrinter.ShareName = strPrinterName
+'strPortName= "IP_" & strIP
+'objPrinter.PortName = strPortName 'Specifies the printer port to use. The string is required and cannot be empty.
+
+'The following specifies the printer driver to use. The string is required and cannot be empty. 
+
+'For d=0 To DriverListBox.length-1
+'    If DriverListBox(d).selected Then
+'		strDriverName = DriverListBox(d).Text
+'		objPrinter.DriverName= strDriverName
+'	End If
+'Next	 
+		
+			'Specifies the location of the printer driver. This setting is optional, because by default
+			'the drivers are picked up from the driver cache directory.
+			'objPrinter.DriverPath  = "c:\drivers"
+			'Specifies the location of the INF file. This setting is optional, because by default the INF
+			'file is picked up from the %windir%\inf\ntprint.inf directory.
+			'objPrinter.InfFile     = "c:\winnt\inf\ntprint.inf"
+'		objMaster.PrinterAdd objPrinter 'Add the printer.
+	
+'Else
+'	If strPrinterName="" Then
+'	strStatus=("Check the Queue Name")
+	'Call Audio("enufinfo.wav")
+'	HTAStatus.InnerHTML=strError & strStatus
+'	Else
+'	strStatus="Check the IP Address."
+	'Call Audio("enufinfo.wav")
+'	HTAStatus.InnerHTML=strError & strStatus
+'	End If
+'End If
+	If Err = 0 Then
+		strStatus="The Print Queue was successfully added!"
+		HTAStatus.InnerHTML=strOK & strStatus
+	Else
+		strStatus= " Error " & Err & " occured while adding the printer!"
+		HTAStatus.InnerHTML=strError & strStatus
+	End If
+End Sub
+'************************************************************************************************************
+Sub PrinterDelete
+If Server.InnerHTML<>"" And Queue.Value<>"" Then
+strServer=Server.InnerHTML
+strServer="\\" & strServer
+strQueue=Queue.Value
+strStatus=("Removing " & strQueue & " from " & strServer)
+HTAStatus.InnerHTML=strStatus
+Call HTASleep(1)
+set objMaster  = CreateObject("PrintMaster.PrintMaster.1")
+    set objPrinter = CreateObject("Printer.Printer.1")
+    objPrinter.ServerName  = strServer
+    objPrinter.PrinterName = strQueue
+    objMaster.PrinterDel objPrinter
+'Test for the status.
+	If Err = 0  Or Err=424 Then
+	strStatus=(strQueue & " Removed from " & strServer)
+	HTAStatus.InnerHTML=strOk & strStatus
+	Else
+	strStatus=("Error " & Err & " occurred while Removing the Port.")
+	HTAStatus.InnerHTML=strError & strStatus
+	End If
+Else	
+	If strServer="" Then
+	strStatus=("Check the Server Name")
+	'Call Audio("enufinfo.wav")
+	HTAStatus.InnerHTML=strError & strStatus
+	Else
+	strStatus="Check the Queue Name."
+	'Call Audio("enufinfo.wav")
+	HTAStatus.InnerHTML=strError & strStatus
+	End If
+End If 
+End Sub
+'*****Menu Routines***************************************************************************************************
+Sub Menu_Onmouseover
+    clearmenu
+  With window.event.srcElement
+    If .parentElement.ID = "menu" Then
+      .style.border = "thin outset"
+      .style.cursor = "arrow"
+    End If
+  End With
+End Sub
+Sub Menu_Onmouseout
+  With window.event.srcElement
+    .style.border = "none" 
+    .style.cursor = "default"
+  End With ' srcElement
+End Sub
+Sub Dropmenu_Onmouseover
+    With window.event
+    .srcElement.style.cursor = "arrow"
+    .cancelbubble = true
+    .returnvalue = false
+  End With
+End Sub
+Sub SubMenuOver
+  With window.event.srcElement
+    If .ID = "dropmenu" Then Exit Sub
+    .style.backgroundcolor = "darkblue"
+    .style.color = "white"
+    .style.cursor = "arrow"
+  End With
+End Sub
+Sub SubMenuOut
+  With window.event.srcElement
+    .style.backgroundcolor = "lightgrey"
+    .style.color = "black"
+    .style.cursor = "default"
+  End With
+End Sub
+Sub Menu_Onclick
+Dim oEL, oItem
+  If strMenuOpen <> "" Then Exit Sub
+  With window.event.srcElement
+    If .ID <> "menu" Then
+      .style.border = "thin inset"
+      nLeft = .offsetLeft
+      ntop  = .offsetTop + replace(menu.style.Height, "px", "") - 5
+      strMenuOpen = trim(.innertext)
+      With dropmenu
+        With .style
+          .border = "thin outset"
+          .backgroundcolor = "lightgrey"
+          .position = "absolute"
+          .left = nLeft
+          .top = nTop
+          .width = "100px"
+          .zIndex = "101" ' added 28 June 2010
+        End With ' style
+        for each strItem in dicMenus.Item(strMenuOpen)
+          set oEL = document.createElement("SPAN")
+          .appendChild(oEL)
+          With oEl
+            .ID = strItem
+            .style.height = "20px"
+            .style.width = dropmenu.style.width
+            .style.zIndex = "102" ' added 28 June 2010
+            .innerHTML = Replace(strHTML, "#strItem#", trim(strItem))
+            set .onmouseover = getRef("SubMenuOver")
+            set .onmouseout = getRef("SubMenuOut")
+            set .onclick = getRef("SubMenuClick")
+            set .onselectstart = getRef("cancelEvent")
+          End With ' child node
+          set oEL = document.createElement("BR")
+          .appendChild(oEL)
+        next
+      End With ' dropmenu
+    End If
+  End With ' srcEement
+End Sub
+Sub CancelEvent
+  window.event.returnValue = false
+End Sub
+Sub ClearMenu
+  dropmenu.innerHTML = ""
+  dropmenu.style.border = "none"
+  dropmenu.style.backgroundcolor = "transparent"
+  If strMenuOpen <> "" Then
+    document.getElementByID(strMenuOpen).style.border = "none"
+    strMenuOpen = ""
+  End If
+End Sub
+Sub SubMenuClick
+  strItem = trim(window.event.srcElement.innerText)
+  clearmenu
+  Select Case lcase(strItem)
+     Case "save report"
+      	dtmThisDay = Day(Date)
+		dtmThisMonth = Month(Date)
+		dtmThisYear = Year(Date)
+		strServer = Server.InnerHTML
+		strFileName =  strServer & "_" & dtmThisMonth & "_" & dtmThisDay & "_" & dtmThisYear & ".htm"
+		HTAStatus.InnerHTML="Saving Report to C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\" & strFileName
+		Set objDialog = CreateObject("SAFRCFileDlg.FileSave")
+		objDialog.FileName = "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\" & strFileName
+		objDialog.FileType = "HTM"
+		intReturn = objDialog.OpenFileSaveDlg
+		If intReturn Then
+		Set objFSO = CreateObject("Scripting.FileSystemObject")
+		Const OverwriteExisting = TRUE
+		objFSO.CopyFile "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\display.htm" , "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\" & strFilename, OverwriteExisting	
+		End If
+	Case "print report"
+		HTAStatus.InnerHTML="Printing Current Report"
+		Call HTASleep(1)
+		strPath = "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html"
+        strFileName = "display.htm"
+        Set objFSO = CreateObject("Scripting.FileSystemObject")
+		strFullPath= "C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\html\display.htm"
+        Set objFile = objFSO.GetFile(strFullPath)
+        Set objShell = CreateObject("Shell.Application")
+        Set objFolder = objShell.Namespace(strPath) 
+        Set objFolderItem = objFolder.ParseName(strFileName)
+        objFolderItem.InvokeVerbEx("Print")
+		HTAStatus.InnerHTML=strOk & "Report Printed"
+    Case "exit"
+    	'Audio("quitesure.wav")
+    	blnAnswer = window.confirm("Are you sure you want to exit?")
+    	If blnAnswer Then
+		HTAStatus.InnerHTML="Good Bye"
+		'Call Audio("halbye.wav")
+		Call HTASleep(1)
+		window.close
+     	End If
+    Case "edit server list"
+    	strStatus=("Editing the list of Print Servers.")
+		HTAStatus.InnerHTML=strStatus
+		Call HTASleep(1)
+		Editor
+		HTAStatus.InnerHTML="Loading the new Print Server list."
+		Call HTASleep(1)
+        Pservers
+        HTAStatus.InnerHTML=strOK & "The new Print Server list has been loaded."
+    Case "help"
+      'msgbox "Help under construction", vbOKOnly + vbInformation, "Help"
+        Set objShell = CreateObject("Wscript.Shell")
+        objShell.Run "hh.exe Help.chm"
+    Case "register dll"  
+		strStatus=("Registering the prnadmin.dll with Windows.")
+		HTAStatus.InnerHTML=strStatus
+		Call HTASleep(1)
+		Set WshShell = CreateObject("WScript.Shell")
+		strCmdLine = "C:\WINDOWS\system32\Regsvr32.exe C:\AdminReports\Prnadmin.dll"
+		WshShell.Run strCmdLine,1,True
+		HTAStatus.InnerHTML=strOk & "Prnadmin.dll has been Registered with Windows."
+    Case "about"
+      msgbox "Copyleft (C;) 2011" & vbCRLF & "Jim Rigby, Northrop Grumman Corp."_
+              & vbCRLF & "Printer Tool Box II v 1.0 Beta",_
+              vbOKOnly + vbInformation, "About Printer Tool Box"
+    Case else ' catch all for undefined menu items
+      msgbox "Sorry, " & strItem & " is not implemented"
+  End Select
+End Sub
+'*****Button Routines*****
+Sub OnClickButtonQueues
+PrinterEnum
+End Sub
+Sub OnClickButtonPorts
+PortEnum
+End Sub
+Sub OnClickButtonDrivers
+DriverEnum
+End Sub
+Sub OnClickButtonPurgeQueue
+PurgeQueue
+End Sub
+Sub OnClickButtonTestPage
+strQueue=Queue.Value
+strServer=Server.InnerHTML
+strStatus=("Sending a Test Page to " & strQueue & " on " & strServer)
+HTAStatus.InnerHTML=strStatus
+'HTASleep(1)
+set objMaster = CreateObject("PrintMaster.PrintMaster.1")
+strPrinterName="\\" & strServer & "\" & strQueue
+objMaster.PrintTestPage "\\" & strServer,strQueue
+If Err = 0 Or Err= 424 Then
+	strStatus=("The Test Page Printed Successfully!")
+	HTAStatus.InnerHTML=strOk & strStatus
+	Else
+	strStatus=("There was an Error " & Err & " while printing the Test Page!")
+	HTAStatus.InnerHTML=strError & strStatus
+End If
+End Sub
+Sub OnClickButtonAdd
+strMode = GetModeRadioValue()
+   Select Case strMode
+      Case "Port"   PortCreate
+      Case "Queue"  PrinterAdd
+      Case Else     MsgBox ("I haven't got a clue what you want me to do!")
+   End Select
+End Sub
+Sub OnClickButtonDelete
+strMode = GetModeRadioValue()
+   Select Case strMode
+      Case "Port"   PortDelete
+      Case "Queue"  PrinterDelete
+      Case Else     HTAStatus.InnerHTML= strError & "I haven't got a clue what you want me to do!"
+   End Select
+End Sub
+Sub OnClickButtonReload
+Pservers
+End Sub
+Sub OnSelectSvr
+Dim y
+For y=0 To ServerListBox.length-1
+    If ServerListBox(y).selected Then
+	strServer = ServerListBox(y).Text
+	Server.InnerHTML=strServer
+	End If
+Next
+End Sub
+Sub OnSelectQueue
+Dim x
+For x=0 To QueueListBox.length-1
+    If QueueListBox(x).selected Then
+	strQueue = QueueListBox(x).Text
+	Queue.Value=strQueue
+	End If
+Next
+End Sub
+
+Sub OnClickRename
+strMode = GetModeRadioValue()
+   Select Case strMode
+      Case "Port"   PortRename
+      Case "Queue"  QueueRename
+      Case Else     HTAStatus.InnerHTML=strError &  "I haven't got a clue what you want me to do!"
+   End Select
+End Sub
+
+Sub OnClickService
+'strStatus="Restarting the Print Spooler on " & strServer
+'HTAStatus.InnerHTML= strStatus
+strServer = Server.InnerHTML
+'Call HTASleep(1)
+'Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+'Set colServiceList = objWMIService.ExecQuery ("Select * from Win32_Service where Name='Spooler'")
+'For Each objService in colServiceList
+'    errReturn = objService.StartService()
+'Next
+'HTASleep(2)
+'Set colServiceList=objWMIService.ExecQuery("Associators of " & "{Win32_Service.Name='Spooler'} Where " & "AssocClass=Win32_DependentService " & "Role=Dependent" )
+'For Each objService in colServiceList
+'    objService.StartService()
+'Next
+'HTAStatus.InnerHTML="Print Spooler Restarted"
+
+'Stop
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+
+Set colServiceList = objWMIService.ExecQuery("Associators of " _
+    & "{Win32_Service.Name='Spooler'} Where " _
+        & "AssocClass=Win32_DependentService " & "Role=Antecedent" )
+
+For Each objService in colServiceList
+    objService.StopService()
+Next
+HTAStatus.InnerHTML="Stopping Dependent Services"
+HTASleep(2)
+
+Set colServiceList = objWMIService.ExecQuery _
+        ("Select * from Win32_Service where Name='Spooler'")
+For Each objService in colServiceList
+    errReturn = objService.StopService()
+Next
+HTAStatus.InnerHTML="Stopping Spooler"
+Call HTASleep(1)
+'Wait till Stopped
+
+'Start
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+
+Set colServiceList = objWMIService.ExecQuery _
+    ("Select * from Win32_Service where Name='Spooler'")
+
+For Each objService in colServiceList
+    errReturn = objService.StartService()
+Next
+HTAStatus.InnerHTML="Starting Spooler"
+Call HTASleep(1)
+HTASleep(2)
+Set colServiceList = objWMIService.ExecQuery("Associators of " _
+   & "{Win32_Service.Name='Spooler'} Where " _
+        & "AssocClass=Win32_DependentService " & "Role=Dependent" )
+For Each objService in colServiceList
+    objService.StartService()
+Next
+HTAStatus.InnerHTML= strOK & "Spooler Restarted"
+
+End Sub
+</script>
+<!--************************************ Begin HTML***************************************-->
+<body onmouseover=menu_onmouseover STYLE="font:10 pt arial; color:black;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=0, StartColorStr='#000000', EndColorStr='#AAFFFF')">
+<!--Add your controls here-->
+<div id=menu style="position:absolute;left:0;top:0;width:102%;height:23px;
+                    padding-top:2px;background-color:lightgrey;
+                    font:normal 10 pt arial;z-Index:100">
+</div>
+<span id=dropmenu style="font:normal 9pt Microsoft Sans Serif"></span><BR>
+<font color="black" face="arial" size="2"><B>Status: </B><span name="HTAStatus" id="HTAStatus" rows="1" cols="110" title="Displays the current status of the program"></span><BR><BR>
+<font color="black" face="arial" size="2">Server <select size="1" name="ServerListBox" id=ServerListBox style="width:220px" title="Select a Server" onclick=OnSelectSvr></select>
+<font color="black" face="arial" size="1">x
+<button name="Service" id="Service" onclick="OnClickService" accessKey="s" title="Click to restart the Print Spooler Service"><B>Restart Print <U>S</U>pooler</B></button><font color="black" face="arial" size="1">x
+<font color="black" face="arial" size="2">Reports<font color="black" face="arial" size="1">x
+<button name="Queues" id="Queues" onclick="OnClickButtonQueues" accessKey="q" title="Click to check the Queues on the selected Print Server"><B><U>Q</U>ueues </B></button>
+<input type="checkbox" name="errors" id="errors" title="Check this box to display only Print Queues with errors"><font color="black" face="arial" size="1">Only Queues with Errors
+<font color="black" face="arial" size="1">x
+<button name="Drivers" id="Drivers" onclick="OnClickButtonDrivers" accessKey="d" title="Click to check the Drivers installed on the selected Print Server"><B><U>D</U>rivers </B></button>
+<button name="Ports" id="Ports" onclick="OnClickButtonPorts" accessKey="p" title="Click to check the Ports on the selected Print Server"> <B><U>P</U>orts </B></button><BR><BR>
+<button name="TestPage" id="TestPage" onclick="OnClickButtonTestPage" accessKey="t" title="Click to print a Test Page on the selected Printer"> <B><U>T</U>est Page </B></button>
+<button name="PurgeQueue" id="PurgeQueue" onclick="OnClickButtonPurgeQueue" accessKey="c" title="Click to Purge the Specified Print Queue"> <B><U>C</U>lear Q</B></button><BR>
+<!--<font color="black" face="arial" size="1">Queue  <select size="1" name="QueueListBox" style="width:600px" title="Select Queue" onclick=OnSelectQueue></select>-->
+<!--<font color="black" face="arial" size="1"><input type="Text" id="SelectQueue" name="SelectQueue">
+<!--<iframe Application="Yes" frameborder=1 scrolling=1 allowtransparency=False id="display" name="display" height="61%" width="100%" src="C:\Users\Rigbyja\Documents\Scripts\HTAs\Printer\html\display.htm"></iframe><BR>-->
+
+<!--<font color="black" face="arial" size="1">Queue </font><input type="text" name="Queue" size="60" title="Enter the name of the Queue">-->
+<font color="black" face="arial" size="1">Queue Name </font><input type="Text" id="SelectQueue" name="SelectQueue" size="60" title="The name of the S3elected Queue">
+<font color="black" face="arial" size="1">New Queue Name </font><input type="text" name="NewQueue" size="60" title="Enter the new name of the Queue"><BR><BR>
+
+<button name="Add" id="Add" onclick="OnClickButtonAdd" accessKey="a" title="Click to ADD a queue,port or driver to the selected Server"><B><U>A</U>dd </B></button>
+<button name="Delete" id="Delete" onclick="OnClickButtonDelete" accessKey="r" title="Click to Delete the slected Driver, Port or Queue"><B><U>R</U>emove</B></button>
+<button name="Rename" id="Rename" onclick="OnClickRename" accessKey="n" title="Click to Rename the Port or Queue"> <B>Re<U>N</U>ame </B></button>
+<input type="radio" name="Mode" value="Queue" CHECKED><font color="black" face="arial" size="1">Queue or
+<input type="radio" name="Mode" value="Port"><font color="black" face="arial" size="1">Port
+<font color="black" face="arial" size="1"> on Server: <span name="Server" id="Server" rows="1" cols="55" title="Name of the currently selectd server."></span><BR><BR>
+
+<font color="black" face="arial" size="1">Port Name </font><input type="text" name="Port" size="60" title="Enter the name of the Port">
+<font color="black" face="arial" size="1">New Port Name </font><input type="text" name="NewPort" size="60" title="Enter the new name of the Port"><BR><BR>
+<font color="black" face="arial" size="1">IP </font><input type="text" name="IP1" size="2" onKeyPress="KeyCheck" title="Enter the IP address of the Printer">
+<font color="black" face="arial" size="1">. </font><font color="black" </font><input type="text" name="IP2" size="2" onKeyPress="KeyCheck" title="Enter the IP address of the Printer">
+<font color="black" face="arial" size="1">. <input type="text" name="IP3" size="2" onKeyPress="KeyCheck" title="Enter the IP address of the Printer">
+<font color="black" face="arial" size="1">. <input type="text" name="IP4" size="2" onKeyPress="KeyCheck" title="Enter the IP address of the Printer">
+<font color="black" face="arial" size="1">Driver <select size="1" name="DriverListBox" id=DriverListBox style="width:400px" title="Select a Driver"></select>
+<iframe Application="Yes" frameborder=1 scrolling=1 allowtransparency=False id="display" name="display" height="61%" width="100%" src="C:\Users\Rigbyja\Documents\Scripts\HTAs\Printer\html\display.htm"></iframe><BR>
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</body>
+</html>

@@ -1,0 +1,61 @@
+
+$Z = REDIRECTOUTPUT("C:\Documents and Settings\s823753\Desktop\Scripts\EVENTLOG_SCRIPTS", 1)
+"" ?
+"The following is a log of NT Event Log Archiving.  This process ran on @wksta and" ?
+"for each of the following systems, the following was done:" ?
+"" ?
+"  - Backup the Application, Security, and System logs" ?
+"  - Copy the timestamped event log backup to $ArchiveDirectory\servername on @wksta" ?
+"  - Rename the local event log backups to App-Archived.evt, Sec-Archived.evt, and" ?
+"    Sys-Archived.evt in C:\Logs." ?
+"  - Record this activity in the local Application Event Log" ?
+"" ?
+"  Servers: "
+
+$Status = OPEN(1, "servers.txt", 2)
+$Line = ReadLine(1)
+
+$x = 0
+WHILE @ERROR <> -1
+  $Line = ReadLine(1)
+
+  IF (SUBSTR($Line, 1, 1) <> ";") and ($Line <> "")
+    $X = $x + 1
+    $TargetServer = SUBSTR($Line, 1, INSTR($Line, ",")-1)
+    IF $TargetServer <> ""
+      "$TargetServer, "
+      IF $x = 8
+        $x = 0
+        ? "           "
+      ENDIF
+    ENDIF
+  ENDIF
+LOOP
+? ?
+$Status = CLOSE(1)
+
+
+; ----------------------------------------------------------------------------------------------------
+
+$Status = OPEN(1, "servers.txt", 2)
+
+; Get line with headers
+$Line = ReadLine(1)
+
+WHILE @ERROR <> -1
+  $Line = ReadLine(1)
+
+  IF (SUBSTR($Line, 1, 1) <> ";") and ($Line <> "")
+    $TargetServer = SUBSTR($Line, 1, INSTR($Line, ",")-1)
+
+    IF $TargetServer <> ""
+      "-----------------------------------------------------------------------------------------------" ?
+      "Target Server: $TargetServer" ?
+      " " ?
+      CALL "BackupEventLogs.KIX"
+    ENDIF
+  ENDIF
+LOOP
+$Z = REDIRECTOUTPUT("")
+
+$Status = CLOSE(1)

@@ -1,0 +1,91 @@
+<HTML>
+<head>
+<title>Remove "CALL FileStat(FileName, msg)" I missed that after testing </Title>
+<HTA:APPLICATION
+  APPLICATIONNAME="Text Editor"
+  ID="TextEditor"
+  VERSION="1"
+  SINGLEINSTANCE="yes"/>
+</Head>
+<Script Language="VBSCRIPT" Type = "text/vbscript">
+
+Sub Window_Onload
+Window.resizeTo 730,500
+End Sub
+
+Const ForReading = 1
+Const ForWriting = 2
+Const ForAppending = 8
+Set fSo1 = CreateObject("Scripting.FileSystemObject")   
+
+wkDir = "D:\_Script\_vbscript\_Scripts\edit\"
+'----------------------------------------------------------
+FUNCTION NewFile(FileName)
+'CALL FileStat(FileName, msg)
+on error resume next
+nFile = wkDir & FileName.value
+'CALL FileStat(oFile, fSo1, msg)
+IF msg = "" THEN
+Set wrFile = fSo1.CreateTextFile(nFile,true)
+wrFile.Close
+END IF
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION OpenFile(FileName, DataArea)
+'CALL FileStat(FileName, msg)
+on error resume next
+oFile = wkDir & FileName.value
+Set wrFile = fSo1.OpenTextFile(oFile, ForReading)
+DataArea.value = wrFile.ReadAll
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION SaveFile(FileName, DataArea)
+'CALL FileStat(FileName, msg)
+on error resume next
+sFile = wkDir & FileName.value
+Set wrFile = fSo1.OpenTextFile(sFile, ForWriting)
+wrFile.writeline(DataArea.value) 
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION CloseFile(FileName, DataArea)
+'Call FileStat(FileName, msg)   
+on error resume next
+cFile = wkDir & FileName.value
+Set wrFile = fSo1.OpenTextFile(cFile, ForAppending)
+wrFile.Close    
+DataArea.value = ""
+FileName.Value = ""
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION QuitEdit     
+self.close
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION FileStat(FileName, msg)
+eFile = wkDir & FileName   
+IF (fSo1.FileExists(eFile)) THEN
+msg = oFile & " exists."
+msgbox(msg)
+ELSE msg = "No File Name OR File Does NOT Exist"
+on error resume Next
+msgbox(msg)
+END IF
+END FUNCTION
+'---------------------------------------------------------- 
+</Script>
+<body 
+bgcolor="C0C0C0">
+<Table>
+<Th> HTA Text Edit </Th>
+<TR><td>File Name: </td><td>
+<input type="text" name="FileName"></td></TR> </Table> <Table 
+border="1"> <TR><td> <input type="BUTTON" value="New"  onclick="NewFile FileName">
+<input type="BUTTON" value="Open"  onclick="OpenFile FileName, DataArea">
+<input type="BUTTON" value="Save"  onclick="SaveFile FileName, DataArea">
+<input type="BUTTON" value="Close"  onclick="CloseFile FileName, DataArea">
+<input type="BUTTON" value="Quit"  onclick="QuitEdit"> </td></TR>
+<TR><td>
+<textarea name="DataArea" rows="20" cols=80></textarea> </td></TR>
+</Table>
+</body>
+</html> 

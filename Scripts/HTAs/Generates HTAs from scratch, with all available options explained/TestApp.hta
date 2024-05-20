@@ -1,0 +1,64 @@
+<html>
+<head>
+	<title>Title</title>
+	<HTA:APPLICATION
+		APPLICATIONNAME	= 'TestApp'
+		ID						= 'oTestApp'
+		BORDER				= 'Thick'
+		BORDERSTYLE			= 'Complex'
+		CAPTION				= 'Yes'
+		CONTEXTMENU			= 'Yes'
+		ICON					= '.\Icon.ico'
+		INNERBORDER			= 'Yes'
+		MAXIMIZEBUTTON		= 'Yes'
+		MINIMIZEBUTTON		= 'Yes'
+		NAVIGABLE			= 'No'
+		SCROLL				= 'Auto'
+		SCROLLFLAT			= 'No'
+		SELECTION			= 'Yes'
+		SHOWINTASKBAR		= 'Yes'
+		SINGLEINSTANCE		= 'Yes'
+		SYSMENU				= 'Yes'
+		VERSION				= '1.0'
+		WINDOWSTATE			= 'Normal'>
+</head>
+<script language='vbscript'>
+Option Explicit
+
+Sub MultiFunctions(strType)
+	Select Case strType
+		Case	"Reset"			location.Reload(True)
+		Case	"Quit"			self.close()
+	End Select
+End Sub
+
+
+Sub StatusUpdate(strRef)
+	If sResult.value = "" Then
+		sResult.value = Now() & " | " & strRef
+	Else
+		sResult.value = sResult.value & vbcrlf & Now() & " | " & strRef
+	End If
+	sResult.doScroll("down")
+End Sub
+
+</script>
+
+<body>
+
+<p>Sample Status Window<br><textarea rows='4' cols='80' name='sResult'></textarea></p>
+<p><input type='button' value='Reset' name='bReset' onclick='vbscript:MultiFunctions "Reset"'></p>
+<p><input type='button' value='Quit' name='bQuit' onclick='vbscript:MultiFunctions "Quit"'></p>
+
+</body>
+
+</html>
+<!-- Created with HTA Generator v7.1 Tool by J. Libenson : htatools@yahoo.com -->
+<STYLE>
+	BODY		{background-color: buttonface; font-family: tahoma; font-size: 10pt; margin-top: 1px; margin-left: 1px; margin-right: 1px; margin-bottom: 1px;}
+	button	{font-family: tahoma;	font-size: 8pt;}
+	textarea	{font-family: tahoma;	font-size: 10pt;}
+	select	{font-family: tahoma;	font-size: 10pt;}
+	td			{font-family: tahoma;	font-size: 10pt;}
+	input		{font-family: tahoma;	font-size: 10pt;}
+</STYLE>

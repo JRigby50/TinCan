@@ -1,0 +1,66 @@
+.mnpFooterTopRow a
+{
+	text-decoration: inherit;
+	color: inherit;
+	background: inherit;
+	font-weight: bold;
+}
+
+.mnpFooterTopRow a:visited
+{
+	text-decoration: inherit;
+	color: inherit;
+	background: inherit;
+	font-weight: bold;
+}
+
+.mnpFooterTopRow a:hover
+{
+	text-decoration: inherit;
+	color: inherit;
+	background: inherit;
+	font-weight: bold;
+}
+
+.mnpFooterBottomRow
+{
+	padding: 4px 0px 10px 0px;
+}
+
+.mnpFooterBottomRow a
+{
+	text-decoration: inherit;
+	color: inherit;
+	background: inherit;
+	font-weight: normal;
+}
+
+.mnpFooterBottomRow a:visited
+{
+	text-decoration: inherit;
+	color: inherit;
+	background: inherit;
+	font-weight: normal;
+}
+
+.mnpFooterBottomRow a:hover
+{
+	text-decoration: inherit;
+	color: inherit;
+	background: inherit;
+	font-weight: normal;
+}
+
+
+			.mnpFooterTopRow
+			{
+				font: bold 65% Verdana;
+			}
+			.mnpFooterBottomRow
+			{
+				font: 70% Tahoma, Helvetica;
+			}
+        body
+{
+	margin: 0px;
+}

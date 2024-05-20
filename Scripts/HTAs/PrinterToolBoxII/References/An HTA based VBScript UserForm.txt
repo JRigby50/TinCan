@@ -1,0 +1,70 @@
+One of the shortcomings of VBScript is its lack of a Userform.  The rudimentry capabilities of WScript.Echo and MsgBox have often frustrated the development of really useful scripts.  The once useful approach of using Internet Explorer to build a Userform has proved problematic as security restrictions have grown.  The administration community is rapidly moving to Powershell, but there still appears to be a need among the remaining VBScript user community for such a capability.  This sample provides another approach to building VBScript based userforms.  Making use of the HTA interface to the IE platform, it circumvents nearly all of the security drawbacks of previous attempts, while providing a full featured DHTML interface familiar to many scripters.
+
+The heart of the approach is the HTABox function that returns a handle to an HTA window into which any combination of HTML controls can be written and accessed.  This is done through a generic SPAN control named Msg.  The userform is built with standard HTML strings that are loaded into the box through an Msg.InnerHTML statement, as illustrated in the script.  The userform is cleared from the screen by setting the HTABox object's hidden control, done, to a value of True.
+
+Though not included in the example provided, the user is free to create any control and connect to event handlers through the GetRef() function.
+
+The HTABox function is known to work in Win 2000, XP and Win7, but there is no obvious reason it won't work in any environment that supports an HTA.
+
+
+
+sMessage = "<font color=red><b>This is your important message</b></font>"
+sControl = "<input type=button id=Btn1 value=OK onclick='done.value=""clicked""'>"
+sHTMLCode = sMessage & "<hr>" & sControl
+'
+with HTABox("lightgrey", 125, 300, 400, 500)
+  .document.title = "My Message Box"
+  .msg.innerHTML = sHTMLCode
+  Timeout = 3000 ' milliseconds
+  do until .done.value = "clicked" or (n > TimeOut): wsh.sleep 50 : n=n+50 : loop
+  if .done.value = "clicked" then 
+    wsh.echo "User pressed button"
+  else
+    wsh.echo "Timed out"
+  end if
+  .done.value = true
+  .close
+end with
+'
+' Author Tom Lavedas, June 2010
+Function HTABox(sBgColor, h, w, l, t)
+Dim IE, HTA
+
+  randomize : nRnd = Int(1000000 * rnd)
+  sCmd = "mshta.exe ""javascript:{new " _
+       & "ActiveXObject(""InternetExplorer.Application"")" _
+       & ".PutProperty('" & nRnd & "',window);" _
+       & "window.resizeTo(" & w & "," & h & ");" _
+       & "window.moveTo(" & l & "," & t & ")}"""
+'
+  with CreateObject("WScript.Shell")
+    .Run sCmd, 1, False
+    do until .AppActivate("javascript:{new ") : WSH.sleep 10 : loop
+  end with ' WSHShell
+'
+  For Each IE In CreateObject("Shell.Application").windows
+    If IsObject(IE.GetProperty(nRnd)) Then
+      set HTABox = IE.GetProperty(nRnd)
+      IE.Quit
+      HTABox.document.title = "HTABox"
+      HTABox.document.write _
+               "<HTA:Application contextMenu=no border=thin " _
+             & "minimizebutton=no maximizebutton=no sysmenu=no />" _
+             & "<body scroll=no style='background-color:" _
+             & sBgColor & ";font:normal 10pt Arial;" _
+             & "border-Style:outset;border-Width:3px'" _
+             & "onbeforeunload='vbscript:if not done.value then " _
+             & "window.event.cancelBubble=true:" _
+             & "window.event.returnValue=false:" _
+             & "done.value=true:end if'>" _
+             & "<input type=hidden id=done value=false>" _
+             & "<center><span id=msg>&nbsp;</span><center></body>"
+      Exit Function
+    End If
+  Next
+'
+' I can't imagine how this line can be reached, but just in case
+  MsgBox "HTA window not found."
+  wsh.quit
+'
+End Function

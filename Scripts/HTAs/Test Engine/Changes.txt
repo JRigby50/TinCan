@@ -1,0 +1,4 @@
+1.	When choose the answer, the text of the answer changes
+2.	It misses the Previous Question button (allow you to go back)
+3.	Shows correct answer in BLUE and wrong answer in RED
+4.	Scores (I know you are working on this one)

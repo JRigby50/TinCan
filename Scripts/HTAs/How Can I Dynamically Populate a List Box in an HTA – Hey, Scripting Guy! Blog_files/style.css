@@ -1,0 +1,685 @@
+@font-face {
+	font-family: shell-icons;
+	src: url(fonts/shell-icons-0.4.0.eot?#iefix) format("embedded-opentype"), url(fonts/shell-icons-0.4.0.woff) format("woff"), url(fonts/shell-icons-0.4.0.ttf) format("truetype");
+}
+body {
+	background: rgb(51, 51, 51); font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+}
+#page {
+	background: rgb(255, 255, 255);
+}
+#secondary {
+	padding-left: 45px; margin-top: -20px;
+}
+.entry-title {
+	-ms-word-wrap: break-word;
+}
+hr {
+	margin-top: 10px;
+}
+a:hover {
+	text-decoration: none;
+}
+.h1 {
+	font-weight: normal;
+}
+.h2 {
+	font-weight: normal;
+}
+.h3 {
+	font-weight: normal;
+}
+.h4 {
+	font-weight: normal;
+}
+.h5 {
+	font-weight: normal;
+}
+.h6 {
+	font-weight: normal;
+}
+h1 {
+	font-weight: normal;
+}
+h2 {
+	font-weight: normal;
+}
+h3 {
+	font-weight: normal;
+}
+h4 {
+	font-weight: normal;
+}
+h5 {
+	font-weight: normal;
+}
+h6 {
+	font-weight: normal;
+}
+.h1 {
+	font-family: "Segoe UI Light", "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+}
+.h2 {
+	font-family: "Segoe UI Light", "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+}
+h1 {
+	font-family: "Segoe UI Light", "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+}
+h2 {
+	font-family: "Segoe UI Light", "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+}
+h2.screen-reader-text {
+	display: none;
+}
+h1.site-title {
+	font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif;
+}
+img {
+	height: auto; max-width: 100%;
+}
+img.alignright {
+	margin: 0px 0px 1em 1em; float: right;
+}
+img.alignleft {
+	margin: 0px 1em 1em 0px; float: left;
+}
+img.aligncenter {
+	margin-right: auto; margin-left: auto; display: block;
+}
+a img.alignright {
+	margin: 0px 0px 1em 1em; float: right;
+}
+a img.alignleft {
+	margin: 0px 1em 1em 0px; float: left;
+}
+a img.aligncenter {
+	margin-right: auto; margin-left: auto; display: block;
+}
+.clear-both {
+	clear: both;
+}
+.profile-usercard .profile-header {
+	height: auto !important;
+}
+.profile-usercard .profile-achievements-header {
+	height: auto !important; line-height: 1 !important; overflow: hidden !important; margin-bottom: 5px !important;
+}
+@media screen and (max-width:767px)
+{
+#secondary {
+	padding-left: 0px;
+}
+}
+#site-header-global {
+	margin-right: auto; margin-left: auto; max-width: 1180px;
+}
+#site-header-blog {
+	margin-right: auto; margin-left: auto; max-width: 1180px;
+}
+#site-header-image {
+	margin-right: auto; margin-left: auto; max-width: 1180px;
+}
+#site-info {
+	margin-right: auto; margin-left: auto; max-width: 1180px;
+}
+.icon-bar {
+	background: rgb(34, 34, 34);
+}
+#site-header-global {
+	min-height: 50px;
+}
+#header-microsoft-logo {
+	margin-top: 13px; margin-left: 15px; float: left;
+}
+#header-microsoft-logo img {
+	margin-right: 6px;
+}
+#site-logo {
+	margin: 0px; padding: 0px;
+}
+#site-header-global-right {
+	margin: 0px; padding: 0px;
+}
+#site-header-global button:focus {
+	outline-width: 5px; outline-color: rgb(77, 144, 254);
+}
+#search-form-wrapper {
+	display: inline-block; max-width: 40%;
+}
+#search-form {
+	padding-right: 0px; padding-left: 0px;
+}
+#search-form .form-control {
+	border-color: rgb(169, 169, 169);
+}
+#search-form .btn {
+	background: white; border-color: rgb(169, 169, 169); border-radius: 0px; color: gray; border-left-width: medium; border-left-style: none; box-shadow: none;
+}
+#search-form .btn:hover {
+	color: black;
+}
+#search-form .btn:active {
+	color: rgb(85, 85, 85);
+}
+#search-form :target.btn {
+	color: rgb(85, 85, 85);
+}
+#search-form .form-control {
+	box-shadow: none;
+}
+#search-option {
+	outline: 0px; width: 40%; text-align: left; color: rgb(0, 0, 0); font-size: 14px; display: none; position: absolute; z-index: 10000; background-color: rgb(255, 255, 255);
+}
+#search-option .search-filter {
+	cursor: pointer;
+}
+#search-option .search-filter:hover {
+	color: rgb(255, 255, 255); background-color: rgb(0, 114, 198);
+}
+#search-option .glyphicon-ok {
+	margin-left: 10px; visibility: hidden;
+}
+#search-option .search-text {
+	font-weight: normal; margin-left: 5px;
+}
+#search-option .selected .glyphicon-ok {
+	visibility: visible;
+}
+#search-option .selected .search-text {
+	font-weight: bold;
+}
+#header-microsoft-logo-svg {
+	width: 102px; height: 23px;
+}
+#blog-menu {
+	border-color: transparent;
+}
+#blog-menu .navbar-nav li a {
+	padding: 0px 15px; transition:0.5s ease-out; height: 70px; line-height: 70px; -webkit-transition: all ease-out .5s; -o-transition: all ease-out .5s; -moz-transition: all ease-out .5s;
+}
+#site-header .caret {
+	border: currentColor; border-image: none; width: 6px; height: 0.7em; overflow: visible; font-size: 15px; margin-top: 3px; margin-left: 0.3em; display: inline-block;
+}
+#site-header .caret::before {
+	width: 1em; height: 1em; line-height: 1.1; font-family: "shell-icons"; font-size: 6px; font-style: normal; font-weight: normal; display: block; content: "\e70d"; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+#blog-menu .dropdown-menu {
+	padding: 0px; border-radius: 0px; border: currentColor; border-image: none; box-shadow: none;
+}
+#blog-menu .dropdown-menu li a {
+	padding: 15px; height: auto; line-height: 1.6em; font-size: 16px;
+}
+#blog-menu .dropdown-menu li a:hover {
+	text-decoration: underline;
+}
+#blog-menu .dropdown-menu li a:focus {
+	background-color: transparent;
+}
+#brand {
+	color: rgb(51, 51, 51); line-height: 23px; font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif; font-size: 18px; float: right; white-space: nowrap;
+}
+#site-profile-menu {
+	padding: 0px; text-align: right; font-size: 0px; margin-top: 9px; margin-bottom: 6px;
+}
+#me-control {
+	border: 1px solid transparent; border-image: none; line-height: 34px; padding-right: 15px; padding-left: 15px; font-size: 14px; vertical-align: top; display: inline-block;
+}
+#me-control a {
+	border: 1px solid transparent; border-image: none; color: rgb(85, 85, 85); line-height: 34px; display: inline-block;
+}
+#logout {
+	margin-left: 10px;
+}
+#site-header-blog {
+	min-height: 70px; background-color: inherit;
+}
+#site-header-blog .navbar {
+	border: currentColor; border-image: none; margin-bottom: 0px; background-color: inherit;
+}
+#blog-logo-area {
+	padding-right: 15px; padding-left: 15px;
+}
+#blog-logo {
+	margin: 10px 0px; line-height: 50px; font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif; font-size: 0px; min-height: 50px;
+}
+#blog-logo p {
+	line-height: 1em;
+}
+#blog-logo a {
+	text-decoration: none; white-space: nowrap;
+}
+#blog-logo-image {
+	margin-right: 10px; vertical-align: middle; display: inline-block;
+}
+:empty#blog-logo-image {
+	margin-right: 0px;
+}
+#blog-logo-text {
+	margin: 10px 0px; vertical-align: middle; display: inline-block;
+}
+#blog-logo .for-mobile {
+	display: none;
+}
+#blog-logo-text .site-title {
+	font-size: 18px; margin-top: 0px; margin-bottom: 0px;
+}
+#blog-logo-text .site-description {
+	font-size: 14px; margin-top: 10px; margin-bottom: 0px;
+}
+#blog-logo-text :empty.site-description {
+	margin-top: 0px;
+}
+#blog-menu {
+	font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif; font-size: 15px; background-color: inherit;
+}
+#site-header-banner {
+	margin-right: auto; margin-left: auto; max-width: 1180px;
+}
+#site-header-widget {
+	margin-right: auto; margin-left: auto; max-width: 1180px;
+}
+#site-header-banner {
+	padding: 0px 15px;
+}
+#site-header-widget {
+	padding: 0px 15px;
+}
+#site-header-banner img {
+	margin: auto;
+}
+.page-header {
+	margin: 0px; height: 36px; color: rgb(85, 85, 85); padding-bottom: 0px;
+}
+.page-header > h1 {
+	margin: 0px; height: 24px; line-height: 24px; font-size: 18px;
+}
+.ms-blog-header {
+	color: white; background-color: rgb(51, 51, 51);
+}
+.ms-blog-header .ms-blog-logo img {
+	width: auto; max-height: 50px;
+}
+.ms-blog-header .ms-blog-title a {
+	color: inherit; background-color: inherit;
+}
+.ms-blog-header .ms-blog-description {
+	color: inherit; background-color: inherit;
+}
+.ms-blog-header .ms-blog-menu {
+	color: inherit; background-color: inherit;
+}
+.ms-blog-header .ms-blog-menu > li {
+	color: inherit; background-color: inherit;
+}
+.ms-blog-header .ms-blog-menu > li > a {
+	color: inherit; background-color: inherit;
+}
+.ms-blog-header .ms-blog-dropdown-menu {
+	color: inherit; background-color: inherit;
+}
+.ms-blog-header .ms-blog-description {
+	opacity: 0.75;
+}
+.ms-blog-header .ms-blog-menu > li.open > a {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-menu > li.active > a {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-menu > li.open > a:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-menu > li.active > a:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-menu > li.open > a:focus {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-menu > li.active > a:focus {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-dropdown-menu > li {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-dropdown-menu > li > a {
+	color: white;
+}
+.ms-blog-header .ms-blog-dropdown-menu > li > a:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+.ms-blog-header .ms-blog-menu > li > a:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+@media screen and (max-width:767px)
+{
+#header-microsoft-logo {
+	float: none;
+}
+#brand-name {
+	display: none;
+}
+#brand-separator {
+	display: none;
+}
+#site-header-blog {
+	min-height: 50px;
+}
+#blog-logo {
+	margin: 0px;
+}
+#blog-logo .for-desktop {
+	display: none;
+}
+#blog-logo .for-mobile {
+	display: inline-block;
+}
+#blog-logo .for-mobile.caret {
+	margin-left: 5px;
+}
+#blog-logo-image + .for-mobile.caret {
+	margin-left: -5px;
+}
+#blog-logo .for-mobile.caret::before {
+	font-weight: bold; margin-top: 3px;
+}
+.navbar-toggle {
+	margin-right: 5px; z-index: 10;
+}
+#search-form-wrapper {
+	float: none; max-width: none;
+}
+#site-header-global-right {
+	position: relative;
+}
+#search-form {
+	padding: 10px 15px;
+}
+#search-form .form-control {
+	border-color: white;
+}
+#search-form .btn {
+	border-color: white;
+}
+#search-option {
+	padding: 0px 15px; width: 100%; margin-top: -10px; background-clip: content-box;
+}
+#me-control {
+	padding: 0px 20px; float: none; display: block;
+}
+#me-control a {
+	margin: 0px; height: 48px; text-align: left; line-height: 48px; display: block;
+}
+#site-profile-menu {
+	margin: 0px; float: none; background-color: rgb(238, 238, 238);
+}
+#blog-menu {
+	box-shadow: none; -webkit-box-shadow: none;
+}
+#blog-menu .navbar-nav li a {
+	padding: 0px 20px; height: 46px; line-height: 46px;
+}
+#blog-menu .dropdown-menu li a {
+	padding: 0px 20px; color: white;
+}
+}
+#site-footer {
+	background: rgb(51, 51, 51); color: white; font-size: 13px; margin-top: 20px; min-height: 200px;
+}
+#site-info {
+	margin-top: 50px;
+}
+#footer-near {
+	
+}
+#footer-far {
+	margin-top: -24px;
+}
+#footer-microsoft-logo {
+	margin-top: 0px;
+}
+#footer-microsoft-logo-svg {
+	width: 105px; height: 24px;
+}
+#copyright {
+	margin-top: 2px; white-space: nowrap;
+}
+#footer-text a {
+	color: gainsboro;
+}
+#footer-text span {
+	margin-left: 16px; white-space: nowrap;
+}
+@media screen and (max-width:767px)
+{
+#footer-text {
+	margin-top: 20px;
+}
+#footer-far {
+	margin-top: 20px;
+}
+#footer-text {
+	margin-left: -16px;
+}
+}
+@media screen and (-ms-high-contrast:black-on-white)
+{
+#footer-microsoft-logo-svg g {
+	fill: black;
+}
+}
+#posts-query-type .filter-option {
+	margin-right: 20px;
+}
+#posts-query-type .filter-option a {
+	color: rgb(85, 85, 85); font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif; font-size: 18px;
+}
+#posts-query-type .selected.filter-option a {
+	border-bottom-color: rgb(85, 85, 85); border-bottom-width: 2px; border-bottom-style: solid;
+}
+#site-content {
+	margin-top: 20px; margin-right: auto; margin-left: auto; min-height: 768px; max-width: 1180px;
+}
+.entry-content {
+	overflow: hidden;
+}
+.entry-content p {
+	margin-bottom: 10px;
+}
+:not(.single).entry-content {
+	margin-bottom: -8px;
+}
+:not(.single).entry-content p {
+	margin-bottom: 18px;
+}
+h2.entry-title a {
+	color: rgb(74, 74, 74); font-family: "Segoe UI Light", "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif; font-size: 30px;
+}
+.post-thumbnail {
+	margin: 0px 1em 1em 0px; float: left;
+}
+.post-thumbnail-right-float {
+	margin-top: -1em; margin-right: -100000px; float: right;
+}
+.entry-footer {
+	font-size: 14px;
+}
+:not(.single).entry-footer {
+	clear: right;
+}
+.byline {
+	margin-left: 10px;
+}
+.posted-on-margin.posted-on {
+	margin-left: 10px;
+}
+.comments-link {
+	float: right;
+}
+.comments-link .glyphicon-comment {
+	font-size: 16px; margin-right: 3px; margin-left: 8px;
+}
+.comments-link a {
+	color: rgb(63, 63, 63); font-size: 18px;
+}
+#site-main .rating-wrap {
+	width: 70px; text-align: right; float: right; position: relative;
+}
+#site-main .rating-wrap .wds-ratings-stars {
+	top: 0px;
+}
+.pagination {
+	font-size: 18px;
+}
+.page-numbers {
+	padding-right: 10px;
+}
+@media screen and (max-width:767px)
+{
+:not(.single).entry-footer {
+	margin-top: 40px;
+}
+#site-main .rating-wrap {
+	clear: right; margin-top: -45px;
+}
+#site-content {
+	margin-top: 10px;
+}
+#primary {
+	padding: 0px;
+}
+.pagination {
+	font-size: 18px;
+}
+}
+.single.entry-header .entry-meta {
+	color: rgb(174, 174, 174); font-size: 13px;
+}
+#single-content .rating-wrap {
+	text-align: right; margin-bottom: 20px; float: right; position: relative;
+}
+#single-content .wds-ratings::before {
+	color: rgb(139, 139, 139); margin-right: 70px; white-space: nowrap; content: "Rate this article";
+}
+#single-content .rating-wrap .wds-ratings-stars {
+	left: 102px; top: -20px;
+}
+.social-icons-wrap {
+	font-size: 1.2rem; float: right;
+}
+.social-icons-wrap ul {
+	list-style: none; margin: 0px; padding: 0px; display: inline-block;
+}
+.social-icons-wrap li {
+	margin: 0px 6px 0px 0px; height: 28px; float: left; list-style-type: none; min-width: 60px;
+}
+.social-icons-wrap a {
+	padding: 0px 10px 0px 35px; color: rgb(255, 255, 255); line-height: 28px; text-decoration: none; display: block;
+}
+.social-icons-wrap .facebook {
+	background: url("images/icon-facebook-single.png") no-repeat 10px 50% rgb(83, 124, 190);
+}
+.social-icons-wrap .twitter {
+	background: url("images/icon-twitter-single.png") no-repeat 4px 50% rgb(118, 205, 240);
+}
+.social-icons-wrap .linkedin {
+	background: url("images/icon-linkedin-single.png") no-repeat 4px 50% rgb(14, 133, 201);
+}
+@media screen and (max-width:767px)
+{
+#single-content .rating-wrap {
+	float: left;
+}
+.social-icons-wrap {
+	margin: 20px 0px 10px; float: none; display: block;
+}
+}
+#comments {
+	margin-top: 10px;
+}
+.comments-title {
+	font-size: 18px;
+}
+#commentform textarea {
+	margin: 10px 0px; padding: 8px 0px; width: 100%;
+}
+#commentform .form-submit #submit {
+	float: right;
+}
+.comment-list .comment .avatar {
+	margin-right: 20px; float: left;
+}
+.comment-list .says {
+	display: none;
+}
+.comment-list .comment-meta {
+	
+}
+.comment-list {
+	padding-left: 0px;
+}
+.comment-list {
+	margin: 0px; list-style-type: none;
+}
+.comment-list .children {
+	margin: 0px; list-style-type: none;
+}
+.comment-list .children {
+	padding-left: 76px;
+}
+.comment-list > .comment {
+	padding-bottom: 5px; border-bottom-color: rgb(236, 236, 236); border-bottom-width: 1px; border-bottom-style: solid;
+}
+.comment-list .comment {
+	margin-top: 10px;
+}
+.comment-list .comment-body > *:not(.comment-author) {
+	margin-left: 76px;
+}
+.comment-list p {
+	-ms-word-wrap: break-word;
+}
+#sidebar-widget-area {
+	margin-left: 10px;
+}
+#sidebar-widget-area ul {
+	padding-left: 18px;
+}
+#sidebar-widget-area .msdn-archive-widget li {
+	list-style-type: none;
+}
+#me-control {
+	position: relative;
+}
+#l_profile_link {
+	background: rgb(61, 61, 61); transition:right 0.3s, opacity 0.3s, z-index 0.3s; right: -30px; padding-top: 0px; padding-bottom: 0px; position: absolute; z-index: -1; opacity: 0; -webkit-transition: right 0.7s, opacity 0.7s, z-index 1s;
+}
+#current_user {
+	display: inline;
+}
+#current_user:hover #l_profile_link {
+	right: -36px; z-index: 10; opacity: 1;
+}
+#l_profile_link a {
+	color: white; line-height: 34px; font-size: 14px; font-weight: normal;
+}
+#comments label {
+	font-weight: normal;
+}
+.widget-title {
+	font-family: "Segoe UI", Tahoma, Arial, "Helvetica Neue", Helvetica, Sans-Serif; font-size: 18px;
+}
+.widget_tag_cloud a {
+	padding: 2px 10px; color: black; margin-right: 4px; margin-bottom: 8px; display: inline-block; background-color: rgb(221, 221, 221);
+}
+.screen-reader-shortcut {
+	top: -1000em; position: absolute;
+}
+.screen-reader-shortcut:focus {
+	padding: 20px; left: 20px; top: 30px; position: fixed; z-index: 1; background-color: white;
+}
+@media screen and (max-width:767px)
+{
+#sidebar-widget-area {
+	margin-left: 0px;
+}
+}

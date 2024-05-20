@@ -1,0 +1,42 @@
+ DAYS SINCE VERNAL EQUINOX:   320.
+Zenith Celestial Coordinates::RA:   4.90 Dec:  38.87
+Sirius                 29.93
+Canopus                -2.28
+Alpha Centauri        -60.58
+Vega                   -8.86
+Capella                81.74
+Arcturus              -21.10
+Rigel                  43.10
+Procyon                39.79
+Achernar              -14.21
+Betelgeuse             55.67
+Hadar                 -56.23
+Altair                -27.09
+Antares               -75.72
+Aldebaran              67.29
+Pollux                 53.04
+Spica                 -35.90
+Regulus                16.33
+Deneb                   8.39
+Fomalhaut             -16.73
+Mimosa                -46.75
+Acrux                 -44.25
+Castor                 56.83
+Mirfak                 70.66
+Dubhe                  32.51
+Peacock               -51.58
+Polaris                39.46
+Alpheratz              31.45
+Rasalhague            -37.70
+Denebola               -1.21
+Hamal                  51.52
+Suhail                 -9.69
+Alphard                11.80
+Alphecca              -21.84
+Mirach                 45.92
+Caph                   41.83
+Scheat                 18.92
+Navi                   47.85
+Algenib                24.74
+Albireo               -13.84
+Mizar                  13.98

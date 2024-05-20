@@ -1,0 +1,11 @@
+Function fnUptime(strComputer) 
+    Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2") 
+    Set colOperatingSystems = objWMIService.ExecQuery("Select * from Win32_OperatingSystem") 
+    For Each objOS in colOperatingSystems 
+        dtmBootup = objOS.LastBootUpTime 
+        dtmLastBootupTime = WMIDateStringToDate(dtmBootup) 
+        dtmSystemUptime = DateDiff("n", dtmLastBootUpTime, Now)        'uptime in minutes 
+    Next 
+     
+    timeConversion(dtmSystemUptime)        'convert to days, hours, & minutes 
+End Function 

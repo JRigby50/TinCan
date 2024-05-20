@@ -1,0 +1,82 @@
+<head>
+<title>Proxy</title>
+<HTA:APPLICATION 
+     APPLICATIONNAME="Proxy Enable or Disable"
+     SCROLL="no"
+     Icon = "proxy_server.ico"
+     SINGLEINSTANCE="yes"
+     WINDOWSTATE="normal"
+>
+</head>
+<script language="VBscript">
+  window.resizeTo 300,200
+</script>
+        
+<script language="VBScript">
+'Version 2 will now inform you if it is enabled or disabled
+'http://jbrekhus.googlepages.com/
+Sub Window_onLoad
+Set objShell = CreateObject( "WScript.Shell" )
+DimSetting = objShell.RegRead ("HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyEnable")
+'Wscript.Echo DimSetting
+If DimSetting = 1 Then 
+'Wscript.Echo "Proxy is Enabled"
+DataArea.InnerHTML = "Proxy is Currently Enabled"    
+Else 
+'Wscript.Echo "Proxy is Disable"
+DataArea.InnerHTML = "Proxy is Currently Disabled"   
+End If
+End Sub
+
+Sub YES
+Const HKEY_CURRENT_USER = &H80000001
+
+strComputer = "."
+Set objRegistry = GetObject("winmgmts:\\" & strComputer & "\root\default:StdRegProv")
+ 
+strKeyPath = "SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
+
+strValueName = "ProxyEnable"
+dwValue = 1
+objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath, strValueName, dwValue
+window.close()
+
+
+End Sub
+
+Sub NO
+Const HKEY_CURRENT_USER = &H80000001
+
+strComputer = "."
+Set objRegistry = GetObject("winmgmts:\\" & strComputer & "\root\default:StdRegProv")
+ 
+strKeyPath = "SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
+
+strValueName = "ProxyEnable"
+dwValue = 0
+objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath, strValueName, dwValue
+window.close()
+
+End Sub
+
+</script>
+
+<body>
+<p align="center">
+
+
+</script>
+<p align="center"> <span id = "DataArea"></span> </p> 
+
+
+
+<p align="center"> 
+
+
+
+<input style="WIDTH: 91; HEIGHT: 28" type="button" value="Enable" name="run_button"  onClick="YES"></p>
+<p align="center"><input style="WIDTH: 95; HEIGHT: 28" type="button" value="Disable" name="run_button"  onClick="NO">
+
+</p>
+
+</body>

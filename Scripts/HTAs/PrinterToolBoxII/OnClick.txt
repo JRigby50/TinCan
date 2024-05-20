@@ -1,0 +1,53 @@
+Following on the approach in my previous post, I added a hidden control to the bottom of your display.htm document and changed the subroutine in that document a little ...
+
+<html><head><title>Print Queue Monitor</title>
+<script language=VBScript>
+Sub GetData
+  HiddenTextControl.Value = Window.Event.SrcElement.innerText
+  MsgBox "In Frame: " & HiddenTextControl.Value
+  HiddenTextControl.click
+End Sub
+
+
+</script>
+</head>
+<body><table border="1"width="900"id="table1"><th><font color=blue font face=arial font size="1">Web</font></th>
+<th><font color=blue font face=arial font size="2">Queue</font></th><th><font color=blue font face=arial font size="2">Port</font></th><th><font color=blue font face=arial font size="2">Status</font></th><th><font color=blue font face=arial font size="2">Jobs</font></th><th><font color=blue font face=arial font size="2">Driver</font></th></tr>
+
+<tr><td><font face=arial font size="2"><a href="http://192.168.0.2" target="blank">W</a href></font></td>
+
+<td><font face=arial font size="2"><a href="#" onclick="GetData">Dell 1700N</a></font></td>
+
+<td><font face=arial font size="2">IP_192.168.0.2</font></td><td><font face=arial font size="2">Ready</font>
+</td><td><font face=arial font size="2">0</font></td>
+<td><font face=arial font size="2">Dell Laser Printer 1700n PS3</font></td></tr>
+</font></table>
+  <input type=hidden id=HiddenTextControl name=HiddenTextControl>
+</body></html>
+
+Then in your main HTA I setup a trap for the Click event on the hidden control, something like this ...
+
+
+
+<script language=vbs>
+Dim oDoc
+sub window_onload
+
+  set oDoc = display.document
+  set oDoc.all.HiddenTextControl.onclick = getRef("GetData")
+end sub
+sub GetData()
+  sText = oDoc.all.HiddenTextControl.Value
+  msgBox "In Main: " & sText
+end sub
+
+</script>
+
+
+Just put the retrieved text into whatever control in the main page that you desire.  (I couldn't find a control named SelectQueue on the page you posted).
+
+--------------------------------------------------------------------------------
+Tom Lavedas
+
+Edited byTom LavedasMicrosoft Community Contributor, ModeratorThursday, June 09, 2011 2:29 PMto fix a tiny typo
+Marked As Answer byIamMredMicrosoft Employee, Owner9 hours 42 minutes ago

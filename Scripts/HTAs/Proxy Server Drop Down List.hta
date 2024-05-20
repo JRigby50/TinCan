@@ -1,0 +1,166 @@
+<html>
+<head>
+<title>Proxy Changer</title>
+
+<HTA:APPLICATION
+     ID="objProxyset"
+     APPLICATIONNAME="Proxy Changer"
+     SCROLL="no"
+     SINGLEINSTANCE="yes"
+     MAXIMIZEBUTTON="no"
+
+>
+</head>
+
+<SCRIPT Language="VBScript">
+
+Const HKEY_CURRENT_USER = &H80000001
+strComputer = "."
+Set objRegistry = GetObject("winmgmts:\\" & strComputer & "\root\default:StdRegProv")
+  strKeyPath1 = "SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
+  strKeyPath2 = "SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Connections"
+  strKeyPath3 = "SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings"
+
+  strValueName4 = "EnableAutoproxyResultCache"' this makes sure the proxy cache is disabled
+  dwValue2 = 0                                ' during every start up.
+  objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath3, strValueName4, dwValue2
+
+ Sub Window_onLoad
+        window.resizeTo 250,100
+        RefreshList
+        iTimerID = window.setInterval("RefreshList", 5000)
+  End Sub
+
+ Sub pjob
+  If OptionChooser.Value = "CorpProxy" then
+    CorpProxy()
+  End If
+  If OptionChooser.Value = "Proxy01" then
+    Proxy07()
+  End If
+  If OptionChooser.Value = "Proxy02" then
+    Proxy08()
+  End If
+  If OptionChooser.Value = "Proxy03" then
+    Proxy09()
+  End If
+ End Sub
+
+ Sub CorpProxy
+  strValueName1 = "ProxyEnable"
+  dwValue1 = 0
+  objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath1, strValueName1, dwValue1
+
+  strValueName2 = "ProxyServer"
+  strValue1 = ""
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName2, strValue1
+
+  strValueName3 = "ProxyOverride"
+  strValue2 = "<local>"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName3, strValue2
+
+  strValueName5 = "DefaultConnectionSettings"
+'  arrValues = Array(What to put in here takes a little work, for the corporate_
+'  proxy information, goto the registry key listed for this piece and export the_
+'  existing information (While corporate proxy is in place, then copy only the_
+'  binary data out to a comma delimited text file (this will be Hex info), then_
+'  import that info into Excel and convert to Decimal, use the Decimal info and_
+'  place into this array area, it will be about 30 lines of Decimal numbers if correct)
+'  objRegistry.SetBinaryValue HKEY_CURRENT_USER,strKeyPath2,strValueName5,arrValues
+
+ End Sub
+
+ Sub Proxy01
+  strValueName1 = "ProxyEnable"
+  dwValue1 = 1
+  objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath1, strValueName1, dwValue1
+
+  strValueName2 = "ProxyServer"
+  strValue1 = "Proxy01:80"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName2, strValue1
+
+  strValueName3 = "ProxyOverride"
+  strValue2 = "<local>"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName3, strValue2
+
+  strValueName5 = "DefaultConnectionSettings"
+'  arrValues = Array(For this information, this time open IE and enter the proxy_
+'  information you want then goto the registry key listed for this piece and export the_
+'  existing information (While corporate proxy is in place, then copy only the_
+'  binary data out to a comma delimited text file (this will be Hex info), then_
+'  import that info into Excel and convert to Decimal, use the Decimal info and_
+'  place into this array area, it will be about 30 lines of Decimal numbers if correct)
+'  objRegistry.SetBinaryValue HKEY_CURRENT_USER,strKeyPath2,strValueName5,arrValues
+
+ End Sub
+
+ Sub Proxy02
+  strValueName1 = "ProxyEnable"
+  dwValue1 = 1
+  objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath1, strValueName1, dwValue1
+
+  strValueName2 = "ProxyServer"
+  strValue1 = "Proxy02:80"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName2, strValue1
+
+  strValueName3 = "ProxyOverride"
+  strValue2 = "<local>"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName3, strValue2
+
+  strValueName5 = "DefaultConnectionSettings"
+'  arrValues = Array(For this information, this time open IE and enter the proxy_
+'  information you want then goto the registry key listed for this piece and export the_
+'  existing information (While corporate proxy is in place, then copy only the_
+'  binary data out to a comma delimited text file (this will be Hex info), then_
+'  import that info into Excel and convert to Decimal, use the Decimal info and_
+'  place into this array area, it will be about 30 lines of Decimal numbers if correct)
+'  objRegistry.SetBinaryValue HKEY_CURRENT_USER,strKeyPath2,strValueName5,arrValues
+
+ End Sub
+
+ Sub Proxy03
+  strValueName1 = "ProxyEnable"
+  dwValue1 = 1
+  objRegistry.SetDWORDValue HKEY_CURRENT_USER, strKeyPath1, strValueName1, dwValue1
+
+  strValueName2 = "ProxyServer"
+  strValue1 = "Proxy03:80"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName2, strValue1
+
+  strValueName3 = "ProxyOverride"
+  strValue2 = "<local>"
+  objRegistry.SetStringValue HKEY_CURRENT_USER, strKeyPath1, strValueName3, strValue2
+
+  strValueName5 = "DefaultConnectionSettings"
+'  arrValues = Array(For this information, this time open IE and enter the proxy_
+'  information you want then goto the registry key listed for this piece and export the_
+'  existing information (While corporate proxy is in place, then copy only the_
+'  binary data out to a comma delimited text file (this will be Hex info), then_
+'  import that info into Excel and convert to Decimal, use the Decimal info and_
+'  place into this array area, it will be about 30 lines of Decimal numbers if correct)
+'  objRegistry.SetBinaryValue HKEY_CURRENT_USER,strKeyPath2,strValueName5,arrValues
+
+ End Sub
+
+ Sub RefreshList
+       strHTML = "Currently " & OptionChooser.Value
+       Crawler.InnerHTML = strHTML
+ End Sub
+
+</SCRIPT>
+
+<body STYLE="font:12 pt arial; color:Silver;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=1, StartColorStr='#00AFFF', EndColorStr='#00000F')">
+
+  <select size="1" name="OptionChooser" onChange="pjob">
+  <option value="CorpProxy">CorpProxy</option>
+  <option value="Proxy01">Proxy01</option>
+  <option value="Proxy02">Proxy02</option>
+  <option value="Proxy03">Proxy03</option>
+  </select>
+
+  <marquee id="Crawler" loop="1" scrollAmount="3"></marquee>
+
+</body>
+</html>

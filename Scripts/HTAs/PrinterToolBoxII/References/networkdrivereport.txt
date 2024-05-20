@@ -1,0 +1,219 @@
+'NETWORKDRIVEREPORT.VBS
+'v1.2 
+'v1.0 October 2001
+'modified July 2002 to add send mail feature
+'modified May 2004 with additional documentation
+
+'Jeffery Hicks
+'jhicks@jdhitsolutions.com		http://www.jdhitsolutions.com
+'USAGE:  CSCRIPT NETWORKDRIVEREPORT.VBS
+'DESC: Generate an HTML page showing free space in color-coded graphical format 
+'of logical drives from a text list of servers.
+
+'NOTES:  The target servers must be running Windows 2000/2003 or if NT, have the WMI 
+'core installed.  You must run this script under a domain admin account.
+
+'The server list should look like (without the apostrophe):
+'server01
+'dc1
+'file23
+
+'There is an option to mail the report as well.  By default the line calling the
+'routine is disabled.  You need to run the script on a server with SMTP installed
+'in order for this to work.  You might run to run this as a scheduled task on a server
+'on a weekly basis and email the report, or create it in an IIS virtual directory.
+
+'You are better off using cscript to run this.
+
+' License ::
+
+' Copyright 2004 JDH Information Technology Solutions, Inc. 
+' This program is free software; you can redistribute it and/or modify 
+' it under the terms of the GNU General Public License as published by 
+' the Free Software Foundation; either version 2 of the License, or 
+' (at your option) any later version. 
+' This program is distributed in the hope that it will be useful, 
+' but WITHOUT ANY WARRANTY; without even the implied warranty of 
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+' GNU General Public License for more details at HTTP://www.gnu.org/licenses/gpl.txt 
+
+' ********************************************************************************* 
+' * DO NOT USE IN A PRODUCTION ENVIRONMENT UNTIL YOU HAVE TESTED IN A SECURED LAB * 
+' * ENVIRONMENT. USE AT YOUR OWN RISK. 											  * 
+' ********************************************************************************* 
+
+
+Dim objService,objLocator
+Dim fso, f,f1
+Dim wshNet
+
+On Error Resume Next
+
+'YOU MUST SPECIFY THE FOLLOWING VARIABLES 
+
+'where do you want the file saved
+htmFile="\\JDHIT-DC01\public\ServerFreeSpaceReport.htm"
+
+'This is a text list of server names.  Do not use \\ before the server name
+serverlist="servers.txt"
+
+Const myGreen="008000"
+Const myRed="FF0000"
+Const myYellow="FFD700"
+
+set wshNet=CreateObject("wscript.network")
+Set fso=CreateObject("Scripting.FileSystemObject")
+Set f=fso.CreateTextFile(htmFile)
+Set f1=fso.OpenTextFile(serverlist,1)
+
+f.WriteLine "<HTML><HEAD><TITLE>Server Logical Drive Utilization</TITLE></HEAD>"
+'f.WriteLine "<BODY BGCOLOR=" & CHR(34) & "FFFFF" & CHR(34)& ">"
+f.WriteLine "<BODY BGCOLOR=FFFFF>"
+f.WriteLine	"<H1>Server Utilization Report</H1></P>"
+
+Do While f1.AtEndOfStream<>True
+strServer=f1.ReadLine
+
+ If strServer<>"" Then
+ wscript.Echo "Checking " & strServer
+'reinitialize
+    PerFree=""
+	Graph=""
+	Size=""
+	Free=""
+
+ f.WriteLine "<BR>" & UCASE(strServer) & " Drive Utilization<BR><HR>"
+
+'Create locator
+    Set objLocator = CreateObject("WbemScripting.SWbemLocator")
+    If Err.Number then
+	 f.WriteLine "Error " & err.number & " [0x" & CStr(Hex(Err.Number)) & "] occurred in creating a locator object.<BR>"
+	  If Err.Description <> "" Then
+            f.WriteLine "Error description: " & Err.Description & ".</p>"
+      End If
+        Err.Clear
+     End If
+
+	'Connect to the namespace which is either local or remote
+	'Uncomment next line for debugging
+	'wscript.echo "Connecting to " & "("&strServer&",root\cimv2)"
+
+ Set objService = objLocator.ConnectServer (strServer,"root\cimv2")
+ObjService.Security_.impersonationlevel = 3
+  If Err.Number then
+	f.WriteLine "Error " & err.number & " [0x" & CStr(Hex(Err.Number)) &"] occurred in connecting to server " & UCASE(strServer) & ".<BR>"
+	f.WriteLine "Make sure you are using valid credentials that have administrative rights on this server.</P>"
+        If Err.Description <> "" Then
+            f.WriteLine "Error description: " & Err.Description & ".</P>"
+        End If
+        Err.Clear
+   Else
+   
+ 	f.WriteLine "<Table Border=0 CellPadding=5>"
+ 	For Each item In objService.InstancesOf("Win32_LogicalDisk")
+	 	If item.DriveType=3 Then 	'get local drives only
+			PerFree=FormatPercent(item.FreeSpace/item.Size,2)
+			Graph=FormatNumber((item.Freespace/1048576)/(item.Size/1048576),2)*100
+			Size=FormatNumber(item.Size/1048576,0) & " MB"
+			Free=FormatNumber(item.FreeSpace/1048576,0) & " MB"
+	
+			f.WriteLine "<TR>"
+			f.WriteLine "<TD>" &item.DeviceID & "\ </TD>"
+			f.WriteLine "<TD>Size: " & Size & "</TD>"
+			f.WriteLine "<TD>Free: " & Free & "</TD>" 
+			'f.WriteLine "<TD><B><Font Size=+1 Color=" & CHR(34) & GraphColor(graph) & CHR(34) & ">" & String(Graph,"|") & "</Font></B></TD>"
+			f.WriteLine "<TD><B><Font Size=+1 Color=" & GraphColor(graph) & ">" & String(Graph,"|") & "</Font></B></TD>"
+			f.WriteLine "<TD>" & PerFree & " Free</TD></TR>"
+	    End If
+Next
+	f.WriteLine "</Table>"
+	End If
+ End If
+Loop
+f1.Close
+
+f.WriteLine("</P><Font Size=-1><B><I> Created " & NOW & " by " & wshNet.UserName & "</I></B></Font>")
+f.WriteLine("</BODY></HTML>")
+
+f.Close
+
+'comment out the next line if you will run this unattended
+wscript.Echo VBCRLF & "See " & htmfile & " for results"
+
+'uncomment the next line if you want to send the report.
+'SendMail
+
+Set f=Nothing
+Set f1=Nothing
+Set fso=Nothing
+Set objService=Nothing
+Set objLocator=Nothing
+
+wscript.quit
+
+
+'**********************************
+'*  Send email copy of report     *
+'**********************************
+Sub SendMail()
+On Error Resume Next
+'You must have SMTP installed on the workstation or server executing this script in 
+'order for mail to work.
+
+dim oMsg,fso,file
+
+CONST strFile="\\JDHIT01\web\freespacereport.htm"
+set oMsg=CreateObject("CDO.Message")
+set fso=CreateObject("Scripting.FileSystemObject")
+set file=fso.OpenTextFile(strFile,1)
+oMsg.To	="jhicks@jdhitsolutions.com"
+oMsg.Subject="JDHIT Free Space Report"
+oMsg.From= "NetworkGuardian@JDHITSolutions.com"
+
+do while file.AtEndOfStream<>True
+	oMsg.HTMLBody=oMsg.HTMLBody & file.ReadLine
+Loop
+file.Close
+
+oMsg.Send
+'uncomment the following section if running interactively
+' if err.number<>0 Then
+'  wscript.echo "Failed to send report by email to " & oMsg.To
+' else
+'  wscript.echo "Successfully mailed report to "  & oMsg.To
+' end if
+
+set oMsg=Nothing
+set fso=Nothing
+set file=Nothing
+
+End Sub
+
+'**********************************
+'*  Set color for graph function  *
+'*   depending on free space      *
+'**********************************
+Function GraphColor(graph)
+On Error Resume Next
+	If Graph > 30 Then
+	 GraphColor=myGreen
+	 Exit Function
+	End If
+	If Graph < 10 Then
+	 GraphColor=myRed
+	Else
+	 GraphColor=myYellow
+	End If
+End Function
+
+'**********************************
+'*  Check Response subroutine     *
+'**********************************
+Sub CheckResponse(response)
+	If response="" Then
+		wscript.Echo "You didn't enter anything in the last input box or you cancelled the script."
+		wscript.Quit
+	End If		
+End Sub
+
+'EOF

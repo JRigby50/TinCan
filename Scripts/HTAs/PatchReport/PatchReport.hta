@@ -1,0 +1,369 @@
+<HTML xmlns:IE>
+<HEAD>
+<TITLE>Patch Report</TITLE>
+<HTA:APPLICATION
+  APPLICATIONNAME="Patch Report"
+  ID="PatchReport"
+  VERSION="1.0"
+  ICON="clock.ico"
+  SCROLL="no"/>
+
+<STYLE>
+@media all
+{
+	IE\:Calendar { behavior : url(calendar.htc) }
+}
+</STYLE>
+
+</HEAD>
+
+<SCRIPT LANGUAGE="VBScript">
+'***************************************************************************************
+'This HTA Is designed to retrieve a list of Patches from each server in servers.txt and
+'then translate the KB number to the appropriate MS number.  The Translation table is generated
+'by checking the WSUS repository which seperates the patches into folders by MS number.
+'An iterative search through this folder structure is used to build the Excel Worksheet used
+'In a VLOOKUP formula.
+'Written by Jim Rigby and released on April 18, 2011.
+'Question or Comments; james.rigby@ngc.com
+'***************************************************************************************
+Option Explicit
+Dim strReportName, strDate
+Dim dtmThisDay, strThisDay, dtmThisMonth, strThisMonth, dtmThisYear, strThisYear, strMonthName, strFileName, strFileNames, strPath
+Const ForReading = 1
+Const ForWriting = 2
+Dim f, i, x, y, z
+dtmThisDay = Day(Date)
+strThisDay = "" & dtmThisDay
+dtmThisMonth = Month(Date)
+strThisMonth = "" & dtmThisMonth
+	If Len(strThisMonth) <> 2 Then
+	strThisMonth = "0" & strThisMonth
+	End If
+strMonthName = MonthName(dtmThisMonth)
+dtmThisYear = Year(Date)
+strThisYear = "" & dtmThisYear
+strReportName =  "_" & dtmThisMonth & "_" & dtmThisDay & "_" & dtmThisYear
+'**************************************************************************
+Sub Report()
+Dim objDictionary, objTextFile, objServerList, StrNextLine, objItem, arrInstalledOn, objRange, objRange2
+Dim colFiles, objKBtoMSFile, objFile, strExcelPath, strMonth, strYear, strDelete, strStatus
+Dim objFSO, strFolder, objExcel, objBaseFolder, objSubFolder, objFolder, strSubF, strMSNumber, objSheet, strExcelVer, str2007, strExt
+Dim bolResponse, bolPatch
+Dim arrKBClean, arrKBs, strKBName, strServer, strHotFixID, strInstalledOn, strLine, arrLine, ObjWMIService, colQuickFixes, objQuickFix
+strStatus = "Getting a list of the patches for " & strMonthName & ", " & dtmThisYear & " and creating the KB to MS Number LookUp Table for Excel."
+HTAStatus.InnerHTML = strStatus
+HTASleep(1)
+'Create Temp .csv of MS to KB
+Set objFSO = CreateObject("Scripting.Filesystemobject") 'WScript.
+Set objKBtoMSFile = objFSO.CreateTextFile("KBtoMS.csv", ForWriting)
+'objKBtoMSFile.WriteLine "KB Name, MS Number"
+'Connect To WSUS MSupdates Share and Cycle through the Sub Directories for this Months Patches
+strFolder = strThisYear & "-" & strThisMonth & "-" & strMonthName
+On Error Resume Next
+Set objBaseFolder= objFSO.GetFolder("\\rcltx1-cpci5\MSupdates\" & strFolder)
+	If Err <> 0 Then
+	strStatus = " No Patches for " & strMonthName & ", " & strThisYear & " exist in the MSupdates Folder."
+	HTAStatus.InnerHTML = strStatus
+	HTASleep(1)
+	Exit Sub
+	End If
+For Each objSubFolder in objBaseFolder.SubFolders
+strFileNames = ""
+strSubF = objSubFolder.Name
+	Set objSubFolder= objFSO.GetFolder("\\rcltx1-cpci5\MSupdates\" & strFolder & "\" & objSubFolder.Name)
+		Set colFiles = objSubFolder.Files
+			For Each objFile In colFiles
+			strFileNames = strFileNames & objFile.Name & "," 
+			Next
+		strFileNames = Left(strFileNames,(Len(strFileNames)-1) )
+	arrKBClean = Cleanup(strFileNames)
+	arrKBs = Sort(arrKBClean)
+	For Each strKBName In arrKBs
+		If strKBName <> "" Then
+		objKBtoMSFile.WriteLine strKBName & "," & strSubF 
+		End If
+	Next
+Next
+objKBtoMSFile.Close
+'Create a dictionary of servers to query
+strStatus = "Getting a list of the Servers for this Report."
+HTAStatus.InnerHTML = strStatus
+HTASleep(1)
+Set objDictionary = CreateObject("Scripting.Dictionary")
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objTextFile = objFSO.CreateTextFile ("Patches.csv", True)
+objTextFile.Writeline "Server, HotFixID, Installed On"
+Set objServerList = objFSO.OpenTextFile ("Servers.txt", ForReading)
+i = 0
+z = 0
+Do until ObjServerList.AtEndOfStream
+	strNextLine = ObjServerList.Readline
+	ObjDictionary.Add i, StrNextLine
+	i = i + 1
+Loop
+objServerList.Close
+strStatus = "Now Querying the Servers for Patch info."
+HTAStatus.InnerHTML = strStatus
+HTASleep(1)
+
+'Query each server and create a .cvs file of Patches installed this month
+For Each objItem in objDictionary
+On Error Resume Next
+	strServer = ObjDictionary.Item(objItem)
+HTAStatus.InnerHTML = "Querying " & strServer
+HTASleep(1)
+	z=0
+	Set ObjWMIService = GetObject ("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strServer & "\root\cimv2")
+	If Err <> 0 Then
+		bolResponse = False
+		objTextFile.WriteLine strServer & ",This server is not responding., Error: " & Err
+		Err.Clear
+	Else
+		bolResponse = True
+		bolPatch = False
+		Set colQuickFixes = objWMIService.ExecQuery ("Select * From Win32_QuickFixEngineering")
+			For Each objQuickFix in colQuickFixes
+			On Error Resume Next
+				strInstalledOn = ObjQuickFix.InstalledOn
+				If strInstalledOn <> "" Then
+				arrInstalledOn = Split(strInstalledOn, "/")
+				strMonth = arrInstalledOn(0)
+					If Len(strMonth) <> 2 Then
+					strMonth = "0" & strMonth
+					End If
+				strYear = arrInstalledOn(2)
+					If strMonth = strThisMonth AND strYear = strThisYear Then
+					bolPatch = True
+						If ObjQuickFix.HotFixID = "File 1" Then
+						Else
+						z = z + 1
+						objTextFile.WriteLine strServer & ","  & ObjQuickFix.HotFixID & "," & ObjQuickFix.InstalledOn
+						End If
+					End If
+				End If
+			Next
+	End If
+	If bolPatch = False AND bolResponse = True Then
+	objTextFile.WriteLine strServer & ",None this Month"
+	End If
+Next
+objTextFile.Close
+'Parses a text file and writes the data to a Microsoft Excel spreadsheet. 
+Err.Clear
+Set objExcel = CreateObject("Excel.Application")
+	If Err.Number <> 0 Then
+	wscript.echo "Excel application not found."
+	Wscript.Quit
+	End If
+strExcelVer=objExcel.Application.Version
+str2007 = "12.0"
+	If strExcelVer = str2007 Then
+	strExt = ".xlsx"
+	Else
+	strExt = ".xls"
+	End If
+objExcel.Visible = False
+objExcel.Workbooks.Add()
+do while objExcel.Worksheets.Count > 2
+objExcel.Worksheets(objExcel.Worksheets.Count).Delete ' Delete initial blank Sheet(s)
+Loop
+Set objSheet = objExcel.ActiveWorkbook.Worksheets(2)
+objSheet.Select
+objSheet.Name = "KB to MS"
+'objSheet.Range("A1:B1").Font.Bold = True
+objSheet.Columns(1).ColumnWidth = 20
+objSheet.Columns(2).ColumnWidth = 30
+objSheet.Range("B3").Select
+Set objFile = objFSO.OpenTextFile("KBtoMS.csv", ForReading)
+x = 1 
+Do Until objFile.AtEndOfStream
+     strLine = objFile.ReadLine
+     arrLine = Split(strLine, ",")
+     strKBName = arrLine(0)
+     strMSNumber = arrLine(1)
+     objSheet.Cells(x, 1) = strKBName
+     objSheet.Cells(x, 2) = strMSNumber
+     x = x + 1
+Loop
+objSheet.Cells(x, 1) = "None this Month"
+objSheet.Cells(x, 2) = "-"
+x = x + 1
+objSheet.Cells(x, 1) = "This server is not responding."
+objSheet.Cells(x, 2) = "-"
+objFile.Close
+
+Set objRange = objSheet.UsedRange 
+Set objRange2 = objExcel.Range("A1") 
+objRange.Sort(objRange2)
+
+Set objSheet = objExcel.ActiveWorkbook.Worksheets(1)
+objSheet.Select
+objSheet.Name = "Servers"
+objSheet.Range("A1:D1").Font.Bold = True
+objSheet.Columns(1).ColumnWidth = 30
+objSheet.Columns(2).ColumnWidth = 30
+objSheet.Columns(3).ColumnWidth = 15
+objSheet.Columns(4).ColumnWidth = 11
+objSheet.Cells(1,4).value = "MS Number"
+Set objFile = objFSO.OpenTextFile("Patches.csv", ForReading)
+y = 1
+Do Until objFile.AtEndOfStream
+	strLine = objFile.ReadLine
+	arrLine = Split(strLine, ",")
+	strServer = arrLine(0)
+	strHotFixID = arrLine(1)
+	strInstalledOn = arrLine(2)
+	objSheet.Cells(y, 1) = strServer
+	objSheet.Cells(y, 2) = strHotFixID
+	objSheet.Cells(y, 3) = strInstalledOn
+	y = y + 1
+Loop
+For f = 2 To (y -1)
+objSheet.Cells(f,4).value = "=VLOOKUP(B" & f & ",'KB to MS'!A1:B" & x & ",2)"
+Next
+objKBtoMSFile.Close
+' Save the spreadsheet and close the workbook.
+strExcelPath = GetPath() & "Patches as of" & strReportName & strExt 
+objExcel.ActiveWorkbook.SaveAs strExcelPath
+objExcel.ActiveWorkbook.Close
+objFile.Close
+' Quit Excel.
+objExcel.Application.Quit
+' Clean up temp files
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+'objFSO.DeleteFile("Patches.csv")
+'objFSO.DeleteFile("KBtoMS.csv")
+strStatus = "Patch Report for " & strMonthName & ", " & strThisYear & " Completed"
+HTAStatus.InnerHTML = strStatus
+HTASleep(1)
+End Sub
+'***************************************************************************************
+Sub Calendar_OnPropertyChange()
+	Dim strDate
+	strDate = DateSerial(Calendar.Year,Calendar.Month,Calendar.Day)
+	myLongDate.Value = FormatDateTime( strDate, vbLongDate )
+End Sub
+
+Sub TodayButton_OnClick
+	Calendar.Year  = Year(Now )
+	Calendar.Month = Month(Now)
+	Calendar.Day   = Day(Now)
+End Sub
+
+Function Cleanup(strRaw)
+' Takes in a Raw string of file names and returns an array of kb names.
+Dim arrDecode, arrTemp, i, k, strElement, arrKB()
+i=1
+arrTemp = Split(strRaw, ",")
+For Each strFileName In arrTemp
+	arrDecode = Split(strFileName, "-")
+	' Ignore everything except the KB
+	For Each strElement In arrDecode
+		If Left(strElement, 2) = "KB" Or Left(strElement, 2) = "kb" Then
+			If InStr(strElement, ".exe") Then
+			strElement = Replace(strElement, ".exe", "")
+			End If
+		'arrKB(i-1)= strElement
+		ReDim Preserve arrKB(i)
+		k = i - 1
+		arrKB(k) = strElement
+		i=i+1
+		End If
+	Next
+Next
+Cleanup = arrKB
+End Function
+Function Sort(arrTemp())
+' Takes an Array and Returns an Array sorted in Ascending order with duplicates removed.
+Dim objDict, strItem, arrNew, strTmp, i, j
+Set objDict = CreateObject("Scripting.Dictionary")
+For Each strItem In arrTemp
+    If Not objDict.Exists(strItem) Then
+           objDict.Add strItem, strItem
+    End If
+Next
+ReDim arrNew(objDict.Count - 1)
+arrNew = objDict.Items
+For i = UBound(arrNew) - 1 To 0 Step -1
+    For j = 0 To i
+        If arrNew(j)>arrNew(j+1) Then
+            strTmp = arrNew(j+1)
+            arrNew(j+1) = arrNew(j)
+            arrNew(j) = strTmp
+        End If
+    Next
+Next
+Sort = arrNew
+End Function
+
+Function GetPath()
+Dim objFSO, ObjFile
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objFile = objFSO.GetFile("Servers.txt")
+strPath = objFSO.GetParentFolderName(objFile)
+GetPath = strPath & "\"
+End Function
+
+Sub Window_OnLoad( )
+self.Focus()
+self.ResizeTo 285,420
+'self.moveto (4)/2, (4)/2
+' Set some of the calendar control's properties
+Calendar.DayLength         = "short" 'short or long
+Calendar.MonthLength       = "long" 'short or long
+Calendar.ShowDateSelectors = 1
+Calendar.ShowDays          = 1
+Calendar.ShowTitle         = 1
+' Fill in the date fields below the calendar control
+Calendar_OnPropertyChange( )
+End Sub
+
+Sub OnClickButtonGenerateReport()
+strDate = DateSerial(Calendar.Year,Calendar.Month,Calendar.Day)
+dtmThisDay = Day(strDate)
+strThisDay = "" & dtmThisDay
+dtmThisMonth = Month(strDate)
+strThisMonth = "" & dtmThisMonth
+	If Len(strThisMonth) <> 2 Then
+	strThisMonth = "0" & strThisMonth
+	End If
+strMonthName = MonthName(dtmThisMonth)
+dtmThisYear = Year(strDate)
+strThisYear = "" & dtmThisYear
+strReportName =  "_" & dtmThisMonth & "_" & dtmThisDay & "_" & dtmThisYear
+Report
+End Sub
+
+Sub HTASleep(intSeconds)
+Dim objShell, strCommand
+	Set objShell = CreateObject("Wscript.Shell")
+	strCommand = "%COMSPEC% /c ping -n " & 1 + intSeconds & " 127.0.0.1>nul"
+	objShell.Run strCommand, 0, True
+	Set objShell = Nothing
+End Sub
+
+Sub OnClickButtonExit()
+Self.close
+End Sub
+</SCRIPT>
+<BODY STYLE="font:10 pt arial; color:black;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=0, StartColorStr='#000000', EndColorStr='#AAFFFF')">
+
+<IE:Calendar id="Calendar" style="width : 250; height : 250; border : 1px solid black;"></IE:Calendar>
+<BR>
+<INPUT ID="myLongDate" TYPE="text" SIZE="37" READONLY>
+<BR>
+<INPUT ID="TodayButton" TYPE="button" VALUE="Today">
+
+<input type="button" name="GenerateReport" id="SelectedDate" value="Generate Report" onclick="OnClickButtonGenerateReport">
+
+<!--Add your controls here-->
+
+<input type="button" name="Exit" id="Exit" value="Exit" onclick="OnClickButtonExit"><BR><BR>
+<font color="black" face="arial" size="2"><span name="HTAStatus" id="HTAStatus" rows="1" cols="110" title="Displays the current status of the program"></span><BR><BR>
+
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</BODY>
+</HTML>

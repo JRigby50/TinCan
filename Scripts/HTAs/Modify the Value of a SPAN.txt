@@ -1,0 +1,3 @@
+Sub RunScript
+    DataArea.InnerHTML = "<B>The computer did not respond when pinged.</B>"
+End Sub

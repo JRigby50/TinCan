@@ -1,0 +1,87 @@
+
+<html>
+<head>
+<title>Reading and Writing a Local File Using an HTA : www.medlabstats.com</title>
+</head>
+<script language="JScript" type="text/jscript">
+<!--
+// CAREFUL -- no error checking
+function readFile()
+ {
+   var fso, fileHandle, contents, yourfilename;
+   fso = new ActiveXObject("Scripting.FileSystemObject");   
+   fileHandle = fso.OpenTextFile(document.editor.yourfilename.value, 1); 
+   contents = fileHandle.ReadAll();                       
+
+   if (contents)
+     document.all("fileContents").value = contents;    
+
+   fileHandle.close();
+   
+ }
+
+function writeFile()
+{
+   var fso, fileHandle, yourfilename;
+   fso = new ActiveXObject("Scripting.FileSystemObject");
+   fileHandle = fso.CreateTextFile(document.editor.yourfilename.value, true);     
+   fileHandle.write(document.all("fileContents").value);          
+   fileHandle.close();   
+}
+
+
+//-->
+</script>
+</head>
+<body>
+<center>
+<h2>Simple File Editor - An Example of an HTA</h2>
+</center>
+<p>
+Microsoft has coined the abbreviation HTA to stand for HTML Applications. These are applications - programs by another name - that run inside Internet Explorer Version 5 and above. You can read all the technical details on their site MSDN Home > MSDN Library > HTML Applications (HTA)
+<p>
+Most of the pages that you view over the internet are supplied to you as HTML files; you can tell that from their names - they have endings after the dot of .htm or .html eg. mywebsite.htm or mywebsite.html
+<p>
+These pages contain HTML tagged text and perhaps have some 'computer program like' capacity because they contain Visual Basic Scripts or Java Scripts. But they cannot do much in the way of reading and writing data to your disk drives. 
+<p>
+Microsoft has now decided in 2002 to relax this restriction because they want to see developers use Internet Explorer as the user interface to other programmers' programs. So if you now write web pages that have the .htm changed to .hta there is the capacity for the programmer to utilise your rights to read and write to your local disk drives - and this .hta webpage is an example ... a simple text editor rather like MS Notepad.
+<p>
+Why is this of interest to Medlabstats ? Well it gives us the opportunity to write programs that write your 'private' data to your disk drives and not ours on the Medlabstats webserver! Once you have written your data to your local disk drives we can supply Java Applets over the internet to process those data and present the results to you in your Internet Explorer browser.
+<p>
+So what we would be expecting to use this for in your work ? - Most probably to tabulate comma delimited data from your research eg.
+<p>
+<pre>
+Patient, Age,  Sex, Wt,  Dose,  PreBP,  PostBp
+234567,  45,   M,   79,  100,   155,    135
+784562,  54,   M,   85,  120,   165,    140
+</pre>
+<p>
+In this regular format it is easy for us to write programs to manipulate the data in the columns or rows in any way that you want.
+<font size=+1><b>
+<p>
+<center>
+<hr width=70%>
+<form name="editor">
+Input the name of a NEW or EXISTING file that you wish to work on :<input type="text" name="yourfilename">
+<p>
+<input type="button" value="Read in this EXISTING File into the Editor" onclick="readFile()"> <p>
+If you try and read a file that does not yet exist on your computer then there will be an error message and you will have to think again! 
+<p>
+<textarea id="fileContents" cols="80" rows="20"></textarea>
+<p>
+<input type="button" value="Write File" onclick="writeFile()">
+<p>
+If you try and write a file without entering a name in the first box then there will be an error message and you will have to think again! 
+<p>
+You can actually read an existing file into the editing frame, edit it, then change the name in the first box and then save all you edits under this new file name.
+<p>
+<input type="reset" value="Clear the Editing Window">
+<p>
+<hr width=70%>
+</b>
+<font size=-1>
+End of Document : www.medlabstats.com : October 2002
+</center>
+</form>
+</body>
+</html>
