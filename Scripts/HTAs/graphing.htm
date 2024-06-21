@@ -1,0 +1,104 @@
+<!doctype html>
+<!--
+<htmlApplication
+  applicationName="Maths"
+  fixedSize="no"
+  width=900
+  height=500
+  menu="no" />
+-->
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="stylesheet" type="text/css" href="graphing.css">
+<script src="graphing.js"></script>
+<script>
+var myGraph;
+var functions = [];
+function choosecolor()
+{
+  var ret = window.external.ColorDialog();
+  var obj = JSON.parse(ret);
+  if(obj.status==1)
+  {
+    document.getElementById("color").style.backgroundColor=obj.color;
+  }
+}
+function reset()
+{
+  functions=[];
+  resize();
+}
+
+function redraw()
+{
+  for(var i=0;i<functions.length;i++)
+  {
+    myGraph.drawEquation(function(x) { return eval( functions[i].func );},  functions[i].color, 2);
+  }
+}
+function onaddfunction()
+{
+  var mycolor = document.getElementById("color").style.backgroundColor;
+  var myfunction = document.getElementById("myfunction").value;
+  functions.push({ func:myfunction,color:mycolor });
+  
+  redraw();
+}
+
+function resize()
+{
+  var height=(window.innerHeight-document.getElementById("header").offsetHeight);
+  var width = window.innerWidth;
+  document.getElementById("contents").style.height=height + "px";
+  document.getElementById("contents").style.width=width + "px";
+  document.getElementById("myCanvas").height=height;
+  document.getElementById("myCanvas").width=width;
+  
+  var ticksize=document.getElementById("myrange").value;
+  var unitspertick = Math.round(100/ticksize);
+  
+  myGraph = new Graph({
+    canvasId: 'myCanvas',
+    minX: -width/ticksize,
+    minY: -height/ticksize,
+    maxX: width/ticksize,
+    maxY: height/ticksize,
+    unitsPerTick: unitspertick
+  });
+  
+  redraw();
+}
+
+function load()
+{
+  resize();
+  
+  /*myGraph = new Graph({
+    canvasId: 'myCanvas',
+    minX: -10,
+    minY: -10,
+    maxX: 10,
+    maxY: 10,
+    unitsPerTick: 2
+  });
+*/
+  document.getElementById("color").style.backgroundColor="red";
+  
+
+}
+</script>  
+</head>
+<body onload="load()" onresize="resize()">
+<div id="header" class="header">
+f(x)=<input type="text" id="myfunction" value="5 * Math.sin(x)">&ensp;
+color: <input type="button" id="color" onclick="choosecolor()">&ensp;
+<input type=button value="Add" onclick="onaddfunction()">&ensp;
+<input type="range" id="myrange" min="5" max="100" value="50" step="1" onchange="resize()">&ensp;
+<input type=button value="Reset" onclick="reset()">
+</div>
+<div id="contents" class="contents">
+<canvas id="myCanvas" width="100" height="100"></canvas>
+</div>
+</body>
+</html>  

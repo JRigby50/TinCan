@@ -1,0 +1,6 @@
+Sub Editor
+Dim objSHL
+Set objSHL = CreateObject("WScript.Shell")
+objSHL.Run "%comspec% /C C:\Windows\System32\mshta.exe C:\PrinterMasterBlaster\ServerEditor.hta",1,True
+Set objSHL = Nothing
+End Sub

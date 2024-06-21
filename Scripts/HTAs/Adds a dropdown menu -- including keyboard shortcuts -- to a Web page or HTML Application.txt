@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>HTML Menu with Key Board Shortcuts</title>
+<style type='text/css'>
+.clsAgOn  { width:125px; padding:2px; background-color:#c0c0c0; font-weight:bold; font-size:10px; font-family:Verdana; COLOR: #ffffff; }
+.clsAgOff { width:125px; padding:2px; background-color:#FE8001; font-weight:bold; font-size:10px; font-family:Verdana; COLOR: #ffffff; }
+</style>
+<script language="javascript">
+	function fnPopupPage(page) {
+		var aH = 500;
+		var aW = 400;
+		var aTop = 20;
+		var aLeft;
+		if(screen.width)
+		    aLeft = screen.width - aW - 10;
+		else
+		    aLeft = screen.availWidth - aW - 10;
+		window.open(page, "_blank", ",height="+aH+",location=0,menubar=0,resizable=1,status=1,scrollbars=1,titlebar=0,toolbar=0,width="+aW+",top="+aTop+",left="+aLeft);	
+	}
+	function menuChanged(cbx) {
+		var actionRedirect = cbx.value;
+		if(actionRedirect!='') {
+			if(actionRedirect.indexOf("js:")>=0) {
+				eval(actionRedirect.substring(actionRedirect.indexOf("js:")+3,actionRedirect.length));
+				cbx.selectedIndex=0;
+			}
+			else {
+				window.location = actionRedirect;
+			}
+		}
+	}
+	function menuFocused(cbx) {
+		cbx.className='clsAgOn';
+		if(cbx.options.length==1)
+			menuChanged(cbx);
+	}
+	function menuBlurred(cbx) {
+		cbx.className='clsAgOff';
+	}
+</script>
+</head>
+<body>
+	<div style='height:16px;background-color:#FE8001;vertical-align:absmiddle'>
+		<select accesskey="F" onchange='menuChanged(this);' class='clsAgOff' onfocus='menuFocused(this);' onblur='menuBlurred(this);' onmouseover="this.className='clsAgOn';" onmouseout="this.className='clsAgOff';" id="Select1">
+			<option value="">. File .</option>
+			<option value="js:alert('Welcome to Community Script Center');">Welcome</option>
+			<option value="http://www.microsoft.com/technet/scriptcenter/csc/default.mspx">Script Center</option>
+			<option value="js:fnPopupPage('http://msdn.microsoft.com');">MSDN - Microsoft</option>
+		</select><select accesskey="L" onchange='menuChanged(this);' class='clsAgOff' onfocus='menuFocused(this);' onblur='menuBlurred(this);' onmouseover="this.className='clsAgOn';" onmouseout="this.className='clsAgOff';" id="Select2" name="Select2">
+			<option value="js:alert('Have a nice day. Good Bye.');">Log Off</option>
+		</select>
+	</div>
+	<ol><b>About this menu:</b>
+		<li>Works like a standard menu (i.e. like Notepad, Alt+F+S to save).  You can access these menu items in the same fashion i.e. Alt+F+M to access "MSDN - Microsoft"</li>
+		<li>Use of SELECT element makes it to stay on TOP ALWAYS</li>
+		<li>Menu items can open URLs as Popup</li>
+		<li>Menu items can invoke javascript routines</li>
+		<li>Easy to implement.</li>
+		<li>The current version, does not support cascading menus.</li>
+	</ol>
+</body>
+</html>

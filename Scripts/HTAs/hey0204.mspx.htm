@@ -1,0 +1,168 @@
+<html dir="ltr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><meta name="MS.LOCALE" content="en-us"><title>Hey, Scripting Guy! How Can I Create an HTA For Displaying Log Files?</title><meta name="description" content="How Can I Create an HTA For Displaying Log Files?"><meta name="search.mnp.template" content="MNP2.GenericArticle"><link type="text/css" rel="Stylesheet" href="hey0204.mspx_files/templatecss.css">
+<link type="text/css" rel="Stylesheet" href="hey0204.mspx_files/css_002.css">
+<script type="text/javascript" language="Javascript" src="hey0204.mspx_files/js.aspx"></script>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"><link rel="stylesheet" type="text/css" href="hey0204.mspx_files/css.css"><script language="JavaScript">var doImage=doImage;var TType=TType;
+function mhHover(tbl,idx,cls){var t,d;if(document.getElementById)t=document.getElementById(tbl);else t=document.all(tbl);if(t==null)return;if(t.getElementsByTagName)d=t.getElementsByTagName("TD");else d=t.all.tags("TD");if(d==null)return;if(d.length<=idx)return;d[idx].className=cls;}
+function footerjs(doc){if(doImage==null){var tt=TType==null?"PV":TType;doc.write('<layer visibility="hide"><div style="display:none"><img src="http://c.microsoft.com/trans_pixel.asp?source=www&TYPE=' + tt + '&p=technet_scriptcenter_resources_qanda_feb08&URI=%2ftechnet%2fscriptcenter%2fresources%2fqanda%2ffeb08%2fhey0204.mspx%3fpf%3dtrue&GUID=1F4FC18C-F71E-47FB-8FC9-612F8EE59C61&r=http%3a%2f%2fwww.microsoft.com%2flibrary%2fgallery%2fcomponents%2fratingControl%2fratings.aspx%3frurl%3dhttp%3a%2f%2fwww.microsoft.com%2ftechnet%2fscriptcenter%2fresources%2fqanda%2ffeb08%2fhey0204.mspx%26l%3den-us%26frm%3dFalse%26d%3dLTR%26t%3dhey0204&lc=en-us" width=0 height=0 hspace=0 vspace=0 border=0 alt=""/></div></layer>');}}
+var rsltextbox = 'msviLSBtbox'; var wtflag = false;
+function stripSymbols () { var objrslttextbox = getObjectById(rsltextbox); if (objrslttextbox) { var form = objrslttextbox.form; var s = objrslttextbox.value; filteredValues = "<>"; var i; var returnString = ""; for (i = 0; i < s.length; i++) { var c = s.charAt(i); if (filteredValues.indexOf(c) == -1) { returnString += c; } else { returnString += " "; } } objrslttextbox.value = returnString; } if(!wtflag) { trackLSB("Site"); } } 
+function addSubmitEvent() { var objrslttextbox = getObjectById(rsltextbox); if (objrslttextbox) { var form = objrslttextbox.form; if (window.attachEvent) { form.attachEvent("onsubmit",stripSymbols); } else { form.addEventListener("submit",stripSymbols,false); } } } 
+function getObjectById(elid) { if (document.getElementById) { return document.getElementById(elid); } else if (document.all) { return document.all[elid]; } else if (document.layers) { return document.layers[elid]; } } 
+if (window.attachEvent) { window.attachEvent("onload",addSubmitEvent); } else { window.addEventListener("load",addSubmitEvent,false); } 
+function trackLSB(type) { if (typeof dcsMultiTrack == "function") { var qu = document.getElementById("msviLSBtbox").value; var dcsuri = "results.aspx"; var dcssip, ti; if (type == "Site") { dcssip = "search.microsoft.com"; ti = "SearchButton: OnSite"; } else if (type == "Web") { dcssip = "search.live.com"; ti = "SearchButton: Web"; } dcsMultiTrack("DCS.dcsuri", dcsuri, "DCS.dcssip", dcssip, "WT.ti", ti, "WT.dl", "2", "WT.z_srch_t", qu, "DCS.dcsqry", "", "WT.ad", "", "WT.mc_id", ""); wtflag = true; DCS.dcsuri=DCS.dcssip=DCS.dcsqry=WT.ti=WT.z_srch_t="";} }</script><meta name="WT.sp" content="_technet_scriptcenter_"><script language="JavaScript" src="hey0204.mspx_files/broker.js"></script><script language="JavaScript" src="hey0204.mspx_files/SiteRecruit_PageConfiguration_p15808382-p26386365-TIER3.js"></script><script language="Javascript">
+					if (self.name == "MNPMainFrame") top.location.href = self.location.href;
+				</script><meta name="save" content="favorite"><meta name="Robots" content="NoIndex"><meta name="Robots" content="NoFollow"><meta name="Robots" content="NoIndex, NoFollow"></head><body topmargin="0" leftmargin="0" bgcolor="#ffffff" marginheight="0" marginwidth="0"><!--NOINDEX_START--><a name="top"></a><script language="javascript">var IsPrinterFriendly = true;</script><table id="mnpMastheadTable" dir="ltr" width="100%" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="padding-left: 16px; padding-right: 16px;" valign="top" width="100%"><img src="hey0204.mspx_files/text_002.jpg" alt=" " title="" width="200" border="0" height="18"></td></tr><tr><td style="padding-left: 6px; padding-right: 6px;" valign="top" width="100%"><img src="hey0204.mspx_files/TechNetB_masthead_ltr.gif"></td></tr><tr><td style="padding-left: 20px; padding-right: 20px;" valign="top" width="100%"><div style="border-top: 1px solid rgb(204, 204, 204);"></div></td></tr></tbody></table><table width="100%" border="0" cellpadding="0" cellspacing="0"><tbody><tr valign="top"><td dir="ltr" width="100%">
+<div style="padding: 0px 15px 0px 20px;"><div class="ancestorLinks"><nobr><a href="http://technet.microsoft.com/">TechNet Home</a>
+        &gt;
+      </nobr><nobr><a href="http://www.microsoft.com/technet/scriptcenter/default.mspx">Script Center</a>
+        &gt;
+      </nobr><nobr><a href="http://www.microsoft.com/technet/scriptcenter/learnit.mspx">Learn to Script</a>
+        &gt;
+      </nobr><nobr><a href="http://www.microsoft.com/technet/scriptcenter/resources/qanda/default.mspx">Hey, Scripting Guy!</a></nobr></div><h1>Hey, Scripting Guy!</h1><h2 class="subtitle">The Scripting Guys Answer Your Questions</h2><div class="overview"><img src="hey0204.mspx_files/dr_scripto_anim.gif" alt="Hey, Scripting Guy!" title="Hey, Scripting Guy!" class="nearGraphic" width="102" align="left" border="0" height="150"><p>Welcome
+to the TechNet column in which the Microsoft Scripting Guys address
+commonly-asked questions about system administration scripting. Got a
+question about system administration scripting? Then send an email to <a href="mailto:scripter@microsoft.com?subject=Hey,%20Scripting%20Guy%21"><b>scripter@microsoft.com (in English, if possible)</b></a>. We can&#8217;t guarantee we&#8217;ll be able to answer every question that comes our way, but we&#8217;ll do our best.</p><p><b>Resources</b></p><table border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="listBullet" valign="top">&#8226;</td><td class="listItem"><p><a href="http://www.microsoft.com/technet/scriptcenter/resources/qanda/hsgarch.mspx"><b>Hey, Scripting Guy! Archive by Category</b></a></p></td></tr><tr><td class="listBullet" valign="top">&#8226;</td><td class="listItem"><p><a href="http://www.microsoft.com/technet/scriptcenter/resources/qanda/all.mspx"><b>Hey, Scripting Guy! Archive by Date</b></a></p></td></tr><tr><td class="listBullet" valign="top">&#8226;</td><td class="listItem"><p><a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=5f5e0bda-923a-4744-8289-afb73f6a5ed8&amp;displaylang=en" target="_blank"><b>Hey, Scripting Guy! Download</b></a></p></td></tr></tbody></table><p><img src="hey0204.mspx_files/spacer.gif" alt="Spacer" width="5" border="0" height="5"></p></div><center><img src="hey0204.mspx_files/3squares.gif" alt="*" title="" width="30" border="0" height="6"></center><div style="height: 18px;"></div><a name="ECC"></a><h2>How Can I Create an HTA For Displaying Log Files?</h2><p></p><img src="hey0204.mspx_files/q-sm.jpg" alt="Hey, Scripting Guy! Question" title="Hey, Scripting Guy! Question" class="nearGraphic" width="34" align="left" border="0" height="34"><p>Hey,
+Scripting Guy! I have a bunch of log files (all in the same folder)
+that I periodically need to review. What I thought would be really cool
+would be to have an HTA that, when it starts up, retrieves all the log
+file names and displays those names in a list box; I could then click
+any file name and the HTA would read the file and display the contents
+in a text box. However, I have no idea how to do anything like that.
+Can you help me out here?<br><br>-- JJ</p><img src="hey0204.mspx_files/spacer.gif" alt="Spacer" width="5" border="0" height="5"><img src="hey0204.mspx_files/a-sm.jpg" alt="Hey, Scripting Guy! Answer" title="Hey, Scripting Guy! Answer" class="nearGraphic" width="34" align="left" border="0" height="34"><a href="http://go.microsoft.com/fwlink/?linkid=68779&amp;clcid=0x409"><img src="hey0204.mspx_files/ad.jpg" alt="Script Center" title="Script Center" class="farGraphic" width="120" align="right" border="0" height="288"></a><p>Hey,
+JJ. You know, in recent years there has been a lot of hue and cry over
+the fact that people are reading far less than they used to. For
+example, in 1950 the average household in the US bought &#8211; and read &#8211;
+1.23 newspapers per day. (In other words, many people subscribed to
+more than one newspaper.) Today that number has dropped to about .44
+newspapers today, meaning that most people don&#8217;t subscribe to <i>any</i>
+newspaper. Magazines have suffered a similar decline, and nowadays only
+about half of all Americans read even a single book during the course
+of a year.</p><p>In fact, according to media experts, the world is now down to just one thing that people absolutely <i>have</i> to read each time it comes out: the official Winter Scripting Games program.</p><table class="dataTable" id="EED" cellpadding="0" cellspacing="0"><thead></thead><tbody><tr class="record" valign="top"><td style="border-right: 1px solid rgb(204, 204, 204);"><p class="lastInCell"><b>Note</b>. OK, maybe there are <i>two</i> things. But we aren&#8217;t convinced that anyone actually <i>reads</i> the annual <i>Sports Illustrated</i> swimsuit issue.</p></td></tr></tbody></table><div class="dataTableBottomMargin"></div><p>Statistically
+speaking, it&#8217;s possible that some you are included in that cohort of
+people who read only one thing &#8211; the Scripting Games program &#8211; during
+the course of a year. (Of course, if that <i>is</i> the only thing you
+read all year, well, then you&#8217;re probably not reading today&#8217;s column,
+are you?) Either way we have good news for you: the 2008 Winter
+Scripting Games program is out and available <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=48B1731A-72D2-4168-AB0D-790FC4D6D842&amp;displaylang=en" target="_blank"><b>for downloading</b></a>. (In case you&#8217;re wondering, a 3-megabyte .PDF file.)</p><p>Now, do you <i>have</i> to download a copy of the program in order to enter the Scripting Games? Of course not; we wouldn&#8217;t do that to you. (Well, we <i>would</i>,
+but seeing as how we can&#8217;t charge you for the program, well, what&#8217;s the
+point?) Nevertheless, you might find the information in the program to
+be useful, especially if you haven&#8217;t competed in the Games before;
+after all the program&#8217;s FAQ will give you a good idea what to expect
+when the Games actually begin on February 15<sup>th</sup>. In addition,
+the program includes a complete schedule of events (including all the
+deadlines); an overview of some of the new features of the 2008
+Scripting Games (including the User Group, International, and Sudden
+Death challenges); and a brief description of all the events, in both
+the Beginners and the Advanced Division. If you&#8217;ve been wondering what
+sorts of things you&#8217;ll be asked to do in the 2008 Games, well, the
+program should give you a hint or two.</p><p>Heck, there&#8217;s even a scripting languages trivia test. Why <i>was</i>
+Windows PowerShell originally known as Monad? You&#8217;ll find the answer to
+that &#8211; and the rest of life&#8217;s burning questions &#8211; in the program. </p><p>We should also add that downloading the program is also a nice way to show our sponsors that you care. This year we have some <a href="http://www.microsoft.com/technet/scriptcenter/funzone/games/games08/prizes.mspx"><b>absolutely incredible prizes</b></a> donated by companies like <a href="http://sapien.com/" target="_blank"><b>Sapien Technologies</b></a>, <a href="http://www.specopssoft.com/" target="_blank"><b>Special Operations Software</b></a>, and <a href="http://powershell.com/index.html" target="_blank"><b>Shell Tools</b></a>. We want them to understand how much we appreciate their generosity.</p><p>And, needless to say, we&#8217;re hoping they&#8217;ll be willing to chip in for the 2009 Games as well.</p><p>At any rate, if you <i>are</i>
+the type of person who reads only one thing a year, well, you&#8217;re free
+to go and download the program; thanks for dropping by. For those of
+you who read at least two things a year, however, we&#8217;ll go ahead and
+show you how to create an HTML Application (HTA) that can retrieve a
+list of all the files in a folder and then, any time you click on one
+of those files, display the contents of that file in a text box in the
+HTA. </p><p>As a matter of fact, <i>this</i> is how you can create an HTA like that:</p><pre class="codeSample">&lt;SCRIPT Language="VBScript"&gt;
+    Sub Window_Onload
+        strComputer = "."
+
+        Set objWMIService = GetObject("winmgmts:\\" &amp; strComputer &amp; "\root\cimv2")
+
+        Set colFiles = objWMIService.ExecQuery _
+            ("ASSOCIATORS OF {Win32_Directory.Name='C:\Scripts'} Where " _
+                &amp; "ResultClass = CIM_DataFile")
+
+        For Each objFile In colFiles
+            Set objOption = Document.createElement("OPTION")
+            objOption.Text = objFile.FileName
+            objOption.Value = objFile.Name
+            LogFiles.Add(objOption)
+        Next
+    End Sub
+
+    Sub ReadFile
+        Set objFSO = CreateObject("Scripting.FileSystemObject")
+        Set objFile = objFSO.OpenTextFile(LogFiles.Value)
+
+        strContents = objFile.ReadAll
+
+        objFile.Close
+
+        LogContents.Value = strContents
+    End Sub
+&lt;/SCRIPT&gt;
+
+&lt;body&gt;
+    &lt;table width="100%"&gt;
+        &lt;tr&gt;
+            &lt;td width="25%" valign="top"&gt;
+               &lt;select size="35" name="LogFiles" onChange="ReadFile" style="width:150px"&gt;&lt;/select&gt;
+            &lt;/td&gt;
+            &lt;td width="75%" valign="top"&gt;
+                &lt;textarea name="LogContents" rows="35" cols="100"&gt;&lt;/textarea&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+</pre><p>Let&#8217;s start off by taking a look at the body of our HTA. As
+you can see, the body consists entirely of a two-column, one-row table.
+Why did we use a table here? One reason and one reason only: that makes
+it very easy for us to place our list box and our text box (or, more
+correctly, our textarea) side-by-side. We put the list box in column 1
+of the table, using this bit of HTML tagging to define the list box:</p><pre class="codeSample">&lt;select size="35" name="LogFiles" onChange="ReadFile" style="width:150px"&gt;&lt;/select&gt;
+</pre><p>As you can see, this is a simple little list box, one with a
+size of 35 (that is, 35 items will appear onscreen at a time) and the
+name <i>LogFiles</i>. We&#8217;ve also added two additional parameters to the list box: <b>onChange="ReadFile"</b>, which simply tells the HTA that it should run the subroutine ReadFile any time the value in the list box changes; and <b>style="width:150px"</b> which simply sets the width of our list box to 150 pixels.</p><p>Like
+we said, a simple little list box. So simple, in fact, that we haven&#8217;t
+even defined any options for the thing. But don&#8217;t worry; we&#8217;ll take
+care of that in a few minutes.</p><p>Before we do that, however, we need to use this line of code to add a textarea to the HTA:</p><pre class="codeSample">&lt;textarea name="LogContents" rows="35" cols="100"&gt;&lt;/textarea&gt;
+</pre><p>Again, there&#8217;s nothing fancy here. We have a textarea named <i>LogContents</i>,
+a text area designed to show 35 rows and 100 columns. (In HTML, a
+&#8220;column&#8221; in a text area is approximately equal to a single character.
+Thus we&#8217;re displaying 100 characters or so in each line in the text
+box.)</p><p>That takes cares of the body of the HTA. Now let&#8217;s tackle our two subroutines: Window_OnLoad and ReadFile.</p><p>As
+many of your know, in an HTA a subroutine named Window_OnLoad
+automatically runs any time that HTA is loaded or refreshed. So what
+are we asking our HTA to do any time it loads or refreshes? Well, for
+starters, we&#8217;re asking it to connect to the WMI service on the local
+computer and then use this line of code to retrieve a collection of all
+the files in the folder C:\Scripts:</p><pre class="codeSample">Set colFiles = objWMIService.ExecQuery _
+    ("ASSOCIATORS OF {Win32_Directory.Name='C:\Scripts'} Where " _
+        &amp; "ResultClass = CIM_DataFile")
+</pre><p><i>Now</i> we&#8217;re going to add some options to our list box;
+more specifically, we&#8217;re going to add the files in C:\Scripts to the
+list box. To that end, we first set up a For Each loop to loop us
+through the collection of files:</p><pre class="codeSample">For Each objFile In colFiles
+</pre><p>Inside the loop we use this line of code to create a &#8220;blank&#8221; option for the list box:</p><pre class="codeSample">Set objOption = Document.createElement("OPTION")
+</pre><p>After that we assign values to two properties of our new option: we set the value of the <b>Text</b> property to the name of the first file in our collection (in WMI-speak, that&#8217;s the <b>FileName</b> property), and we set the option&#8217;s <b>Value</b> property to the file path (WMI&#8217;s <b>Name</b>
+property). That means that only the name of the file (e.g., IIS Log)
+will appear in the list box. However, when a user clicks on the box the
+complete file path will be retrieve, making it easy for us to locate
+and open the file.</p><p>At that point all we have to do is call the <b>Add</b> method to add this new option to the LogFiles list box:</p><pre class="codeSample">LogFiles.Add(objOption)
+</pre><p>And then it&#8217;s back to the top of the loop, where we repeat the
+process with the next file in the collection. When all is said and
+done, the file name of each file in C:\Scripts will appear as an option
+in the LogFiles list box.</p><p>Now, what about the ReadFile
+subroutine? Well, as we noted earlier, each time the user selects an
+item in the list box the ReadFile subroutine gets called. When that
+happens, we&#8217;re going to create an instance of the <b>Scripting.FileSystemObject</b>, then use this line of code to open the text file that the user selected:</p><pre class="codeSample">Set objFile = objFSO.OpenTextFile(LogFiles.Value)
+</pre><p>Once the file is open, we use the <b>ReadAll</b> method to
+read the entire contents of the file into a variable named strContents;
+we then close the text file. And what do we do with strContents? Why,
+we assign that value to the <b>Value</b> property of our textarea:</p><pre class="codeSample">LogContents.Value = strContents
+</pre><p>As you might expect, that&#8217;s going to cause the contents of the
+selected text file to magically appear in the textarea. Here&#8217;s a
+somewhat-scrunched-up picture of what that might look like:</p><img src="hey0204.mspx_files/readfile.jpg" alt="Spacer" width="420" border="0" height="314"><p><br>Click on another file in the list box and the contents of <i>that</i> file will be displayed in the textarea. It&#8217;s pretty cool, and it&#8217;s way faster than manually opening all these files.</p><p>That
+should do it, JJ. Remember, this is going to work only with text files;
+you&#8217;re not going to display an Excel spreadsheet or a PowerPoint slide
+presentation in an HTA. (That would be cool, but it&#8217;s not going to
+work.) But that&#8217;s no big deal; after all, in this day and age no one&#8217;s
+going to read that Excel spreadsheet or PowerPoint presentation anyway.</p><p>Especially now that the <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=48B1731A-72D2-4168-AB0D-790FC4D6D842&amp;displaylang=en" target="_blank"><b>Scripting Games program</b></a> is out.</p><br style="font-size: 0pt;" clear="all"><div style="margin-top: 16px; margin-bottom: 20px; width: 100%;"><table width="100%" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td><a href="#top"><img src="hey0204.mspx_files/arrow_px_up.gif" alt="Top of page" width="7" border="0" height="9"></a><a class="topOfPage" href="#top">Top of page</a></td></tr></tbody></table></div></div></td></tr></tbody></table><style>
+#msviFooter_pf {font: 70% Tahoma, Helvetica; border-top: solid 1px #CCC;}
+#msviFooter_pf a {color: #03C;background: transparent;font-weight: normal;}
+#msviFooter_pf a:visited {color: #03C;background: transparent;font-weight: normal;}
+#msviFooter_pf a:hover{color: #F60;background: transparent;font-weight: normal;}
+   </style><div style="padding-left: 20px; padding-right: 20px;"><table id="msviFooter_pf" cellpadding="0" cellspacing="0"><tbody><tr valign="bottom"><td width="100%"><div id="msviLocalFooter"><nobr><a href="http://go.microsoft.com/?linkid=317027">Manage Your Profile</a></nobr><wbr></div><div id="msviGlobalFooter"><span dir="ltr">© 2009 Microsoft Corporation. All rights reserved.</span>&nbsp;<nobr>&nbsp;<a href="http://support.microsoft.com/contactus/?ws=mscom" target="_parent">Contact Us</a>&nbsp;|</nobr><wbr><nobr>&nbsp;<a href="http://go.microsoft.com/?linkid=4412892" target="_parent">Terms of Use</a>&nbsp;|</nobr><wbr><nobr>&nbsp;<a href="http://go.microsoft.com/?linkid=4412893" target="_parent">Trademarks</a>&nbsp;|</nobr><wbr><nobr>&nbsp;<a href="http://go.microsoft.com/?linkid=4412894" target="_parent">Privacy Statement</a></nobr><wbr></div></td><td bgcolor="#ffffff">&nbsp;<img src="hey0204.mspx_files/text.jpg" alt="Microsoft" title="" width="105" border="0" height="29"></td></tr></tbody></table></div><layer visibility="hide"><div style="display: none;"><img alt="" src="hey0204.mspx_files/trans_pixel.gif" vspace="0" width="0" border="0" height="0" hspace="0"></div></layer></body></html>

@@ -1,0 +1,81 @@
+.cc-banner {
+	font-size: 12px; position: relative;
+}
+.cc-banner .hide {
+	display: none;
+}
+.cc-banner a {
+	margin: 0px; padding: 0px; text-decoration: none;
+}
+.cc-banner div {
+	margin: 0px; padding: 0px; text-decoration: none;
+}
+.cc-banner span {
+	margin: 0px; padding: 0px; text-decoration: none;
+}
+.cc-banner svg {
+	margin: 0px; padding: 0px; text-decoration: none;
+}
+.cc-banner .cc-v-center {
+	line-height: 2em; vertical-align: middle; display: inline;
+}
+[dir=rtl].cc-banner .cc-float-left {
+	float: right;
+}
+.cc-float-right {
+	float: right;
+}
+[dir=rtl].cc-banner .cc-float-right {
+	float: left;
+}
+.cc-float-left {
+	float: left;
+}
+.cc-banner {
+	background: rgb(242, 242, 242); margin: 0px; padding: 0px 1em; text-align: center; color: rgb(35, 31, 32); font-family: "Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif; display: none;
+}
+@media all and (min-width:768px)
+{
+.cc-banner {
+	padding: 0px 1.65em; font-size: 13px;
+}
+}
+.cc-banner > .cc-container {
+	padding: 0.75em 0px; width: 100%; text-align: left; display: inline-block;
+}
+[dir=rtl].cc-banner > .cc-container {
+	text-align: right;
+}
+@media all and (min-width:1084px)
+{
+.cc-banner {
+	padding: 0px;
+}
+.cc-banner > .cc-container {
+	width: 90%; max-width: 1600px;
+}
+}
+.active.cc-banner {
+	display: block;
+}
+.cc-banner .cc-icon {
+	width: 1.84em; height: 1.84em;
+}
+.cc-banner .cc-text {
+	margin-right: 1.5em; margin-left: 0.5em;
+}
+[dir=rtl].cc-banner .cc-text {
+	margin-right: 0.5em; margin-left: 1.5em;
+}
+.cc-banner .cc-link {
+	color: rgb(0, 103, 184); text-decoration: none;
+}
+.cc-banner .cc-link:focus {
+	text-decoration: underline;
+}
+.cc-banner .cc-link:hover {
+	text-decoration: underline;
+}
+.cc-banner .cc-link:focus {
+	background: content-box rgba(0, 120, 215, 0.1); outline: 0px;
+}

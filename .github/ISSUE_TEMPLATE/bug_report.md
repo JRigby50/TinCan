@@ -4,7 +4,6 @@ about: Create a report to help us improve
 title: Bug!
 labels: bug, Semver-Patch
 assignees: ''
-
 ---
 
 ## Describe the bug
@@ -35,4 +34,8 @@ If applicable, add screenshots to help explain your problem.
 
 ## Additional context
 
+<<<<<<< HEAD
 Add any other context about the problem here.
+=======
+Add any other context about the problem here
+>>>>>>> 151827d416239e383dfe5e5aaa29ce8cab39eb49

@@ -1,0 +1,12 @@
+<html><head><title>Print Queue Monitor</title>
+<script language=VBScript>
+Sub GetData
+strClickData=Window.Event.SrcElement.innerText
+MsgBox strClickData
+SelectQueue.Value=strClickData
+End Sub
+</script>
+</head>
+<body><table border="1"width="900"id="table1"><th><font color=blue font face=arial font size="1">Web</font></th><th><font color=blue font face=arial font size="2">Queue</font></th><th><font color=blue font face=arial font size="2">Port</font></th><th><font color=blue font face=arial font size="2">Status</font></th><th><font color=blue font face=arial font size="2">Jobs</font></th><th><font color=blue font face=arial font size="2">Driver</font></th></tr>
+<tr><td><font face=arial font size="2"><a href="http://192.168.0.2" target="blank">W</a href></font></td><td><font face=arial font size="2"><a href="#" onclick="GetData">Dell 1700N</a></font></td><td><font face=arial font size="2">IP_192.168.0.2</font></td><td><font face=arial font size="2">Ready</font></td><td><font face=arial font size="2">0</font></td><td><font face=arial font size="2">Dell Laser Printer 1700n PS3</font></td></tr>
+</font></table></body></html>

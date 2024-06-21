@@ -1,0 +1,134 @@
+<html xmlns:IE>
+<head>
+<title>Select Alignment Stars</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="Select Alignment Stars"
+  ID="SelectAlignmentStars"
+  VERSION="1.0"/>
+  
+<STYLE>
+@media all
+{
+	IE\:Calendar { behavior : url(calendar.htc) }
+}
+</STYLE>
+
+</head>
+
+<script language="VBScript">
+Const ForReading = 1
+Const ForWriting = 2
+Const ForAppending = 8
+
+Sub Window_OnLoad
+
+' Set some of the calendar control's properties
+	Calendar.DayLength         = "short" 'short or long
+	Calendar.MonthLength       = "long" 'short or long
+	Calendar.ShowDateSelectors = 1
+	Calendar.ShowDays          = 1
+	Calendar.ShowTitle         = 1
+
+	' Fill in the date fields below the calendar control
+	Calendar_OnPropertyChange( )
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objTextFile = objFSO.OpenTextFile ("user data.txt", ForReading)
+	strNextLine = objTextFile.ReadLine
+	arrDate = Split (strNextLine, ",")
+	strNextLine = objTextFile.ReadLine
+	arrTime = Split (strNextLine, ",")
+	strNextLine = objTextFile.ReadLine
+	bolDST = strNextLine
+	strNextLine = objTextFile.ReadLine
+	varTZ = strNextLine
+	strNextLine = objTextFile.ReadLine
+	arrLat = Split (strNextLine, ",")
+	strNextLine = objTextFile.ReadLine
+	arrLon = Split (strNextLine, ",")
+objTextFile.Close
+strLatitude = arrLat(0) & " Degrees " & arrLat(1) & " min " & arrLat(2)& " sec North "
+strLongitude = arrLon(0) & " Degrees " & arrLon(1) & " min " & arrLon(2)& " sec West"
+'  Hour.InnerHTML = arrTime(0)
+'  Minute.InnerHTML = arrTime(1)
+  TZ.InnerHTML = varTZ
+  Lat.InnerHTML = strLatitude
+  Lon.InnerHTML = strLongitude
+'  Set obj2StarChoiceFile = objFSO.OpenTextFile ("ALIGNMENT STAR CHOICES-2_star.TXT", ForReading)
+'  DataArea.InnerHTML = "ALIGNMENT STAR CHOICES-2_star.TXT"
+  StarChoice
+End Sub
+Sub StarChoice
+    strNewFile = "ALIGNMENT STAR CHOICES-2_star.TXT"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFile = objFSO.OpenTextFile(strNewFile, ForReading)
+    Do Until objFile.AtEndOfStream
+        strLine = objFile.ReadLine
+        Set objOption = Document.createElement("OPTION")
+        objOption.Text = strLine
+        objOption.Value = strLine
+        Choices.Add(objOption)
+    Loop
+    objFile.Close
+End Sub
+
+
+Sub Calendar_OnPropertyChange( )
+	Dim strDate
+	strDate = DateSerial(Calendar.Year,Calendar.Month,Calendar.Day)
+	myLongDate.Value        = FormatDateTime( strDate, vbLongDate )
+End Sub
+
+Sub TodayButton_OnClick( )
+	Calendar.Year  = Year(Now )
+	Calendar.Month = Month(Now)
+	Calendar.Day   = Day(Now)
+End Sub
+
+Sub OnClickButtonSelectedDate()
+	strDate = DateSerial(Calendar.Year,Calendar.Month,Calendar.Day)
+	MsgBox FormatDateTime(strDate,vbShortDate)
+End Sub
+
+
+Sub OnClickButtonNow()
+  'This method will be called when button "Now" is clicked
+  'Add your code here
+End Sub
+Sub OnChangeSelectChoices()
+  MsgBox Choices.value
+  'This method will be called when select "Choices" is changed
+  'Add your code here
+End Sub
+</script>
+
+<body STYLE="font:10 pt arial; color:black;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=0, StartColorStr='#000000', EndColorStr='#AAFFFF')">
+<font color="yellow">Latitude: <span name="Lat" id="Lat" rows="2" cols="50" title="Displays Lat"></span><BR>
+<font color="lightgreen">Longitude: <span name="Lon" id="Lon" rows="2" cols="50" title="Displays Lon"></span><BR><BR>
+<font color="yellow"> Time Zone Correction: <span name="TZ" id="TZ" rows="2" cols="50" title="Displays Time Zone"></span><BR><BR>
+<IE:Calendar id="Calendar" style="width : 250; height : 250; border : 1px solid black;"></IE:Calendar>
+<select name="Choices" id="Choices" size=15.8 onchange="OnChangeSelectChoices">
+</select>
+<!--<span id=DataArea style="width : 500; height : 250; border : 1px solid black;"></span><BR>-->
+<BR>
+<INPUT ID="myLongDate" TYPE="text" SIZE="32" READONLY><BR>
+
+<INPUT ID="TodayButton" TYPE="button" VALUE="Today"><BR>
+
+<!--<input type="button" name="SelectedDate" id="SelectedDate" value="Display Selected Date" onclick="OnClickButtonSelectedDate">
+<BR><BR>
+
+<!--Add your controls here-->
+<!--<input type="button" name="Now" id="Now" value="Now" onclick="OnClickButtonNow">-->
+<font color="cyan">Hour: <span name="Hour" id="Hour" rows="2" cols="50" title="Displays Hour"></span>
+<font color="cyan"> Minutes: <span name="Minute" id="Minute" rows="2" cols="50" title="Displays Minute"></span>
+<input type="checkbox" name="DST" id="DST">DST 
+<BR><BR>
+
+<!--<select name="Choices" id="Choices" size=0 onchange="OnChangeSelectChoices">
+</select>
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</body>
+</html>

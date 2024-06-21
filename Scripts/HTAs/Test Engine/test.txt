@@ -1,0 +1,56 @@
+1
+Which of the following devices would be used to gain access to a secure network without affecting network connectivity?
+Router
+Vampire tap
+Firewall
+Fiber-optic splicer
+B
+Explanation:
+2
+After disabling SSID broadcast for all wireless routers on the network, the administrator noticed that the Same unauthorized users were still accessing the network. Which of the following did the administrator fail to do?
+Re-enable the SSID.
+Disallow 802.11a traffic on the network.
+Change the SSID.
+Enable ARP cache spoofing protection.
+C
+Explanation:
+3
+Exploitation of the 5-day grace period for domain name registration is referred to as:
+A. domain name poisoning.
+B. domain name kiting.
+C. domain name lookup.
+D. domain name service.
+B
+Explanation:
+4
+Which of the following ports is susceptible to DNS poisoning?
+A. 23
+B. 53
+C. 80
+D. 8080
+Answer: B
+Explanation:
+QUESTION NO: 5
+Why is an ad-hoc network a security risk?
+A. An ad-hoc network allows access to another computer at the same level of the logged in user, compromising information.
+B. An ad-hoc network allows access to the nearest access point which may allow a direct connection to another computer.
+C. An ad-hoc network allows access to the nearest access point which may give elevated rights to the connecting user.
+D. An ad-hoc network allows access to another computer but with no rights so files cannot be copied or changed.
+Answer: A
+Explanation: A wireless network operates in one of two modes, ad-hoc or infrastructure. In the ad hoc mode, each station is a peer to the other stations and communicates directly with other stations within the network. No AP is involved. All stations can send Beacon and Probe frames.
+QUESTION NO: 6
+Which of the following is a benefit of network access control (NAC)?
+A. A user is able to distribute connections to the network for load balancing using a centralized list of approved devices.
+B. A user is able to distribute connections to the network using cached credentials on a local machine.
+C. A user is able to control connections to the network using a centralized list of approved devices.
+D. A user is able to control connections to the network using cached credentials on a local machine.
+Answer: C
+Explanation:
+QUESTION NO: 7
+Which of the following is the FINAL phase of disaster recovery?
+A. Notify all personnel that a disaster has taken place.
+B. Hold a follow-up meeting to review lessons learned.
+C. Perform a full recovery so all devices are back in working order.
+D. Restore all network connectivity.
+Answer: B
+Explanation:

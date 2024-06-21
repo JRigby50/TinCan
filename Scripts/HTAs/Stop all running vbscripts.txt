@@ -1,0 +1,12 @@
+This script will stop all scripts that are running within the Wscript.Exe process. 
+
+
+
+
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:" _
+    & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2") Set colProcessList = objWMIService.ExecQuery _
+    ("SELECT * FROM Win32_Process WHERE Name = 'wscript.exe'") WScript.Echo "Stopping all your WScript scripts."
+For Each objProcess in colProcessList
+    objProcess.Terminate()
+Next

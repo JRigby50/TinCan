@@ -1,0 +1,78 @@
+.wds-ratings {
+	margin: 0px auto; height: 1em; text-align: right; overflow: visible; font-size: 1.4rem; position: relative;
+}
+.wds-ratings-inner-wrap > div {
+	position: relative;
+}
+.wds-ratings-stars {
+	left: 0px; top: -15px; color: rgb(210, 210, 210); font-size: 1.4rem; display: inline-table; position: absolute; z-index: 0; cursor: pointer;
+}
+.wds-ratings-active.wds-ratings-stars {
+	color: rgb(255, 241, 0);
+}
+.wds-ratings-active.current-rating.wds-ratings-stars {
+	color: rgb(255, 241, 0);
+}
+.current-rating.wds-ratings-stars {
+	color: rgb(255, 241, 0);
+}
+.user-current-rating {
+	color: rgb(252, 209, 22);
+}
+.wds-ratings-stars span {
+	height: 100%; line-height: 1; position: relative;
+}
+html[data-high-contrast] :not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span > span {
+	font-size: 0px;
+}
+html[data-high-contrast] .wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span > span {
+	font-size: 0px;
+}
+html[hc] :not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span > span {
+	font-size: 0px;
+}
+html[hc] .wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span > span {
+	font-size: 0px;
+}
+.wds-ratings-percent::before {
+	left: 0px; top: 0px; width: 30%; height: 100%; color: rgb(255, 252, 158); line-height: 1em; overflow: hidden; position: absolute; content: "\2605"; text-shadow: none;
+}
+.has-user-rating .wds-ratings-percent::before {
+	color: rgb(66, 133, 244);
+}
+.wds-ratings-active .wds-ratings-percent::before {
+	display: none;
+}
+html[data-high-contrast] :not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span::after {
+	line-height: 19px; content: "?";
+}
+html[data-high-contrast] .wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span::after {
+	line-height: 19px; content: "?";
+}
+html[hc] :not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span::after {
+	line-height: 19px; content: "?";
+}
+html[hc] .wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span::after {
+	line-height: 19px; content: "?";
+}
+html[hc] :not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span::after {
+	color: rgb(255, 241, 0);
+}
+html[hc] .wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span::after {
+	color: rgb(255, 241, 0);
+}
+@media screen and (-ms-high-contrast:active)
+{
+:not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span > span {
+	font-size: 0px;
+}
+.wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span > span {
+	font-size: 0px;
+}
+:not(.wds-ratings-active):not(.user-current-rating):not(.current-rating).wds-ratings-stars > span::after {
+	line-height: 19px; content: "?";
+}
+.wds-ratings-inner-wrap:hover :not(.wds-ratings-active).wds-ratings-stars-enable-editing.wds-ratings-stars > span::after {
+	line-height: 19px; content: "?";
+}
+}

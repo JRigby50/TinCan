@@ -1,0 +1,94 @@
+'This HTA script will allow you to choose a Vbs script from a dropdown menu list to execute. 
+'The script below allows you to hard code your script path such as C:\Scripts in the example. It will also enumerate only files with the .Vbs extension however that as well as the script path can be modified. 
+'HTA Script:
+
+
+<Html>
+
+<Head>
+
+<Title>HTA Script</Title>
+
+<Style>
+
+Body {Background-Color: CornSilk}
+
+</Style>
+
+ 
+
+<HTA:Application
+
+Caption = Yes
+
+Border = Thick
+
+ShowInTaskBar = No
+
+MaximizeButton = Yes
+
+MinimizeButton = Yes>
+
+ 
+
+<script Language = VBScript>
+
+ 
+
+Sub ListItems(ItemList)
+
+Window.Document.Title = "Script Chooser"
+
+ 
+
+strComputer = "."
+
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+Set colFiles = objWMIService.ExecQuery("Select * From CIM_DataFile Where Path = '\\Scripts\\' And Extension = 'Vbs'")
+
+Document.Write "<select name=""" & ItemList & """>"
+
+For Each objFile in colFiles
+
+Document.Write "<option value=""" & objFile.Name & """>"
+
+Document.Write objFile.FileName
+
+Document.Write "</option>"
+
+Next
+
+Document.Write "</select>"
+
+End Sub
+
+ 
+
+Sub Execute
+
+Set WshShell = CreateObject("WScript.Shell")
+
+strCmdLine = "Cmd /K Cscript //NoLogo " & Chr(34) & GetItems.Value & Chr(34)
+
+WshShell.Run (strCmdLine)
+
+End Sub
+
+ 
+
+</script><Body>
+
+<p><h3 align = center><font color='Orange'>Please Visit myITforum.Com</font></h3>
+
+<div></div>
+
+<script language="VBScript">ListItems("GetItems")</script>
+
+<input id=DisplayButton class="button" type="button" value="Run Script" name="Execute_button" onClick="Execute">
+
+</form></body></html>
+
+<Span Id = "DataArea"></Span></Body><Div Align = "Center">
+
+<P><A Href="http://myitforum.com/cs2/blogs/dhite">Created For myITforum By Don Hite</A>

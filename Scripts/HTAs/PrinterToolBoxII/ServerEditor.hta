@@ -1,0 +1,56 @@
+<HTML>
+<head>
+<title>Pservers Editor </Title>
+<HTA:APPLICATION
+  APPLICATIONNAME="Pservers.txt Editor"
+  ID="TextEditor"
+  VERSION="1"
+  SINGLEINSTANCE="yes"/>
+</Head>
+<Script Language="VBSCRIPT" Type = "text/vbscript">
+
+Sub Window_Onload
+Window.resizeTo 730,500
+OpenFile
+End Sub
+
+Const ForReading = 1
+Const ForWriting = 2
+Const ForAppending = 8
+Set objFSO = CreateObject("Scripting.FileSystemObject")   
+
+'----------------------------------------------------------
+FUNCTION OpenFile()
+on error resume next
+Set PSFile = objFSO.OpenTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\pservers.txt", ForReading)
+DataArea.value = PSFile.ReadAll
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION SaveFile()
+on error resume next
+Set PSFile = objFSO.OpenTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\pservers.txt", ForWriting)
+PSFile.writeline(DataArea.value) 
+END FUNCTION
+'----------------------------------------------------------
+FUNCTION CloseFile()
+on error resume Next
+Set PSFile = objFSO.OpenTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\pservers.txt", ForWriting)
+PSFile.writeline(DataArea.value) 
+Set PSFile = objFSO.OpenTextFile("C:\Users\Rigbyja\Documents\Scripts\HTAs\PrinterToolBoxII\pservers.txt", ForAppending)
+PSFile.Close    
+self.close
+END FUNCTION
+ 
+</Script>
+<body 
+bgcolor="C0C0C0">
+<Table>
+<Th> Pservers Editor </Th>
+<Table border="1"> <TR><td>
+<input type="BUTTON" value="Save"  onclick="SaveFile">
+<input type="BUTTON" value="Close"  onclick="CloseFile">
+<TR><td>
+<textarea name="DataArea" rows="20" cols=80></textarea> </td></TR>
+</Table>
+</body>
+</html> 

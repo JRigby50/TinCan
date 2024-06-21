@@ -1,0 +1,211 @@
+<html>
+<head>
+<title>Rigby/Ha Test Engine</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="Multiple Choice"
+  ID="Multiple_Choice"
+  VERSION="1.0"
+  SINGLEINSTANCE="yes"/>
+</head>
+<script language="VBScript">
+Option Explicit
+Dim intQNumber, intLen, intEnd, intCorrect, intScore, intQuestion, q, a, i
+Dim strNextLine, strQuestion, strAnswerA, strAnswerB, strAnswerC, strAnswerD, strAnswer, strExplanation, strHTML, strSelection, strResult, strComment, strMissedQuestions, strHilite
+Dim strAnswerAB, strAnswerBB, strAnswerCB, strAnswerDB, strWav, strSoundFile, strCommand
+Dim objFSO, objTextFile, objShell
+Dim arrQuestion()
+intQNumber = 0
+
+Sub Window_OnLoad
+  'This method will be called when the application loads
+  Const ForReading = 1
+  Set objFSO = CreateObject("Scripting.FileSystemObject")
+  Set objTextFile = objFSO.OpenTextFile ("c:\tests\test.txt", ForReading)
+  q=0
+	Do Until objTextFile.AtEndOfStream
+	ReDim Preserve arrQuestion(6,q)
+		For a=0 To 6
+		strNextLine=objTextFile.ReadLine
+		arrQuestion(a,q) = strNextLine
+		Next
+	q=q+1
+	Loop 
+objTextFile.Close
+OnClickButtonNext
+End Sub
+
+
+Sub OnClickButtonSubmit()
+  'This method will be called when button "Submit" is clicked
+strSelection = GetAnswersRadioValue()
+intLen = Len(strExplanation)
+	If  intLen < 13 Then
+	strExplanation = ""
+	End If
+	If strSelection = strAnswer Then
+	Audio("Windows XP Ding.wav")
+	strHTML = " Correct, the answer is  "  & Chr(32) & strAnswer & "<BR>" &  "<BR>"  & strExplanation & "<BR>" &  "<BR>"
+	intCorrect = intCorrect + 1
+	Else
+	Audio("Windows XP Critical Stop.wav")
+	strHTML = "<font color=" & Chr(34) & "red" & Chr(34) & ">" & " Incorrect, the answer is  "  & Chr(32) & strAnswer &  "<BR>" &  "<BR>" & strExplanation & "<BR>" &  "<BR>"
+	strMissedQuestions = strMissedQuestions & strQuestion & "<BR>"
+	End If
+	If intQNumber = intEnd Then
+	strHTML = strHTML & "<input type=" & Chr(34) & "button" & Chr(34) & "name=" & Chr(34) & "Next" & Chr(34) & "id=" & Chr(34) & "Next" & Chr(34) & "value=" & Chr(34) & "Get Score" & Chr(34) & "onclick=" & Chr(34) & "OnClickButtonNext" & Chr(34) & ">"
+	DataArea.InnerHTML = strHTML
+	Else
+	strHTML = strHTML & "<input type=" & Chr(34) & "button" & Chr(34) & "name=" & Chr(34) & "Next" & Chr(34) & "id=" & Chr(34) & "Next" & Chr(34) & "value=" & Chr(34) & "Next Question" & Chr(34) & "onclick=" & Chr(34) & "OnClickButtonNext" & Chr(34) & ">"
+	DataArea.InnerHTML = strHTML
+End If
+End Sub
+
+Sub OnClickButtonNext()
+  'This method will be called when button "Next" is clicked
+
+intEnd=(UBound(arrQuestion, 2) + 1)
+		If intQNumber = intEnd Then
+		Recap
+		Else
+			intQuestion = intQNumber + 1
+			strQuestion = intQuestion & Chr(58) & Chr(32) & Chr(32) & arrQuestion(0,intQNumber)
+			strAnswerA = arrQuestion(1,intQNumber)
+			strAnswerB = arrQuestion(2,intQNumber)
+			strAnswerC = arrQuestion(3,intQNumber)
+			strAnswerD = arrQuestion(4,intQNumber)
+			strAnswer = arrQuestion(5,intQNumber)
+			strExplanation = arrQuestion(6,intQNumber)
+			Question.InnerHTML = strQuestion
+			AnswerA.InnerHTML = strAnswerA
+			AnswerB.InnerHTML = strAnswerB
+			AnswerC.InnerHTML = strAnswerC
+			AnswerD.InnerHTML = strAnswerD
+			strHTML = "<input type=" & Chr(34) & "submit" & Chr(34) & "value=" & Chr(34) & "Submit" & Chr(34) & "onclick=" & Chr(34) & "OnClickButtonSubmit" & Chr(34) & ">"
+			DataArea.InnerHTML = strHTML
+			intQNumber = intQNumber + 1
+		End If
+End Sub
+
+Sub Recap
+strQuestion = ""
+strAnswerA = ""
+strAnswerB = ""
+strAnswerC = ""
+strAnswerD = ""
+Question.InnerHTML = strQuestion
+AnswerA.InnerHTML = strAnswerA
+AnswerB.InnerHTML = strAnswerB
+AnswerC.InnerHTML = strAnswerC
+AnswerD.InnerHTML = strAnswerD
+intScore = Round ((intCorrect / (intEnd)) * 100 , 2)
+	If intScore = 100 Then
+	strComment = "Well Done!"
+	Audio("tada.wav")
+		ElseIf intScore > 70 Then
+		strComment = "<font color=" & Chr(34) & "cyan" & Chr(34) & " face=" & Chr(34) & "arial" & Chr(34) & " size=" & Chr(34) & "4" & Chr(34) & ">" & "Nice Job but you should review the following: " & "<BR>" & strMissedQuestions & "<BR>"
+		Else
+		strComment = "<font color=" & Chr(34) & "cyan" & Chr(34) & " face=" & Chr(34) & "arial" & Chr(34) & " size=" & Chr(34) & "4" & Chr(34) & ">" & "You need to study the following a bit more: " & "<BR>" & strMissedQuestions & "<BR>"
+	End If
+strHTML = "You scored " & intScore & "%" & "<BR>" & "<BR>" & strComment & "<BR>" & "<BR>" 
+strHTML = strHTML & "<input type=" & Chr(34) & "button" & Chr(34) & "name=" & Chr(34) & "Finish" & Chr(34) & "id=" & Chr(34) & "Finish" & Chr(34) & "value=" & Chr(34) & "Finish" & Chr(34) & "onclick=" & Chr(34) & "Done" & Chr(34) & ">"
+DataArea.InnerHTML = strHTML
+End Sub
+
+Sub Done
+Self.close
+End Sub
+
+Sub HiLite
+Audio("Windows XP Balloon.wav")
+strHilite = GetAnswersRadioValue()
+	Select Case strHilite
+	Case "A"
+	strAnswerAB = "<font size=" & Chr(34) & "4" & Chr(34) & ">" & strAnswerA
+	AnswerA.InnerHTML = strAnswerAB
+	strAnswerBB = strAnswerB
+	AnswerB.InnerHTML = strAnswerBB
+	strAnswerCB = strAnswerC
+	AnswerC.InnerHTML = strAnswerCB
+	strAnswerDB = strAnswerD
+	AnswerD.InnerHTML = strAnswerDB
+	Case "B"
+	strAnswerAB = strAnswerA
+	AnswerA.InnerHTML = strAnswerAB
+	strAnswerBB = "<font size=" & Chr(34) & "4" & Chr(34) & ">" & strAnswerB
+	AnswerB.InnerHTML = strAnswerBB
+	strAnswerCB = strAnswerC
+	AnswerC.InnerHTML = strAnswerCB
+	strAnswerDB = strAnswerD
+	AnswerD.InnerHTML = strAnswerDB
+	Case "C"
+	strAnswerAB = strAnswerA
+	AnswerA.InnerHTML = strAnswerAB
+	strAnswerBB = strAnswerB
+	AnswerB.InnerHTML = strAnswerBB
+	strAnswerCB = "<font size=" & Chr(34) & "4" & Chr(34) & ">" & strAnswerC
+	AnswerC.InnerHTML = strAnswerCB
+	strAnswerD = strAnswerD
+	AnswerD.InnerHTML = strAnswerDB
+	Case "D"
+	strAnswerAB = strAnswerA
+	AnswerA.InnerHTML = strAnswerAB
+	strAnswerBB = strAnswerB
+	AnswerB.InnerHTML = strAnswerBB
+	strAnswerCB = strAnswerC
+	AnswerC.InnerHTML = strAnswerCB
+	strAnswerDB = "<font size=" & Chr(34) & "4" & Chr(34) & ">" & strAnswerD
+	AnswerD.InnerHTML = strAnswerDB
+	Case Else
+	End Select
+	
+End Sub
+
+Sub Audio(strWav)
+  Set objShell = CreateObject("Wscript.Shell")
+  strSoundFile = "C:\WINDOWS\Media\" & strWav
+  strCommand = "sndrec32 /play /close " & chr(34) & strSoundFile & chr(34)
+  objShell.Run strCommand, 0, False    
+  Set objShell = Nothing
+End Sub
+
+Function GetAnswersRadioValue()
+  For i=0 to Answers.length-1
+    If Answers.Item(i).Checked Then
+      GetAnswersRadioValue = Answers.Item(i).Value
+      Exit Function
+    End If
+  Next
+  GetAnswersRadioValue = ""
+End Function
+
+function resett
+a(0).checked=true
+a(1).checked=false
+b.checked=false
+end function
+
+
+</script>
+<!--************************************ Begin HTML***************************************-->
+<body onclick=HiLite STYLE="font:10 pt arial; color:black;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=0, StartColorStr='#000000', EndColorStr='#AAFFFF')">
+<!--Add your controls here-->
+<BR><BR>
+<font color="cyan" face="arial" size="2">Question<span name="Question" id="Question" rows="2" cols="110" title="Displays the current question"></span><BR><BR><BR>
+<input type="radio" name="Answers" value="A"><font color="cyan" face="arial" size="2">A: 
+<span name="AnswerA" id="AnswerA" rows="2" cols="50" title="Displays AnswerA"></span><BR><BR>
+<input type="radio" name="Answers" value="B"><font color="cyan" face="arial" size="2">B: 
+<span name="AnswerB" id="AnswerB" rows="2" cols="50" title="Displays AnswerB"></span><BR><BR>
+<input type="radio" name="Answers" value="C"><font color="cyan" face="arial" size="2">C: 
+<span name="AnswerC" id="AnswerC" rows="2" cols="50" title="Displays AnswerC"></span><BR><BR>
+<input type="radio" name="Answers" value="D"><font color="cyan" face="arial" size="2">D: 
+<span name="AnswerD" id="AnswerD" rows="2" cols="50" title="Displays AnswerD"></span><BR><BR><BR>
+<span id=DataArea></span>
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</body>
+</html>
+<!--Windows XP Critical Stop.wav
+tada.wav
+Windows XP Balloon.wav
+Windows XP Ding.wav-->

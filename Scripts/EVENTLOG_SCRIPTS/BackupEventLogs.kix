@@ -1,0 +1,244 @@
+
+; ----------------------------------------------------------------------------------------------------
+; Procedure:		BackupEventLogs.kix
+;
+; Author:		Ronald W. Kaltenbaugh
+;
+; Purpose:		To backup and clear the three NT event logs for a server.  Event log backups
+;			are initially created in a directory on the top of the C: drive of the target
+;			server called Logs. This is because the BackupEventlog function can only write
+;			to the local system.  These event log backups are then copied to a directory
+;			on the system running this process.  This directory is a sub-directory of
+;			$ArchiveDirectory named for each server.  $ArchiveDirectory is defined in a
+;			calling procedure.  If an archived log is 70% or more of maximum a message
+;			is displayed.
+;
+;			Note: For event logs sizes, (either actual or maximum possible), over 200MB,
+;			      size calculations may be inaccurate.
+;
+;			The two Logs directories are assumed to exist on both the target server and the
+;			server running this process.  If not found they are created.
+;
+; Modification History:
+;    5/02/00	R. Kaltenbaugh		Created procedure for NMIMC
+;    9/14/00	R. Kaltenbaugh		Updated comments and put into production.
+;    9/21/00	R. Kaltenbaugh		Updated to leave newest archived event logs locally in C:\Logs
+;   10/26/00	R. Kaltenbaugh		Removed some hardcoded items.
+;   11/28/00	R. Kaltenbaugh		Check for and if needed create C:\Logs on target server.
+;					Include C: drive free space in output.
+; ----------------------------------------------------------------------------------------------------
+
+$EventSource = "BackupEventLogs"
+"Backing up and clearing Event Logs for $TargetServer" ?
+IF $TargetServer = ""
+  ? "The TargetServer was not specified!" ?
+  EXIT
+ENDIF
+
+
+; ----------------------------------------------------------------------------------------------------
+; Determine a date stamp, (yyyymmdd), and names for the backed up event logs.
+
+$DateStamp = "@YEAR"
+IF LEN("@MONTHNO") = 1
+  $DateStamp = $DateStamp + "0" + "@MONTHNO"
+ELSE
+  $DateStamp = $DateStamp + "@MONTHNO"
+ENDIF
+IF LEN("@MDAYNO") = 1
+  $DateStamp = $DateStamp + "0" + "@MDAYNO"
+ELSE
+  $DateStamp = $DateStamp + "@MDAYNO"
+ENDIF
+
+$TimeStamp = substr("@TIME", 1, 2) + substr("@TIME", 4, 2) + substr("@TIME", 7, 2)
+
+$FileTag = "-" + $DateStamp + "-" + $TimeStamp + ".evt"
+
+$AppEvtFile = "C:\Logs\App" + $FileTag
+$SecEvtFile = "C:\Logs\Sec" + $FileTag
+$SysEvtFile = "C:\Logs\Sys" + $FileTag
+
+$AppEvtFileFullPath = "\\" + $TargetServer + "\C$\Logs\App" + $FileTag
+$SecEvtFileFullPath = "\\" + $TargetServer + "\C$\Logs\Sec" + $FileTag
+$SysEvtFileFullPath = "\\" + $TargetServer + "\C$\Logs\Sys" + $FileTag
+
+$EventFiles = "\\" + $TargetServer + "\C$\Logs\*" + $FileTag
+$ArchivedEventFiles = "\\" + $TargetServer + "\C$\Logs\*-Archived.evt"
+
+
+; ----------------------------------------------------------------------------------------------------
+; Make sure that the archive directory for the server exists.
+
+IF EXIST("$ArchiveDirectory\$TargetServer\*.*") = 0
+  "  Directory $ArchiveDirectory\$TargetServer not found, it is being created." ?
+  MD "$ArchiveDirectory\$TargetServer"
+  IF (@ERROR <> 0)
+    ? "  Error creating $ArchiveDirectory\$TargetServer.  Stopping script!" ?
+    $Status = LogEvent(1 , 1 , "Error creating $ArchiveDirectory\$TargetServer directory for backups of event logs!", "", "$EventSource")
+    EXIT
+  ENDIF
+
+  shell '%comspec% /c echo This directory contains NT Event logs for $TargetServer.>$ArchiveDirectory\$TargetServer\00README.TXT'
+  shell '%comspec% /c echo Do NOT delete this text file!>>$ArchiveDirectory\$TargetServer\00README.TXT'
+  "" ?
+ENDIF
+
+
+; ----------------------------------------------------------------------------------------------------
+; Make sure that the Logs directory on the target server exists.
+
+IF EXIST("\\$TargetServer\C$\Logs\*.*") = 0
+  "  Directory \\$TargetServer\C$\Logs not found, it is being created." ?
+  MD "\\$TargetServer\C$\Logs"
+  IF (@ERROR <> 0)
+    ? "  Error creating \\$TargetServer\C$\Logs.  Stopping script!" ?
+    $Status = LogEvent(1 , 1 , "Error creating \\$TargetServer\C$\Logs directory for backups of event logs!", "", "$EventSource")
+    EXIT
+  ENDIF
+
+  shell '%comspec% /c echo This directory contains local backups of NT Event logs for $TargetServer.>\\$TargetServer\C$\Logs\00README.TXT'
+  shell '%comspec% /c echo Do NOT delete this text file!>>\\$TargetServer\C$\Logs\00README.TXT'
+  "" ?
+ENDIF
+
+
+; ----------------------------------------------------------------------------------------------------
+; Backup and clear the event logs.  Log an event, on the target server, that this was done.  The
+; application log is done first so that the logging of these events remains visible on the target server.
+
+
+$Key="HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application"
+$Entry="MaxSize"
+$AppMaxSize = VAL(ReadValue("\\$TargetServer\$Key", "$Entry"))
+$AppMaxSizeMB = $AppMaxSize / 1024 / 1024
+
+$Key="HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\System"
+$Entry="MaxSize"
+$SysMaxSize = VAL(ReadValue("\\$TargetServer\$Key", "$Entry"))
+$SysMaxSizeMB = $SysMaxSize / 1024 / 1024
+
+$Key="HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Security"
+$Entry="MaxSize"
+$SecMaxSize = VAL(ReadValue("\\$TargetServer\$Key", "$Entry"))
+$SecMaxSizeMB = $SecMaxSize / 1024 / 1024
+
+
+"  Application Event Log ($AppEvtFile)"
+$BStatus = BackupEventlog("\\$TargetServer\Application", "$AppEvtFile")
+" - Backup: $BStatus"
+IF $BStatus = 0
+  $CStatus = ClearEventlog("\\$TargetServer\Application")
+  "  Clear: $CStatus"
+  $LStatus = LogEvent(0, 1, "Application Event Log Backed Up to $AppEvtFile (Status: $BStatus) and Cleared (Status: $CStatus)", "\\$TargetServer", "$EventSource")
+  "  LogEvent: $LStatus" ?
+  $FileSize = GetFileSize("$AppEvtFileFullPath")
+  IF ($FileSize * 10) >= ($AppMaxSize * 7) "    ***** Archived event log is over 70% of maximum allowable size! ($FileSize / $AppMaxSize) *****" ? ENDIF
+ELSE
+  $LStatus = LogEvent(1, 1, "Problem with Application Event Log Backup to $AppEvtFile (Status: $BStatus)", "\\$TargetServer", "$EventSource")
+  "  LogEvent: $LStatus" ?
+ENDIF
+
+
+"  Security Event Log    ($SecEvtFile)"
+$BStatus = BackupEventlog("\\$TargetServer\Security", "$SecEvtFile")
+" - Backup: $BStatus"
+IF $BStatus = 0
+  $CStatus = ClearEventlog("\\$TargetServer\Security")
+  "  Clear: $CStatus"
+  $LStatus = LogEvent(0, 1, "Security Event Log Backed Up to $SecEvtFile (Status: $BStatus) and Cleared (Status: $CStatus)", "\\$TargetServer", "$EventSource")
+  "  LogEvent: $LStatus" ?
+  $FileSize = GetFileSize("$SecEvtFileFullPath")
+  IF ($FileSize * 10) >= ($SecMaxSize * 7) "    ***** Archived event log is over 70% of maximum allowable size! ($FileSize / $SecMaxSize) *****" ? ENDIF
+ELSE
+  $LStatus = LogEvent(1, 1, "Problem with Security Event Log Backup to $SecEvtFile (Status: $BStatus)", "\\$TargetServer", "$EventSource")
+  "  LogEvent: $LStatus" ?
+ENDIF
+
+
+"  System Event Log      ($SysEvtFile)"
+$BStatus = BackupEventlog("\\$TargetServer\System", "$SysEvtFile")
+" - Backup: $BStatus"
+IF $BStatus = 0
+  $CStatus = ClearEventlog("\\$TargetServer\System")
+  "  Clear: $CStatus"
+  $LStatus = LogEvent(0, 1, "System Event Log Backed Up to $SysEvtFile (Status: $BStatus) and Cleared (Status: $CStatus)", "\\$TargetServer", "$EventSource")
+  "  LogEvent: $LStatus" ?
+  $FileSize = GetFileSize("$SysEvtFileFullPath")
+  IF ($FileSize * 10) >= ($SysMaxSize * 7) "    ***** Archived event log is over 70% of maximum allowable size! ($FileSize / $SysMaxSize) *****" ? ENDIF
+ELSE
+  $LStatus = LogEvent(1, 1, "Problem with System Event Log Backup to $SysEvtFile (Status: $BStatus)", "\\$TargetServer", "$EventSource")
+  "  LogEvent: $LStatus" ?
+ENDIF
+
+
+; ----------------------------------------------------------------------------------------------------
+; The last step is to copy the logs back to the central repository and delete old logs from the local
+; server.
+
+;"  Copying event backups to $ArchiveDirectory\$TargetServer" ?
+COPY "$EventFiles" "$ArchiveDirectory\$TargetServer\*.*"
+IF EXIST("$ArchiveDirectory\$TargetServer\*$FileTag") = 1
+;  "   - Files copied to @wksta.  Renaming archived event logs on $TargetServer" ?
+  IF EXIST ("$ArchivedEventFiles") = 1 DEL "$ArchivedEventFiles" ENDIF
+  shell "%comspec% /c ren $AppEvtFileFullPath App-Archived.evt"
+  shell "%comspec% /c ren $SecEvtFileFullPath Sec-Archived.evt"
+  shell "%comspec% /c ren $SysEvtFileFullPath Sys-Archived.evt"
+ENDIF
+
+$LStatus = LogEvent(0, 1, "Event Log Backups ($EventFiles) copied to $ArchiveDirectory\$TargetServer on @wksta. Local copies in C:\Logs renamed to App-Archived.evt, Sec-Archived.evt, and Sys-Archived.evt", "\\$TargetServer", "$EventSource")
+
+
+; ----------------------------------------------------------------------------------------------------
+; Display information on expected sizes, copied files, etc.
+
+?
+"Event Log MAX Sizes for $TargetServer (bytes): (App: $AppMaxSize  Sys: $SysMaxSize  Sec: $SecMaxSize)" ?
+
+?
+$FreeDiskC = GetDiskSpace("\\$TargetServer\C$\")
+"EVT Files in C:\Logs on $TargetServer: (C Drive free space: $FreeDiskC KB)" ?
+$FileName = Dir("\\$TargetServer\C$\Logs\*.*")
+While ($FileName <> "") and (@ERROR = 0)
+  $Temp = lcase($FileName)
+  $FileName = substr($FileName + "                    ", 1, 30)
+  if (len($Temp) < 5)
+    $FileEXT = "?"
+  else
+    $FileEXT = SUBSTR($Temp, LEN($Temp) - 3, 4)
+  endif
+
+  if $FileEXT = ".evt"
+    $FileSize = GetFileSize("\\$TargetServer\C$\Logs\$FileName")
+    $FileSizeMB = $FileSize / 1024 / 1024
+    $FileTime = GetFileTime("\\$TargetServer\C$\Logs\$FileName")
+    "  $FileName  Time: $FileTime  Size: $FileSize (bytes)" ?
+  endif
+
+  $FileName = Dir()	; retrieve next file
+Loop
+
+?
+"EVT Files archived to $ArchiveDirectory\$TargetServer on @wksta:" ?
+$FileName = Dir("$ArchiveDirectory\$TargetServer\*.*")
+While ($FileName <> "") and (@ERROR = 0)
+  $Temp = lcase($FileName)
+  $FileName = substr($FileName + "                    ", 1, 30)
+  if (len($Temp) < 5)
+    $FileEXT = "?"
+  else
+    $FileEXT = SUBSTR($Temp, LEN($Temp) - 3, 4)
+  endif
+
+  if $FileEXT = ".evt"
+    $FileSize = GetFileSize("$ArchiveDirectory\$TargetServer\$FileName")
+    $FileTime = GetFileTime("$ArchiveDirectory\$TargetServer\$FileName")
+    "  $FileName  (Time: $FileTime  Size: $FileSize)" ?
+  endif
+
+  $FileName = Dir()	; retrieve next file
+Loop
+
+
+; ----------------------------------------------------------------------------------------------------
+? "Done!" ? ?

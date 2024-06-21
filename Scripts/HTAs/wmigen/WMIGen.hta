@@ -1,0 +1,1590 @@
+<html>
+<head>
+<title>WMI Code Generator</title>
+<HTA:APPLICATION 
+	ID="WMIGen"
+	VERSION="6.21"
+	APPLICATIONNAME="WMI Code Generator"
+	SCROLL="yes"
+	SINGLEINSTANCE="yes"
+	WINDOWSTATE="maximize"
+>
+<style type="text/css">
+<!--
+a { color: blue; }
+p { color: black; font-size: 80%; }
+.Button { width: 12em; margin: 3px 1em 3px 1em; }
+.Red { color: red; }
+.White { color: white; }
+-->
+</style>
+</head>
+
+<script language="VBScript">
+' Variable to tell if the program should check for updates at startup
+' If True then a check for updates is performed at startup
+' If False then the check is skipped
+' Command line switch /NOUPDCHK sets variable to False
+Dim blnUpdateCheck
+blnUpdateCheck = True
+
+' Variable to set filter for classes shown
+' If True then all classes are shown
+' If False then only WIN32_* classes are shown
+' Command line switch /WIN32 sets variable to False
+Dim blnShowAllClasses
+blnShowAllClasses = True
+
+' Variable to set filter for Win32_Perf* classes
+' If True then the Win32_Perf* classes are included
+' If False then the Win32_Perf* classes are excluded
+' Command line switch /NOPERF sets variable to False
+Dim blnShowPerfClasses
+blnShowPerfClasses = True
+
+' Variable to choose between original property names or property names with spaces
+' If True then property names WITH spaces are used for descriptions
+' If False then the original property names WITHOUT spaces are used
+' Command line swith /SPACES sets variable to True
+Dim blnUseSpacesInProperties
+blnUseSpacesInProperties = False
+
+' Internet Explorer object to contain MSDN help pages
+Dim objIEHelp
+
+' Variable to hold the command line, converted to upper case
+Dim strCmdLine
+strCmdLine = UCase( WMIGen.CommandLine )
+
+
+Sub ButtonState( blnCodeButtonsEnabled )
+	CodeLabel.InnerHTML = "Code:"
+	Code.title          = "After pressing the 'Generate Code' button, the generated code to display the available properties and their values for the selected WMI class and scripting language will be shown here"
+	If blnCodeButtonsEnabled Then
+		CopyCodeButton.Disabled     = True
+		CopyCodeButton.Title        = ""
+		ClearCodeButton.Disabled    = True
+		ClearCodeButton.Title       = ""
+		RunCodeButton.Disabled      = True
+		RunCodeButton.Title         = ""
+		GenerateCodeButton.Disabled = False
+		GenerateCodeButton.Title    = "Press this button to generate the code that will display the properties and their values for the selected WMI class, in the selected scripting language"
+	Else
+		CopyCodeButton.Disabled     = False
+		CopyCodeButton.Title        = "Press this button to copy the generated code to the clipboard"
+		ClearCodeButton.Disabled    = False
+		ClearCodeButton.Title       = "Press this button to erase the generated code"
+		RunCodeButton.Disabled      = False
+		RunCodeButton.Title         = "Press this button to run the generated (VBScript) code"
+		GenerateCodeButton.Disabled = True
+		GenerateCodeButton.Title    = ""
+	End If
+End Sub
+
+
+Sub CheckUpdate( )
+	If blnUpdateCheck Then
+		' Change mouse pointer to hourglass while checking for update
+		Document.Body.Style.Cursor = "wait"
+	
+		strLatestVer  = TextFromHTML( "http://www.robvanderwoude.com/updates/wmigen.txt" )
+		lenLatestVer  = Len( strLatestVer )
+		If lenLatestVer = 4 Then
+			strCurrentVer = WMIGen.Version
+			If strLatestVer < strCurrentVer Then
+				Update.InnerHTML = "<p class=""White"">You seem to be using an invalid version (" & strCurrentVer _
+				                 & ") of the WMI Code Generator.<br>The latest valid version is " _
+				                 & strLatestVer & " and it is available " _
+				                 & "<a href=""http://www.robvanderwoude.com/wmigen.php"" class=""Red"">here</a>.</p>"
+			End If
+			If strLatestVer > strCurrentVer Then
+				Update.InnerHTML = "<p class=""White"">You are using version " & strCurrentVer _
+				                 & " of the WMI Code Generator.<br>An update to version " _
+				                 & strLatestVer & " is available " _
+				                 & "<a href=""http://www.robvanderwoude.com/wmigen.php"" class=""Red"">here</a>.</p>"
+			End If
+		End If
+	
+		' Change mouse pointer back to default
+		Document.Body.Style.Cursor = "default"
+	End If
+End Sub
+
+
+Sub CheckWindowSize( )
+	Dim myHeight, myWidth
+	Dim codeBoxRows, largeBoxWidth, smallBoxHeight, smallBoxWidth
+	Dim strWxH
+
+	If InStr( strCmdLine, "/SIZE:" ) > 0 Then WxH InStr( strCmdLine, "/SIZE:" ) + 5
+	myWidth = Document.Body.ClientWidth
+	myHeight = Document.Body.ClientHeight
+	largeBoxWidth  = CInt( myWidth / 9 )
+	smallBoxWidth  = CInt( ( largeBoxWidth - 5 ) / 2 )
+	smallBoxHeight = CInt( myHeight / 100 )
+	codeBoxRows    = CInt( myHeight /  50 )
+	If smallBoxHeight <  6 Then smallBoxHeight =  6
+	If codeBoxRows    < 15 Then codeBoxRows    = 15
+
+	Code.Cols       = largeBoxWidth
+	Code.Rows       = codeBoxRows
+	Properties.size = smallBoxHeight
+	Methods.size    = smallBoxHeight
+	WMIClasses.size = smallBoxHeight
+End Sub
+
+
+Sub ClearCode( )
+	Code.Value = ""
+	ButtonState True
+End Sub
+
+
+Sub CopyCode( )
+	strCode = Code.Value
+	Document.ParentWindow.ClipboardData.SetData "text", strCode
+End Sub
+
+
+Sub CreateIEHelp( )
+	On Error Resume Next
+	objIEHelp.Close
+	On Error Goto 0
+	Set objIEHelp = Nothing
+	Set objIEHelp = CreateObject( "InternetExplorer.Application" )
+	objIEHelp.Navigate "about:blank"
+	objIEHelp.AddressBar  = 1
+	objIEHelp.MenuBar     = 1
+	objIEHelp.StatusBar   = 1
+	objIEHelp.ToolBar     = 1
+	objIEHelp.Top         = 0
+	objIEHelp.Left        = 0
+	objIEHelp.Width       = 800
+	objIEHelp.Height      = 600
+	objIEHelp.TheaterMode = 0
+	objIEHelp.Visible     = 1
+End Sub
+
+
+Function CreateLine( strProperty, intStringLength )
+	' This subroutine will split up a string into separate words if command line switch /SPACES is used:
+	' "SCSILogicalUnit" will be converted to "SCSI Logical Unit"
+
+	On Error Resume Next
+
+	Dim i, j, k, maxLen, strPropDescr, strLowc, strCaps, strPad, chrA, chrB
+
+	maxLen       = intStringLength
+	strPropDescr = strProperty
+	strCaps      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	strPad       = Space( maxLen + 40 )
+	strLowc      = LCase( strCaps )
+
+	If blnUseSpacesInProperties Then
+		maxLen = maxLen + 4
+		i = 0
+		Do
+			i = i + 1
+			j = i + 1
+			If j >= Len( strPropDescr ) Then Exit Do
+			chrA = Mid( strPropDescr, i, 1 )
+			chrB = Mid( strPropDescr, j, 1 )
+			If InStr( strLowc, chrA ) > 0 And InStr( strCaps, chrB ) > 0 Then
+				strPropDescr = Left( strPropDescr, i ) & " " & Mid( strPropDescr, j )
+				i = i + 2
+				j = i + 1
+			End If
+		Loop
+
+		If Len( strPropDescr ) > 2 Then
+			i = 0
+			Do
+				i = i + 1
+				j = i + 1
+				k = i + 2
+				If k >= Len( strPropDescr ) Then Exit Do
+				chrA = Mid( strPropDescr, i, 1 )
+				chrB = Mid( strPropDescr, j, 1 )
+				chrC = Mid( strPropDescr, k, 1 )
+				If InStr( strCaps, chrA ) > 0 And InStr( strCaps, chrB ) > 0 And InStr( strLowc, chrC ) > 0 Then
+					strPropDescr = Left( strPropDescr, i ) & " " & Mid( strPropDescr, j )
+					i = i + 3
+					j = i + 1
+					k = i + 2
+				End If
+			Loop
+		End If
+	Else
+		strPropDescr = strProperty
+	End If
+
+	On Error Goto 0
+
+	CreateLine = Left( strPropDescr & strPad, maxLen ) & " :"
+End Function
+
+
+Sub FillClassDropDown( )
+	' Bubble sort algorithm found in Microsoft's Script Repository
+	' http://www.microsoft.com/technet/scriptcenter/resources/qanda/nov04/hey1122.mspx
+
+	Dim arrOptions( )
+	intSize = 0
+
+	' Change cursor to hourglass while loading WMI class list
+	Document.Body.Style.Cursor = "wait"
+
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root\cimv2" )
+	Set colClasses    = objWMIService.SubClassesOf
+
+	' Store the list of classes in an array
+	For Each objClass In colClasses
+		' List only Win32_* classes if /WIN32 was used
+		If Left( UCase( objClass.Path_.Class ), 6 ) = "WIN32_" Or blnShowAllClasses Then
+			' Skip Win32_Perf* classes if /NOPERF was used
+			If Left( UCase( objClass.Path_.Class ), 10 ) <> "WIN32_PERF" Or blnShowPerfClasses Then
+				' Skip WMI systemm properties starting with a double underscore
+				If Left( objClass.Path_.Class, 2 ) <> "__" Then
+					ReDim Preserve arrOptions( intSize )
+					arrOptions( intSize ) = objClass.Path_.Class
+					intSize = intSize + 1
+				End If
+			End If
+		End If
+	Next
+
+	' Sort the classes
+	For i = ( UBound( arrOptions ) - 1 ) to 0 Step -1
+		For j= 0 to i
+			If UCase( arrOptions( j ) ) > UCase( arrOptions( j + 1 ) ) Then
+				strHolder           = arrOptions( j + 1 )
+				arrOptions( j + 1 ) = arrOptions( j )
+				arrOptions( j )     = strHolder
+			End If
+		Next
+	Next 
+
+	' Purge the classes list
+	WMIClasses.InnerHTML = ""
+
+	' Populate the classes list
+	For i = 0 To UBound( arrOptions )
+		Set objNewOption  = document.createElement( "OPTION" )
+		If CInt( i / 2 ) <> ( i / 2 ) Then
+			objNewOption.style.backgroundcolor = "#F0F0F0"
+		End If
+		objNewOption.Text = arrOptions(i)
+		If i = 0 Then objNewOption.Selected = True
+		WMIClasses.options.Add( objNewOption )
+	Next
+
+	' Change cursor back to default
+	Document.Body.Style.Cursor = "default"
+
+	HandleClassChange
+End Sub
+
+
+Sub GetHelp( )
+	' Check which class is selected
+	For Each objOption In WMIClasses.options
+		If objOption.Selected = True Then
+			strClass = Trim( objOption.Text)
+		End If
+	Next
+	' Check which Property is selected, if any
+	strMember = ""
+	For Each objOption In Properties.options
+		If objOption.Selected = True Then
+			strMember = "+" & Trim( objOption.Text ) & "+property"
+		End If
+	Next
+	' Check which Method is selected, if any
+	For Each objOption In Methods.options
+		If objOption.Selected = True Then
+			strMember = "+" & Trim( objOption.Text ) & "+method"
+		End If
+	Next
+	
+	' Google search techniques learned from
+	' http://www.seroundtable.com/archives/015944.html
+	strURLHelp = "http://www.google.com/search?q=" _
+	           & strClass  _
+	           & strMember _
+	           & "&site=msdn.microsoft.com&btnI=745&pws=0"
+	On Error Resume Next
+	objIEHelp.Navigate strURLHelp
+	If Err.Number Then
+		CreateIEHelp
+		objIEHelp.Navigate strURLHelp
+	End If
+	On Error Goto 0
+	objIEHelp.Visible = 1
+End Sub
+
+
+Sub HandleClassChange( )
+	Dim arrMethods( ), arrProperties( )
+	Dim intMethods, intProperties
+
+	' Purge the Methods list
+	For Each objOption in Methods.options
+		objOption.RemoveNode
+	Next
+	ReDim arrMethods( 0 )
+	intMethods = 0
+
+	' Purge the Properties list
+	For Each objOption in Properties.options
+		objOption.RemoveNode
+	Next
+	ReDim arrProperties( 0 )
+	intProperties = 0
+	
+	' Change cursor to hourglass while loading the class' members lists
+	Document.Body.Style.Cursor = "wait"
+
+	For Each objOption In WMIClasses.Options
+		If objOption.Selected = True Then
+			strClass = objOption.Text
+			Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+			Set objClass      = objWMIService.Get( strClass )
+
+			' Store the list of methods in an array
+			For Each objMethod In objClass.Methods_
+				ReDim Preserve arrMethods( intMethods )
+				arrMethods( intMethods ) = objMethod.Name
+				intMethods = intMethods + 1
+			Next
+
+			' Store the list of properties in an array
+			For Each objProperty In objClass.Properties_
+				ReDim Preserve arrProperties( intProperties )
+				arrProperties( intProperties ) = objProperty.Name
+				intProperties = intProperties + 1
+			Next
+
+			If IsArray( arrMethods ) Then
+				' Sort the methods list
+				For i = ( UBound( arrMethods ) - 1 ) to 0 Step -1
+					For j= 0 to i
+						If UCase( arrMethods( j ) ) > UCase( arrMethods( j + 1 ) ) Then
+							strHolder           = arrMethods( j + 1 )
+							arrMethods( j + 1 ) = arrMethods( j )
+							arrMethods( j )     = strHolder
+						End If
+					Next
+				Next 
+
+				' Populate the Methods list
+				i = 0
+				For Each strOption in arrMethods
+					Set objNewOption  = document.createElement( "OPTION" )
+					If CInt( i / 2 ) <> ( i / 2 ) Then
+						objNewOption.style.backgroundcolor = "#F0F0F0"
+					End If
+					objNewOption.Text = strOption
+					Methods.options.Add( objNewOption )
+					i = i + 1
+				Next
+			End If
+
+			If IsArray( arrProperties ) Then
+				' Sort the properties list
+				For i = ( UBound( arrProperties ) - 1 ) to 0 Step -1
+					For j= 0 to i
+						If UCase( arrProperties( j ) ) > UCase( arrProperties( j + 1 ) ) Then
+							strHolder              = arrProperties( j + 1 )
+							arrProperties( j + 1 ) = arrProperties( j )
+							arrProperties( j )     = strHolder
+						End If
+					Next
+				Next 
+
+				' Populate the Properties list
+				i = 0
+				For Each strOption in arrProperties
+					Set objNewOption  = document.createElement( "OPTION" )
+					If CInt( i / 2 ) <> ( i / 2 ) Then
+						objNewOption.style.backgroundcolor = "#F0F0F0"
+					End If
+					objNewOption.Text = strOption
+					Properties.options.Add( objNewOption )
+					i = i + 1
+				Next
+			End if
+		End If
+	Next
+
+	' Change cursor back to default
+	Document.Body.Style.Cursor = "default"
+
+	Code.Value = ""
+	ButtonState True
+End Sub
+
+
+Sub HandleLanguageChange( )
+	ButtonState True
+	Code.Value = ""
+End Sub
+
+
+Sub HelpMsg( )
+	Dim strMsg
+	strMsg = "WMI Code Generator,  Version " & WMIGen.Version _
+	       & vbCrLf _
+	       & "Interactively generate source code in the selected scripting or programming" _
+	       & vbCrLf _
+	       & "language, for a selected WMI query" _
+	       & vbCrLf & vbCrLf _
+	       & "Usage:  " & vbTab & "WMIGEN.HTA  [ options ]" _
+	       & vbCrLf & vbCrLf _
+	       & "Options:" & vbTab & "/HELP or /?" & vbTab & "Show this message" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/NOPERF    " & vbTab & "Exclude Win32_Perf* classes" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/NOUPDCHK"   & vbTab & "Skip check for updates at startup" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/SIZE:WxH  " & vbTab & "Resize window to W x H" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/SPACES    " & vbTab & "Insert spaces in property names" _
+	       & vbCrLf _
+	       & "        " & vbTab & vbTab & vbTab & "(e.g. ""Device  ID"" instead of ""DeviceID"")" _
+	       & vbCrLf _
+	       & "        " & vbTab & "/WIN32        " & vbTab & "List Win32_* classes only" _
+	       & vbCrLf & vbCrLf _
+	       & "Written by Rob van der Woude" _
+	       & vbCrLf _
+	       & "http://www.robvanderwoude.com"
+	MsgBox strMsg, vbOKOnly, "WMIGen " & WMIGen.Version
+End Sub
+
+
+Function Max( num1, num2 )
+	If num1 > num2 Then
+		Max = num1
+	Else
+		Max = num2
+	End If
+End Function
+
+
+Function Min( num1, num2 )
+	If num1 < num2 Then
+		Min = num1
+	Else
+		Min = num2
+	End If
+End Function
+
+
+Sub OnClickCheckboxWin32_Only()
+    If Win32_Only.checked Then
+        blnShowAllClasses = False
+    Else
+        blnShowAllClasses = True
+    End If
+    FillClassDropDown
+End Sub
+
+
+Sub OnClickCheckboxExcludPerf()
+    If Exclude_Perf.checked Then
+        blnShowPerfClasses = False
+    Else
+        blnShowPerfClasses = True
+    End If
+    FillClassDropDown
+End Sub
+
+
+Sub OnClickCheckboxUseSpaces()
+    If Use_Spaces.checked Then
+        blnUseSpacesInProperties = True
+    Else
+        blnUseSpacesInProperties = False
+    End If
+End Sub
+
+
+Sub RunCode( )
+	Dim maxLen
+	Dim colItems, objItem, objOption, objProperty, objWMIService
+	Dim strClass, strCode, strProperty
+
+	' Change mouse pointer to hourglass while running the code
+	Document.Body.Style.Cursor = "wait"
+	Code.Value                 = " . . . Please Wait . . ."
+	CodeLabel.InnerHTML        = "Result:"
+
+	For Each objOption In WMIClasses.Options
+		If objOption.Selected = True Then
+			strClass = objOption.Text
+		End If
+	Next
+
+	Set objWMIService = GetObject( "winmgmts://" & strComputer )
+	Set colItems = objWMIService.InstancesOf( strClass )
+
+	On Error Resume Next
+
+	maxLen = 0
+	For Each objItem In colItems
+		For Each objProperty In objItem.Properties_
+			If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+		Next
+	Next
+
+	For Each objItem In colItems
+		For Each objProperty In objItem.Properties_
+			strProperty = objProperty.Name
+			strCode = strCode & CreateLine( strProperty, maxLen ) & " "
+			If IsArray( objItem.Properties_.Item( strProperty, 0 ) ) Then
+				strCode = strCode & Join( objItem.Properties_.Item( strProperty, 0 ), ";" )
+			Else
+				strCode = strCode & objItem.Properties_.Item( strProperty, 0 )
+			End If
+			strCode = strCode & vbCrLf
+		Next
+		strCode = strCode & vbCrLf
+	Next
+
+	On Error Goto 0
+
+	Code.Value                  = strCode
+	Code.title                  = "After pressing the 'Generate Code' button again, the generated code to display the available properties and their values for the selected WMI class and scripting language will be shown here once more"
+	CopyCodeButton.Title        = "Press this button to copy the result to the clipboard"
+	ClearCodeButton.Title       = "Press this button to erase the result"
+	RunCodeButton.Disabled      = True
+	RunCodeButton.Title         = ""
+	GenerateCodeButton.Disabled = False
+	GenerateCodeButton.Title    = "Press this button to generate the code that will display the properties and their values for the selected WMI class, in the selected scripting language"
+	' Change mouse pointer back to default
+	Document.Body.Style.Cursor  = "default"
+End Sub
+
+
+Sub ShowCode( )
+	' Change mouse pointer to hourglass while running the code
+	Document.Body.Style.Cursor = "wait"
+
+	For Each objOption In WMIClasses.Options
+		If objOption.Selected = True Then
+			strClass = objOption.Text
+		End If
+	Next
+
+	Select Case CodeLanguage.Value
+		Case "Batch"
+			ShowBatchCode strClass
+		Case "CSharp"
+			ShowCSharpCode strClass
+		Case "FSharp"
+			ShowFSharpCode strClass
+		Case "JScript"
+			ShowJScriptCode strClass
+		Case "KiXtart"
+			ShowKiXtartCode strClass
+		Case "ObjectRexx"
+			ShowObjectRexxCode strClass
+		Case "Perl"
+			ShowPerlCode strClass
+		Case "PowerShell"
+			ShowPowerShellCode strClass
+		Case "Python"
+			ShowPythonCode strClass
+		Case "Ruby"
+			ShowRubyCode strClass
+		Case "VBDotNET"
+			ShowVBDotNETCode strClass
+		Case "VBScript"
+			ShowVBScriptCode strClass
+	End Select
+
+	' Change mouse pointer back to default
+	Document.Body.Style.Cursor  = "default"
+	Code.title = "After pressing the 'Run WMI Code' button, the generated (VBScript) code will be executed, and the result will be shown here"
+End Sub
+
+
+Sub ShowBatchCode( myClass )
+	strCode = "@ECHO OFF" _
+	        & vbCrLf _
+	        & ":: WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & ":: This batch file was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & ":: http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "IF ""%~1""=="""" (" _
+	        & vbCrLf _
+	        & vbTab & "SET Node=%ComputerName%" _
+	        & vbCrLf _
+	        & ") ELSE (" _
+	        & vbCrLf _
+	        & vbTab & "SET Node=%~1" _
+	        & vbCrLf _
+	        & ")" _
+	        & vbCrLf & vbCrLf _
+	        & "WMIC.EXE /Node:""%Node%"" /Output:STDOUT Path " & myClass & " Get /Format:LIST" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowCSharpCode( myClass )
+	Dim intCIMType, maxLen
+	Dim objClass, objProperty, objWMIService
+	Dim strCIMType, strCode
+
+	Const wbemCIMTypeSint16    =   2 'Signed 16-bit integer
+	Const wbemCIMTypeSint32    =   3 'Signed 32-bit integer
+	Const wbemCIMTypeReal32    =   4 '32-bit real number
+	Const wbemCIMTypeReal64    =   5 '64-bit real number
+	Const wbemCIMTypeString    =   8 'String
+	Const wbemCIMTypeBoolean   =  11 'Boolean value
+	Const wbemCIMTypeObject    =  13 'CIM object
+	Const wbemCIMTypeSint8     =  16 'Signed 8-bit integer
+	Const wbemCIMTypeUint8     =  17 'Unsigned 8-bit integer
+	Const wbemCIMTypeUint16    =  18 'Unsigned 16-bit integer
+	Const wbemCIMTypeUint32    =  19 'Unsigned 32-bit integer
+	Const wbemCIMTypeSint64    =  20 'Signed 64-bit integer
+	Const wbemCIMTypeUint64    =  21 'Unsigned 64-bit integer
+	Const wbemCIMTypeDatetime  = 101 'Date/time value
+	Const wbemCIMTypeReference = 102 'Reference to a CIM object
+	Const wbemCIMTypeChar16    = 103 '16-bit character
+
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "// WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "// This C# code was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "// http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "using System;" _
+	        & vbCrLf _
+	        & "using System.Linq;" _
+	        & vbCrLf _
+	        & "using System.Management;" _
+	        & vbCrLf & vbCrLf _
+	        & "namespace WMIGen" _
+	        & vbCrLf _
+	        & "{" _
+	        & vbCrLf _
+	        & vbTab & "public class " & myClass & "_Query" _
+	        & vbCrLf _
+	        & vbTab & "{" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "public static int Main(string[] args)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "{" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "try" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "{" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "string computer = string.Empty;" _
+            & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "if (args.Count() == 1)" _
+            & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "{" _
+            & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & vbtab & "computer = ""\\\\"" + args[0] + ""\\"";" _
+            & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "}" _
+	        & vbCrLf & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "ManagementObjectSearcher searcher = new ManagementObjectSearcher(computer + ""root\\CIMV2"", ""SELECT * FROM " & myClass & """);" _
+	        & vbCrLf & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "foreach (ManagementObject queryObj in searcher.Get())" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "{" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & vbTab & vbTab & vbTab & vbTab
+		If objProperty.IsArray = True Then
+			intCIMType = objProperty.CIMType
+			strCIMType = "string"
+			If intCIMType < 8 Then strCIMType = "UInt16"
+			If intCIMType > 15 And intCIMType < 100 Then strCIMType = "UInt16"
+			strCode = strCode & "if (queryObj[""" & objProperty.Name & """] == null)" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "{" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.WriteLine(""" & CreateLine( objProperty.Name, maxLen ) & " {0}"", queryObj[""" & objProperty.Name & """]);" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "}" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "else" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "{" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & strCIMType & "[] arrProperty = (" & strCIMType & "[])(queryObj[""" & objProperty.Name & """]);" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.Write(""" & CreateLine( objProperty.Name, maxLen ) & " "");" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.WriteLine(string.Join("";"", arrProperty.Select(cap => cap.ToString()).ToArray()));" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "}" _
+			        & vbCrLf
+		Else
+			strCode = strCode & "Console.WriteLine(""" & CreateLine( objProperty.Name, maxLen ) & " {0}"", queryObj[""" & objProperty.Name & """]);" & vbCrLf
+		End If
+	Next
+	strCode = strCode & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.WriteLine();" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "}" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "return 0;" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "}" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "catch (Exception e)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "{" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Console.Error.WriteLine(""An error occurred while querying WMI: {0}"", e.Message);" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "return 1;" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "}" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "}" _
+	        & vbCrLf _
+	        & vbTab & "}" _
+	        & vbCrLf _
+	        & "}" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowFSharpCode( myClass )
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "// WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "// This F# code was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "// http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "#if INTERACTIVE" _
+	        & vbCrLf _
+	        & "#r ""System""" _
+	        & vbCrLf _
+	        & "#r ""System.Management""" _
+	        & vbCrLf _
+	        & "#endif" _
+	        & vbCrLf & vbCrLf _
+	        & "open System" _
+	        & vbCrLf _
+	        & "open System.Management" _
+	        & vbCrLf & vbCrLf _
+	        & "let scope = ManagementScope(@""\\localhost\root\cimv2"")" _
+	        & vbCrLf _
+	        & "let query = ObjectQuery(""SELECT * FROM " & myClass & """)" _
+	        & vbCrLf _
+	        & "let searcher = new ManagementObjectSearcher(query)" _
+	        & vbCrLf & vbCrLf _
+	        & "for obj in searcher.Get() do" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & "    printfn """ & CreateLine( objProperty.Name, maxLen ) & " %A"" (obj.GetPropertyValue(""" & objProperty.Name & """))" & vbCrLf
+	Next
+
+	strCode = strCode & "    printfn """""
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowJScriptCode( myClass )
+	' IsArray and Join() functionality "borrowed" from Scriptomatic 2.0
+	' http://www.microsoft.com/downloads/details.aspx?FamilyID=09dfc342-648b-4119-b7eb-783b0f7d1178&DisplayLang=en
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "// WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "// This JScript code was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "// http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "var wbemFlagReturnImmediately = 0x10;" _
+	        & vbCrLf _
+	        & "var wbemFlagForwardOnly       = 0x20;" _
+	        & vbCrLf & vbCrLf _
+	        & "objArgs = WScript.Arguments;" _
+	        & vbCrLf _
+	        & "if ( objArgs.length == 1 ) {" _
+	        & vbCrLf _
+	        & "	var strComputer = objArgs[0]" _
+	        & vbCrLf _
+	        & "} else {" _
+	        & vbCrLf _
+	        & "	var strComputer = "".""" _
+	        & vbCrLf _
+	        & "}" _
+	        & vbCrLf & vbCrLf _
+	        & "var objWMIService = GetObject( ""winmgmts://"" + strComputer + ""/root/CIMV2"" );" _
+	        & vbCrLf _
+	        & "var colItems      = objWMIService.ExecQuery( ""SELECT * FROM " & myClass & """, ""WQL"", wbemFlagReturnImmediately | wbemFlagForwardOnly );" _
+	        & vbCrLf & vbCrLf _
+	        & "var enumItems = new Enumerator( colItems );" _
+	        & vbCrLf _
+	        & "for ( ; !enumItems.atEnd(); enumItems.moveNext( ) ) {" _
+	        & vbCrLf _
+	        & "	var objItem = enumItems.item( );" _
+	        & vbCrLf & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		If objProperty.IsArray = True Then
+			strCode = strCode & vbTab & "try { WScript.Echo( """ & CreateLine( objProperty.Name, maxLen ) & " "" + ( objItem." & objProperty.Name & ".toArray( ) ).join( "","" ) ); }" _
+			        & vbCrLf _
+			        & vbTab & "catch( e ) { WScript.Echo( """ & CreateLine( objProperty.Name, maxLen ) & " null"" ); }" _
+			        & vbCrLf
+		Else
+			strCode = strCode & vbTab & "WScript.Echo( """ & CreateLine( objProperty.Name, maxLen ) & " "" + objItem." & objProperty.Name & " );" _
+			        & vbCrLf
+		End If
+	Next
+
+	strCode = strCode _
+	        & vbTab & "WScript.Echo( """" );" _
+	        & vbCrLf & "}" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowKiXtartCode( myClass )
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "; WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "; This KiXtart script was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "; http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "Break On" _
+	        & vbCrLf & vbCrLf _
+	        & "If $computer = """"" _
+	        & vbCrLf _
+	        & vbTab & "$arrKixVer = Split( @Kix, ""."" )" _
+	        & vbCrLf _
+	        & vbTab & "$KiXVer    = 100 * $arrKixVer[ 0 ] + $arrKixVer[ 1 ]" _
+	        & vbCrLf _
+	        & vbTab & "$computer  = "".""" _
+	        & vbCrLf _
+	        & vbTab & "If $KixVer > 451" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "$arrGetCommandLine = GetCommandLine( 1 )" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "$LastArg = $arrGetCommandLine[ UBound( $arrGetCommandLine ) ]" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "If $LastArg <> ""@ScriptDir\@ScriptName""" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "$computer = $LastArg" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "EndIf" _
+	        & vbCrLf _
+	        & vbTab & "EndIf" _
+	        & vbCrLf _
+	        & "EndIf" _
+	        & vbCrLf & vbCrLf _
+	        & "$objWMIService = GetObject( ""winmgmts://"" + $computer + ""/root/CIMV2"" )" _
+	        & vbCrLf _
+	        & "$colItems      = $objWMIService.ExecQuery( ""SELECT * FROM " & myClass & """, ""WQL"", 48 )" _
+	        & vbCrLf & vbCrLf _
+	        & "For Each $objItem In $colItems" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & "? """ & CreateLine( objProperty.Name, maxLen ) & " "" + "
+		If objProperty.IsArray = True Then strCode = strCode & "Join( "
+		strCode = strCode & "$objItem." & objProperty.Name
+		If objProperty.IsArray = True Then strCode = strCode & ", "","" )"
+		strCode = strCode & vbCrLf
+	Next
+
+	strCode = strCode _
+	        & vbTab & "?" _
+	        & vbCrLf _
+	        & "Next" _
+	        & vbCrLf & vbCrLf _
+	        & "Quit" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowObjectRexxCode( myClass )
+	' Based on the Rexx script samples found at the Script Repository:
+	' http://www.microsoft.com/technet/scriptcenter/scripts/rexx/default.mspx?mfr=true
+	' Tested with Open Object Rexx: http://www.oorexx.org/
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "/*" _
+	        & vbCrLf _
+	        & "WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "This Open Object Rexx script was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf _
+	        & "*/" _
+	        & vbCrLf & vbCrLf _
+	        & "Parse Upper Arg strComputer ." _
+	        & vbCrLf _
+	        & "If strComputer = """" Then strComputer = "".""" _
+	        & vbCrLf & vbCrLf _
+	        & "objWMIService = .OLEObject~GetObject( ""winmgmts://""||strComputer||""/root/CIMV2"" )" _
+	        & vbCrLf & vbCrLf _
+	        & "Do objItem Over objWMIService~ExecQuery( ""Select * from " & myClass & """ )" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & "Say """ & CreateLine( objProperty.Name, maxLen ) & " ""||"
+		If objProperty.IsArray = True Then strCode = strCode & "Translate( "
+		strCode = strCode & "objItem~" & objProperty.Name
+		If objProperty.IsArray = True Then strCode = strCode & ", "","", ""0D0A""x )"
+		strCode = strCode & vbCrLf
+	Next
+
+	strCode = strCode _
+	        & vbTab & "Say" _
+	        & vbCrLf _
+	        & "End" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowPerlCode( myClass )
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "#! perl" _
+	        & vbCrLf & vbCrLf _
+	        & "# WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "# This Perl script was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "# http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "use Win32::OLE( 'in' );" _
+	        & vbCrLf & vbCrLf _
+	        & "use constant wbemFlagReturnImmediately => 0x10;" _
+	        & vbCrLf _
+	        & "use constant wbemFlagForwardOnly       => 0x20;" _
+	        & vbCrLf & vbCrLf _
+	        & "if ( $ARGV[0] ) {" _
+	        & vbCrLf _
+	        & vbTab & "$computer = $ARGV[0];" _
+	        & vbCrLf _
+	        & "} else {" _
+	        & vbCrLf _
+	        & vbTab & "$computer = ""."";" _
+	        & vbCrLf _
+	        & "}" _
+	        & vbCrLf & vbCrLf _
+	        & "my $objWMIService = Win32::OLE->GetObject( ""winmgmts://$computer/root/CIMV2"" ) or die ""WMI connection failed.\n"";" _
+	        & vbCrLf _
+	        & "my $colItems = $objWMIService->ExecQuery( ""SELECT * FROM " & myClass & """, ""WQL"", wbemFlagReturnImmediately | wbemFlagForwardOnly );" _
+	        & vbCrLf & vbCrLf _
+	        & "foreach my $objItem ( in $colItems ) {" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & "print """ & CreateLine( objProperty.Name, maxLen ) & " "" . "
+		If objProperty.IsArray = True Then strCode = strCode & "join( "","", ( in "
+		strCode = strCode & "$objItem->{ " & objProperty.Name & " }"
+		If objProperty.IsArray = True Then strCode = strCode & " ) )"
+		strCode = strCode & " . ""\n"";" & vbCrLf
+	Next
+
+	strCode = strCode _
+	        & vbTab & "print ""\n"";" _
+	        & vbCrLf _
+	        & "}" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowPowerShellCode( myClass )
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "# WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "# This PowerShell script was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "# http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "param( [string]$strComputer = ""."" )" _
+	        & vbCrLf & vbCrLf _
+	        & "$colItems = get-wmiobject -class """ & myClass & """ -namespace ""root\CIMV2"" -computername $strComputer" _
+	        & vbCrLf & vbCrLf _
+	        & "foreach ($objItem in $colItems) {" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & "write-host """ & CreateLine( objProperty.Name, maxLen ) & """ $objItem." & objProperty.Name & vbCrLf
+	Next
+
+	strCode = strCode _
+	        & vbTab & "write-host" _
+	        & vbCrLf _
+	        & "}" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowPythonCode( myClass )
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "#! python" _
+	        & vbCrLf & vbCrLf _
+	        & "# WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "# To use WMI in Python, install the Python for Windows extensions:" _
+	        & vbCrLf _
+	        & "# http://sourceforge.net/projects/pywin32/files/pywin32/" _
+	        & vbCrLf _
+	        & "# This Python script was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "# http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "import sys" _
+	        & vbCrLf _
+	        & "import win32com.client" _
+	        & vbCrLf & vbCrLf _
+	        & "try:" _
+	        & vbCrLf _
+	        & vbTab & "strComputer = sys.argv[1]" _
+	        & vbCrLf _
+	        & "except IndexError:" _
+	        & vbCrLf _
+	        & vbTab & "strComputer = "".""" _
+	        & vbCrLf & vbCrLf _
+	        & "objWMIService = win32com.client.Dispatch( ""WbemScripting.SWbemLocator"" )" _
+	        & vbCrLf _
+	        & "objSWbemServices = objWMIService.ConnectServer( strComputer, ""root/cimv2"" )" _
+	        & vbCrLf _
+	        & "colItems = objSWbemServices.ExecQuery( ""SELECT * FROM " & myClass & """ )" _
+	        & vbCrLf & vbCrLf _
+	        & "for objItem in colItems:" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		If objProperty.IsArray = True Then
+			strCode = strCode & vbTab & "strList = "" """ _
+			        & vbCrLf _
+			        & vbTab & "try:" _
+			        & vbCrLf _
+			        & vbTab & vbTab & "for objElem in objItem." & objProperty.Name & " :" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & "strList = strList + str( objElem ) + "",""" _
+			        & vbCrLf _
+			        & vbTab & "except:" _
+			        & vbCrLf _
+			        & vbTab & vbTab & "strList = strList + 'null'" _
+			        & vbCrLf _
+			        & vbTab & "print( """ & CreateLine( objProperty.Name, maxLen ) & """ + strList )" _
+			        & vbCrLf
+		Else
+			strCode = strCode _
+			        & vbTab & "if objItem." & objProperty.Name & " != None:" _
+			        & vbCrLf _
+			        & vbTab & vbTab & "print( """ & CreateLine( objProperty.Name, maxLen ) & " "" + str( objItem." & objProperty.Name & " ) )" _
+			        & vbCrLf
+		End If
+	Next
+
+	strCode = strCode & vbTab & "print( )" & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowRubyCode( myClass )
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "# WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "# This Ruby script was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "# http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "require 'win32ole'" _
+	        & vbCrLf & vbCrLf _
+	        & "if ARGV[0]" _
+	        & vbCrLf _
+	        & vbTab & "computer = ARGV[0]" _
+	        & vbCrLf _
+	        & "else" _
+	        & vbCrLf _
+	        & vbTab & "computer = "".""" _
+	        & vbCrLf _
+	        & "end" _
+	        & vbCrLf & vbCrLf _
+	        & "objWMIService = WIN32OLE.connect( ""winmgmts://#{computer}"" )" _
+	        & vbCrLf _
+	        & "colItems = objWMIService.ExecQuery( ""SELECT * FROM " & myClass & """ )" _
+	        & vbCrLf & vbCrLf _
+	        & "for objItem in colItems do" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & "puts """ & CreateLine( objProperty.Name, maxLen ) & " #{objItem." & objProperty.Name & "}""" & vbCrLf
+	Next
+
+	strCode = strCode _
+	        & vbTab & "puts" _
+	        & vbCrLf _
+	        & "end" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowVBDotNETCode( myClass )
+	Const wbemCIMTypeSint16    =   2 'Signed 16-bit integer
+	Const wbemCIMTypeSint32    =   3 'Signed 32-bit integer
+	Const wbemCIMTypeReal32    =   4 '32-bit real number
+	Const wbemCIMTypeReal64    =   5 '64-bit real number
+	Const wbemCIMTypeString    =   8 'String
+	Const wbemCIMTypeBoolean   =  11 'Boolean value
+	Const wbemCIMTypeObject    =  13 'CIM object
+	Const wbemCIMTypeSint8     =  16 'Signed 8-bit integer
+	Const wbemCIMTypeUint8     =  17 'Unsigned 8-bit integer
+	Const wbemCIMTypeUint16    =  18 'Unsigned 16-bit integer
+	Const wbemCIMTypeUint32    =  19 'Unsigned 32-bit integer
+	Const wbemCIMTypeSint64    =  20 'Signed 64-bit integer
+	Const wbemCIMTypeUint64    =  21 'Unsigned 64-bit integer
+	Const wbemCIMTypeDatetime  = 101 'Date/time value
+	Const wbemCIMTypeReference = 102 'Reference to a CIM object
+	Const wbemCIMTypeChar16    = 103 '16-bit character
+
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "' WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "' This VB .NET code was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "' http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "Imports System" _
+	        & vbCrLf _
+	        & "Imports System.Management" _
+	        & vbCrLf & vbCrLf _
+	        & "Namespace WMIGen" _
+	        & vbCrLf _
+	        & vbTab & "Module " & myClass & "_Query" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "Sub Main(ByVal ParamArray args() As String)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "Dim computer As String = String.Empty" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "Try" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "If args.Length > 0 Then" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & vbtab & "computer = ""\\"" & args(0) & ""\""" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "End If" _
+	        & vbCrLf & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Dim searcher As New ManagementObjectSearcher(computer & ""root\CIMV2"", ""SELECT * FROM " & myClass & """)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Dim arrPropertyInt() As UInt16" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Dim arrPropertyStr() As String" _
+	        & vbCrLf & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "For Each queryObj As ManagementObject In searcher.Get()" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & vbTab & vbTab & vbTab & vbTab
+		If objProperty.IsArray = True Then
+			intCIMType = objProperty.CIMType
+			strCIMType = "String"
+			strArrayPr = "arrPropertyStr"
+			If intCIMType < 8 Then strCIMType = "UInt16"
+			If intCIMType > 15 And intCIMType < 100 Then strCIMType = "UInt16"
+			If strCIMType = "UInt16" Then strArrayPr = "arrPropertyInt"
+			strCode = strCode _
+			        & "If queryObj(""" & objProperty.Name & """) Is Nothing Then" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.WriteLine(""" & CreateLine( objProperty.Name, maxLen ) & " {0}"", queryObj(""" & objProperty.Name & """))" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "Else" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & strArrayPr & " = queryObj(""" & objProperty.Name & """)" _
+			        & vbCrLf
+			If strCIMType = "UInt16" Then
+				strCode = strCode _
+				        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "ReDim arrPropertyStr(UBound(arrPropertyInt))" _
+				        & vbCrLf _
+                        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "For i = 0 To UBound(arrPropertyInt)" _
+                        & vbCrLf _
+                        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "arrPropertyStr(i) = CStr(arrPropertyInt(i))" _
+                        & vbCrLf _
+                        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "Next" _
+                        & vbCrLf
+			End If
+			strCode = strCode _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.WriteLine(""" & CreateLine( objProperty.Name, maxLen ) & " {0}"", Join(arrPropertyStr, "";""))" _
+			        & vbCrLf _
+			        & vbTab & vbTab & vbTab & vbTab & vbTab & "End If" _
+			        & vbCrLf
+		Else
+			strCode = strCode & "Console.WriteLine(""" & CreateLine( objProperty.Name, maxLen ) & " {0}"", queryObj(""" & objProperty.Name & """))" & vbCrLf
+		End If
+	Next
+	strCode = strCode _
+	        & vbTab & vbTab & vbTab & vbTab & vbtab & "Console.WriteLine()" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Next" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Environment.Exit(0)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "Catch err As ManagementException" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Console.Error.WriteLine(""An error occurred while querying WMI: "" & err.Message)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Environment.Exit(1)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "Catch err As System.Runtime.InteropServices.COMException" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Console.Error.Write(""An error occurred"")" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "If Not String.IsNullOrEmpty(computer) Then" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & vbTab & "Console.Error.Write("" while connecting to computer "" & computer.Replace(""\"", String.Empty))" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "End If" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Console.Error.WriteLine("": "" & err.Message)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & vbTab & "Environment.Exit(1)" _
+	        & vbCrLf _
+	        & vbTab & vbTab & vbTab & "End Try" _
+	        & vbCrLf _
+	        & vbTab & vbTab & "End Sub" _
+	        & vbCrLf _
+	        & vbTab & "End Module" _
+	        & vbCrLf _
+	        & "End Namespace" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Sub ShowVBScriptCode( myClass )
+	' IsArray an Join() functionality "borrowed" from Scriptomatic 2.0
+	' http://www.microsoft.com/downloads/details.aspx?FamilyID=09dfc342-648b-4119-b7eb-783b0f7d1178&DisplayLang=en
+	Set objWMIService = GetObject( "winmgmts:{impersonationLevel=impersonate}root/cimv2" )
+	Set objClass = objWMIService.Get( myClass )
+
+	strCode = "' WMI query to list all properties and values of the " & myClass & " class." _
+	        & vbCrLf _
+	        & "' This VBScript code was generated using the WMI Code Generator, Version " & WMIGen.Version _
+	        & vbCrLf _
+	        & "' http://www.robvanderwoude.com/wmigen.php" _
+	        & vbCrLf & vbCrLf _
+	        & "On Error Resume Next" _
+	        & vbCrLf & vbCrLf _
+	        & "Const wbemFlagReturnImmediately = &h10" _
+	        & vbCrLf _
+	        & "Const wbemFlagForwardOnly       = &h20" _
+	        & vbCrLf & vbCrLf _
+	        & "If WScript.Arguments.UnNamed.Count = 1 Then" _
+	        & vbCrLf _
+	        & vbTab & "strComputer = WScript.Arguments.UnNamed(1)" _
+	        & vbCrLf _
+	        & "Else" _
+	        & vbCrLf _
+	        & vbTab & "strComputer = "".""" _
+	        & vbCrLf _
+	        & "End If" _
+	        & vbCrLf & vbCrLf _
+	        & "Set objWMIService = GetObject( ""winmgmts://"" & strComputer & ""/root/CIMV2"" )" _
+	        & vbCrLf _
+	        & "Set colInstances = objWMIService.ExecQuery( ""SELECT * FROM " & myClass & """, ""WQL"", wbemFlagReturnImmediately + wbemFlagForwardOnly )" _
+	        & vbCrLf & vbCrLf _
+	        & "For Each objInstance In colInstances" _
+	        & vbCrLf
+
+	maxLen = 0
+	For Each objProperty In objClass.Properties_
+		If Len( objProperty.Name ) > maxLen Then maxLen = Len( objProperty.Name )
+	Next
+
+	For Each objProperty In objClass.Properties_
+		strCode = strCode & vbTab & "WScript.Echo """ & CreateLine( objProperty.Name, maxLen ) & " "" & "
+		If objProperty.IsArray = True Then strCode = strCode & "Join( "
+		strCode = strCode & "objInstance." & objProperty.Name
+		If objProperty.IsArray = True Then strCode = strCode & ", "","" )"
+		strCode = strCode & vbCrLf
+	Next
+
+	strCode = strCode _
+	        & vbTab & "WScript.Echo" _
+	        & vbCrLf _
+	        & "Next" _
+	        & vbCrLf
+
+	Code.Value = strCode
+	ButtonState False
+End Sub
+
+
+Function TextFromHTML( URL )
+	' Basic routine borrowed from http://dev.remotenetworktechnology.com/wsh/rubegoldberg.htm
+	' Improved wait-until-ready routine for HTAs by McKirahan on
+	' http://support.microsoft.com/newsgroups/default.aspx?dg=microsoft.public.scripting.scriptlets&tid=be461ec2-b444-440c-8155-ad0e8e839ca6&lang=en&cr=US&sloc=en-us&p=1
+
+	Set objIE = CreateObject( "InternetExplorer.Application" )
+ 	objIE.Navigate URL
+	While objIE.Busy
+	Wend
+	TextFromHTML = objIE.Document.Body.InnerText
+	objIE.Quit
+End Function
+
+
+Sub ToggleSettings( )
+	If Settings.style.display = "none" Then
+		Settings.style.display = "block"
+		SettingsButton.value = "Hide Settings"
+		SettingsButton.title = "Press this button to hide the program's configuration"
+	Else
+		Settings.style.display = "none"
+		SettingsButton.value = "Configure"
+		SettingsButton.title = "Press this button to change the program's configuration"
+	End If
+End Sub
+
+
+Sub Window_Onload
+	AppVersion.InnerHTML = WMIGen.Version
+	document.title = "WMI Code Generator " & WMIGen.Version
+	ButtonState True
+	If InStr( strCmdLine, "/NOPERF"   ) Then blnShowPerfClasses       = False
+	If InStr( strCmdLine, "/NOSPACES" ) Then blnUseSpacesInProperties = False
+	If InStr( strCmdLine, "/SPACES"   ) Then blnUseSpacesInProperties = True
+	If InStr( strCmdLine, "/NOUPDCHK" ) Then blnUpdateCheck           = False
+	If InStr( strCmdLine, "/WIN32"    ) Then blnShowAllClasses        = False
+	FillClassDropDown
+	CheckWindowSize
+	CheckUpdate
+	CreateIEHelp
+	objIEHelp.Visible = 0
+	If InStr( strCmdLine, "?" ) Or InStr( strCmdLine, "HELP" ) Then HelpMsg
+End Sub
+
+
+Sub Window_Onunload
+	On Error Resume Next
+	objIEHelp.Quit
+	Set objIEHelp = Nothing
+	On Error Goto 0
+End Sub
+
+
+Sub WindowSize( iWidth, iHeight )
+	On Error Resume Next
+	Dim posWidth, posHeight
+	posWidth  = ( window.screen.width  - iWidth ) / 2
+	posHeight = ( window.screen.height - iHeight ) / 2
+	If posWidth < 0 Then posWidth = 0
+	If posHeight < 0 Then posHeight = 0
+	window.resizeTo iWidth, iHeight
+	window.moveTo posWidth, posHeight
+	On Error GoTo 0
+End Sub
+
+
+Sub WxH( posColon )
+	Dim myHeight, myWidth, posSpace, posX, reqHeight, reqWidth
+	Dim strWxH
+
+	Const minHeight = 600
+	Const minWidth  = 800
+
+	strWxH = Mid( strCmdLine, posColon + 1 )
+	posSpace = InStr( strWxH, " " )
+	If posSpace > 0 Then
+		strWxH = Left( strWxH, posSpace - 1 )
+	End If
+	posX = InStr( strWxH, "X" )
+	If posX > 0 Then
+		reqWidth = CInt( Left( strWxH, posX - 1 ) )
+		reqHeight = CInt( Mid( strWxH, posX + 1 ) )
+		If IsNumeric( reqHeight ) And IsNumeric( reqWidth ) Then
+			reqHeight = Max( reqHeight, minHeight )
+			reqWidth  = Max( reqWidth,  minWidth )
+			reqHeight = Min( reqHeight, CInt( window.screen.height ) )
+			reqWidth  = Min( reqWidth,  CInt( window.screen.width  ) )
+			WindowSize reqWidth, reqHeight
+		End If
+	End If
+End Sub
+</script>
+
+<body style="font:12 pt arial; color:white; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#000000', EndColorStr='#FFFFFF')" onresize="CheckWindowSize()" onhelp="HelpMsg()">
+
+<div align="Center">
+
+<span id="Update"></span>
+
+<table border="0" cellspacing="10">
+<tr id="Settings" style="display: none;">
+    <th colspan="2">
+        <span style="width: 33%"><input type="checkbox" name="Win32_Only"   id="Win32_Only"   onclick="OnClickCheckboxWin32_Only"><label for="Win32_Only"  >List Win32 classes only</label></span>
+        <span style="width: 33%"><input type="checkbox" name="Exclude_Perf" id="Exclude_Perf" onclick="OnClickCheckboxExcludPerf"><label for="Exclude_Perf">Exclude Win32_Perf classes</label></span>
+        <span style="width: 33%" title="E.g. 'SCSILogicalUnit' will be displayed as 'SCSI  Logical  Unit'"><input type="checkbox" name="Use_Spaces"   id="Use_Spaces"   onclick="OnClickCheckboxUseSpaces" ><label for="Use_Spaces"  >Use spaces in property descriptions</label></span>
+    </th>
+</tr>
+<tr align="Center">
+    <th title="Select a WMI class from this drop-down list, then select a scripting language and press the 'Generate Code' button to show the code for the selected WMI query and the selected scripting language in the lower text area" align="Left">Select a WMI Class:</th>
+    <th align="Right"><input id="SettingsButton" onclick="ToggleSettings" type="submit" value="Configure" class="Button" title="Press this button to change the program's configuration"></th>
+</tr>
+<tr align="Center">
+    <td colspan="2" title="Select a WMI class from this drop-down list, then select a scripting language and press the 'Generate Code' button to show the code for the selected WMI query and the selected scripting language in the lower text area"><select onchange="HandleClassChange" name="WMIClasses" id="WMIClasses" size="6" style="width: 100%"></select></th>
+</tr>
+<tr align="Center">
+    <th title="This list shows the available properties for the selected WMI class" align="Left">Properties:</th>
+    <th title="This list shows the available methods for the selected WMI class"    align="Left">Methods:</th>
+</tr>
+<tr align="Center">
+    <td style="width: 50%"><select id="Properties" title="This list shows the available properties for the selected WMI class" size="6" style="width: 100%"></select></td>
+    <td style="width: 50%"><select id="Methods"    title="This list shows the available methods for the selected WMI class"    size="6" style="width: 100%"></select></td>
+</tr>
+<tr align="Center">
+    <th id="CodeLabel" title="After pressing the 'Generate Code' button, the generated code to display the available properties and their values for the selected WMI class will be shown here" align="Left">Code:</th>
+    <th align="Right"><input id="GetHelpButton" onclick="GetHelp" type="submit" value="Help" class="Button" title="Press this button to search and open the relevant MSDN page for the selected class, method and/or property"></th>
+</tr>
+<tr align="Center">
+    <td colspan="2"><textarea id="Code" rows="20" cols="70" readonly></textarea></td>
+</tr>
+<tr align="Left">
+    <th colspan="2" title="Select a scripting language from this drop-down list and press the 'Generate Code' button to show the code for the selected WMI query and scripting language in the text area above" align="Left">Select a scripting language:
+        <select name="CodeLanguage" id="CodeLanguage" onchange="HandleLanguageChange()" style="text-align: left; margin-left: 0">
+            <option value="Batch">Batch</option>
+            <option value="CSharp">C#</option>
+            <option value="FSharp">F#</option>
+            <option value="JScript">JScript</option>
+            <option value="KiXtart">KiXtart</option>
+            <option value="ObjectRexx">ObjectRexx</option>
+            <option value="Perl">Perl</option>
+            <option value="PowerShell">PowerShell</option>
+            <option value="Python">Python</option>
+            <option value="Ruby">Ruby</option>
+            <option value="VBDotNET">VB .NET</option>
+            <option value="VBScript">VBScript</option>
+        </select></th>
+</tr>
+<tr align="Center">
+    <td colspan="2">
+        <input id="GenerateCodeButton" onclick="ShowCode"  type="submit" value="Generate Code"     class="Button" title="Press this button to generate the code that will display the properties and their values for the selected WMI class, in the selected script language">
+        <input id="RunCodeButton"      onclick="RunCode"   type="submit" value="Run WMI Code"      class="Button" title="Press this button to run the generated (VBSCript) code">
+        <input id="ClearCodeButton"    onclick="ClearCode" type="submit" value="Clear"             class="Button" title="Press this button to erase the generated code">
+        <input id="CopyCodeButton"     onclick="CopyCode"  type="submit" value="Copy to Clipboard" class="Button" title="Press this button to copy the generated code to the clipboard"></td>
+</tr>
+</table>
+
+<p><span style="font-size: 12pt">WMI Code Generator,&nbsp; Version <span id="AppVersion">0.00</span></span><br>
+&copy; 2006 - 2011, Rob van der Woude<br>
+<a href="http://www.robvanderwoude.com/wmigen.php">http://www.robvanderwoude.com/wmigen.php</a></p>
+
+<p style="font-size: 60%">Based on the Microsoft TechNet ScriptCenter article <a href="http://www.microsoft.com/technet/scriptcenter/resources/guiguy/default.mspx">Scripting Eye for the GUI Guy</a>.<br>
+Created with the help of WBEMTEST, the Scripting Guys' <a href="http://www.microsoft.com/technet/scriptcenter/tools/scripto2.mspx">Scriptomatic</a> and <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=231D8143-F21B-4707-B583-AE7B9152E6D9&displaylang=en">HTA Helpomatic</a> tools, and Adersoft's <a href="http://www.htaedit.com/">HTAEdit</a>.<br>
+Help search function based on <a href="http://www.google.com/">Google Search</a> and completed with help from <a href="http://www.seroundtable.com/archives/015944.html">Search Engine Roundtable</a>.</p>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>Northrup Grumman Alternative Computing</title>
+<HTA:APPLICATION
+  APPLICATIONNAME="ThinClientMenu"
+  ID="ThinClientMenu"
+  VERSION="1.0"
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="no"
+  SCROLL="no"
+  SINGLEINSTANCE="yes"/>
+</head>
+
+<script language="VBScript">
+
+Sub Window_OnLoad
+self.Focus()
+self.ResizeTo 252,200
+End Sub
+
+Sub OnClickButtonCitrix()
+  'This method will be called when button "Citrix" is clicked
+  'Add your code here
+End Sub
+Sub OnClickButtonShutdown()
+  'This method will be called when button "Shutdown" is clicked
+  'Add your code here
+End Sub
+Sub OnClickButtonRestart()
+  'This method will be called when button "Restart" is clicked
+  'Add your code here
+End Sub
+</script>
+
+<body STYLE="font:10 pt arial; color:black;
+ filter:progid:DXImageTransform.Microsoft.Gradient
+(GradientType=0, StartColorStr='#000000', EndColorStr='#AAFFFF')"> <!--bgcolor="white"
+
+<!--Add your controls here-->
+
+<input type="button" name="Citrix" id="Citrix" value="Connect Citrix Desktop" onclick="OnClickButtonCitrix"><BR><BR>
+<input type="button" name="Shutdown" id="Shutdown" value="Shutdown" onclick="OnClickButtonShutdown"><BR><BR>
+<input type="button" name="Restart" id="Restart" value="Restart" onclick="OnClickButtonRestart">
+<!--{{InsertControlsHere}}-Do not remove this line-->
+</body>
+</html>

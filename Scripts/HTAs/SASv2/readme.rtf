@@ -1,0 +1,95 @@
+{\rtf1\ansi\ansicpg1252\uc1 \deff0\deflang1033\deflangfe1033{\fonttbl{\f0\froman\fcharset0\fprq2{\*\panose 02020603050405020304}Times New Roman;}{\f18\froman\fcharset238\fprq2 Times New Roman CE;}{\f19\froman\fcharset204\fprq2 Times New Roman Cyr;}
+{\f21\froman\fcharset161\fprq2 Times New Roman Greek;}{\f22\froman\fcharset162\fprq2 Times New Roman Tur;}{\f23\froman\fcharset186\fprq2 Times New Roman Baltic;}}{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blue255;
+\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;\red0\green0\blue128;\red0\green128\blue128;\red0\green128\blue0;\red128\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;
+\red128\green128\blue128;\red192\green192\blue192;}{\stylesheet{\nowidctlpar\widctlpar\adjustright \fs22\cgrid \snext0 Normal;}{\*\cs10 \additive Default Paragraph Font;}{\*\cs15 \additive \ul\cf2 \sbasedon10 Hyperlink;}}{\*\listtable
+{\list\listtemplateid2097678996\listsimple{\listlevel\levelnfc23\leveljc0\levelfollow0\levelstartat0\levelspace0\levelindent0{\leveltext\'01-;}{\levelnumbers;}\fbias0 \fi-360\li420\jclisttab\tx420 }{\listname ;}\listid586884229}}{\*\listoverridetable
+{\listoverride\listid586884229\listoverridecount0\ls1}}{\info{\title Select Alignment Stars}{\author Michael W. Swanson}{\operator  }{\creatim\yr2003\mo8\dy29\hr17\min19}{\revtim\yr2004\mo1\dy23\hr18\min18}{\version10}{\edmins22}{\nofpages3}{\nofwords958}
+{\nofchars5466}{\*\company US Naval Hospital Okinawa}{\nofcharsws0}{\vern71}}\margl1440\margr1440 \widowctrl\ftnbj\aenddoc\noxlattoyen\expshrtn\noultrlspc\dntblnsbdb\nospaceforul\hyphcaps0\formshade\viewkind1\viewscale100\pgbrdrhead\pgbrdrfoot \fet0
+\sectd \linex0\endnhere\sectdefaultcl {\*\pnseclvl1\pnucrm\pnstart1\pnindent720\pnhang{\pntxta .}}{\*\pnseclvl2\pnucltr\pnstart1\pnindent720\pnhang{\pntxta .}}{\*\pnseclvl3\pndec\pnstart1\pnindent720\pnhang{\pntxta .}}{\*\pnseclvl4
+\pnlcltr\pnstart1\pnindent720\pnhang{\pntxta )}}{\*\pnseclvl5\pndec\pnstart1\pnindent720\pnhang{\pntxtb (}{\pntxta )}}{\*\pnseclvl6\pnlcltr\pnstart1\pnindent720\pnhang{\pntxtb (}{\pntxta )}}{\*\pnseclvl7\pnlcrm\pnstart1\pnindent720\pnhang{\pntxtb (}
+{\pntxta )}}{\*\pnseclvl8\pnlcltr\pnstart1\pnindent720\pnhang{\pntxtb (}{\pntxta )}}{\*\pnseclvl9\pnlcrm\pnstart1\pnindent720\pnhang{\pntxtb (}{\pntxta )}}\pard\plain \qc\nowidctlpar\widctlpar\adjustright \fs22\cgrid {Select Alignment Stars
+\par for NexStar Telescopes
+\par by Jean C. Piquette
+\par (this readme file by Michael Swanson) 
+\par }\pard \nowidctlpar\widctlpar\adjustright {
+\par *** INTRODUCTION ***
+\par NexStar telescopes require the user to center two "alignment" stars in order to build a model of the sky.  The accuracy of that model is dependent upon wise selection of those two alignment stars.  As described in the alignment guide for "i" series telesc
+o
+pes (available at http://www.NexStarSite.com or in the Files section of the NexStar Yahoo Group - http://groups.yahoo.com/nexstar), the separation as well as placement of alignment stars has a dramatic affect on GoTo accuracy.  Select Alignment Stars (SAS
+) was written to simplify the selection of alignment stars.
+\par 
+\par *** Installation ***
+\par To make use of the program, unzip the archive file into a folder on your computer.  For simplicity, it might be best to put that folder right on the Windows Desktop.  Open the folder and you will initially find these four files:
+\par 
+\par  - readme.txt - this file, the operating instructions for the program.
+\par  - Select_Alignment_Stars.exe - the actual program itself.  You will double-click this file to produce lists of potential alignment star pairs, with preferred pairs at the top of the list.
+\par }\pard \li60\nowidctlpar\widctlpar\adjustright {- bright_alignment_stars.txt - the vital data about each of the 21 bright NexStar alignment stars used in an auto-align or GPS alignment.  This file is required for SAS to work properly and it shou
+ld not be modified.
+\par - 2_star_alignment_stars.txt - the vital data about each of the 40 NexStar alignment stars used in a 2-star alignment.  This file is required for SAS to work properly and it should not be modified.
+\par }\pard \nowidctlpar\widctlpar\adjustright { - user data.txt - data about the date
+ and time you will be observing and your location and time zone.  You must modify this file prior to running SAS in order to get alignment star lists specific to your location and observing session.
+\par 
+\par *** USING THE PROGRAM ***
+\par 
+\par ** User Data.txt **
+\par First you must open "user data.txt" (the .txt might be hidden on your computer system), by double-clicking the file name.  This will open the file in a "notepad" window.  Initially the contents will look similar to this:
+\par 
+\par 8,25\tab            (* MONTH,DAY *)
+\par 17,30\tab            (* LOCAL TIME IN HOURS,MINUTES. EXAMPLE: 21,30 REPRESENTS 9:30 PM  *)
+\par 0\tab            (* ENTER 1 IF DAYLIGHT SAVING IN EFFECT, 0 IF IT IS NOT IN EFFECT *)
+\par -9\tab            (* TIME ZONE NUMBER *)
+\par 26,20,00          (* LATITUDE IN DEGREES, MINUTES, SECONDS *)
+\par -126,44,00      (* LONGITUDE IN DEGREES, MINUTES, SECONDS *)\tab 
+\par 
+\par TIP: if you accidentally alter the format of the entries in the "user data.txt" file, you can copy and paste the above into the file.
+\par 
+\par First, you should set the Time Zone Number.  This is the number of hours difference between your location and UTC (GMT).  If you are unfamiliar with this, go to www.worldtimeserver.com or check in the back of your NexStar manual.  NOTE: for locations in t
+he Western Hemisphere (North and South America and parts of Africa and Western Europe) the Time Zone Number is positive; for locations in the Eastern Hemisphere, the Time Zone Number is negative.
+\par 
+\par Next you should set your latitude and longitude.  Notice tha
+t the degrees, minutes and seconds are separated by commas and there are no spaces.  Latitudes in the Northern Hemisphere are positive, while Southern Hemisphere is negative.  Longitudes in the Western Hemisphere are positive and longitudes in the Eastern
+ Hemisphere are negative.
+\par 
+\par These three settings only need to be changed if you intend to observe at a location that is more than 100 miles different than the current settings.
+\par 
+\par The next setting to check and possibly change is Daylight Saving - type a 1 if your location is currently observing DST, or a 0 if your location is currently on Standard Time.
+\par 
+\par Each time you use the program, you will need to open "user data.txt" and set the correct date and time.  Notice that a comma is again required as a separator between month and day and hours and minutes.
+\par 
+\par After you have made your corrections, close the notepad window, answering "Yes" to save the changes.
+\par 
+\par ** Running the Program **
+\par 
+\par After updating "user data.txt", and saving your changes, double-click " Select_Ali
+gnment_Stars.exe" (the .exe may be hidden on your computer system) to run the program.  A black window will flash on the screen for a moment and the program will be done.  At this time you will have two additional files in the folder:
+\par 
+\par  - ALIGNMENT STAR CHOICES-auto_gps.TXT
+\par  - ALIGNMENT STAR CHOICES-2_star.TXT
+\par 
+\par To view either file, simply double-click the file name.  You can print the contents using the File, Print menu options.
+\par 
+\par These two files contain lists of star pairs in order of preference for best al
+ignment results.  The "auto_gps" file contains pairs of stars that can be used with the Auto Align and GPS Align methods on NexStar telescopes.  The "2_star" file contains pairs of stars that can be used with the Two Star Align method.  The pairs are orde
+r
+ed based on four criteria shown as four columns of numbers in these files: 1) angular separation between the two stars, 2) angular distance between the line drawn between the two stars and the zenith, 3) angular distance between the midpoint of that line 
+a
+nd the zenith, 4) a horizon "penalty" which grows larger as either or both of the alignment stars comes closer to the horizon.  The highest importance is given to separation, then zenith distance, then midpoint distance with variable importance given to t
+he horizon penalty depending upon the severity of this factor for a given pair of stars.
+\par 
+\par **DEFINITIONS** 
+\par 
+\par The angular separation between the two stars is simply the angle between the two lines from you to the stars.  Point your left index finger at one st
+ar and your right index finger at the other - then measure the angle between your outstretched arms.  For best results the separation should be a minimum of 70 degrees, but wider than 100 degrees separation is recommended.
+\par 
+\par The angular distance between the
+ line drawn between the two stars and the zenith is a little harder to visualize.  Imagine a big flat circle like a huge DVD that touches the two alignment stars (at their imaginary positions on the "celestial sphere") and has its center rooted at your po
+sition.  The zenith distance is the angle you must tilt the DVD to bring it in contact with that imaginary point on the celestial sphere that we call the zenith (the point directly overhead).  A smaller value is better.
+\par 
+\par The angular distance between midpoint of the line between the stars and the zenith helps to insure that the alignment stars are "balanced" across the sky.  Again, a smaller value is better.
+\par 
+\par The greatest horizon penalty is applied to stars at an alititude of 15 degrees, which is the lowest altitude for which the HC will present an alignment star .  Although the penality is calculated for all star altitudes, 
+above about 25 degrees the penalty has little effect, and above about 28.5 degrees the penalty is negligible.
+\par 
+\par Understanding the interaction between these four elements is not crucial to using SAS, in fact, all you need to do is update "user data.txt", run the program and look at the results to select a couple of pairs of stars that will work for you.
+\par 
+\par }}

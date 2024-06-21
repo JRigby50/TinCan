@@ -1,0 +1,202 @@
+<html>
+<HTA:APPLICATION 
+     APPLICATIONNAME="Array Maker by Rick Vachon"
+     SCROLL="yes"
+     SINGLEINSTANCE="yes"
+     WINDOWSTATE="maximize"
+>
+<head>
+<title>Array Maker by Rick Vachon</title>
+<style>
+BODY
+{
+   background-color: buttonface;
+   font-family: Helvetica;
+   font-size: 9pt;
+   margin-top: 10px;
+   margin-left: 10px;
+   margin-right: 10px;
+   margin-bottom: 10px;
+}
+.button
+{
+   font-family: Helvetica;
+   font-size: 9pt;
+   width: 70px;
+}
+textarea
+{
+   font-family: Arial;
+   font-size: 10pt;
+   font-weight: bold;
+   margin-left: 3px;
+   margin-right: 3px;
+   color:#FFFF00;
+   background-color:black;
+}
+select
+{
+   font-family: arial;
+   font-size: 9pt;
+   width: 450px;
+   margin-left: 0px;
+}
+</style>
+</head>
+<SCRIPT LANGUAGE="VBScript">
+'Array Maker by Rick Vachon Feb, 2009
+'Copy and paste a Comma or Tab delimmited list into lower box, click go and a multi dimentionional array will be created for you
+''****************************
+Sub Window_OnLoad
+        self.Focus()
+        self.ResizeTo 910,840
+End Sub
+'****************************
+Sub CopyToClipBrd
+    strCopy = newarrarea.InnerText
+    document.parentwindow.clipboardData.SetData "text", strCopy
+End Sub
+'****************************
+Sub createArray
+        'On Error Resume Next
+        Dim ArrNew()
+        X = 1
+        Y = 1
+        intLine = 0
+        bln2 = False
+        strArrName = inarrname.value
+        If strArrName = "" Then
+                strArrName = "Array_Test"
+        End If
+        strText = newDataArea.value
+        arrLines = split(strText,vbCrLf)
+        If Ubound(arrLines) > 0 Then
+                X = Ubound(arrLines)
+        End If
+        
+        For L = 0 To Ubound(arrLines)
+        
+                Line = arrLines(L)
+                If Line = "" Then
+                        X = X - 1
+                End If
+                Set objRegExp = New RegExp
+        
+                With objRegExp
+                        .Pattern = ",+"
+                        .IgnoreCase = True
+                        .Global = True
+                End With
+                Line = objRegExp.Replace(Line, ",")
+                
+                With objRegExp
+                        .Pattern = "\t+"
+                        .IgnoreCase = True
+                        .Global = True
+                End With
+                Line = objRegExp.Replace(Line, ",")
+                
+                If Right(Line,1) = "," Then
+                        Line = Left(Line,Len(Line)-1)
+                End If
+                
+                arrLines(L) = Line
+                
+                intLine = 0
+                arrLineX = split(Line,",")
+                intLine = Ubound(arrLineX)
+                If intLine > Y Then
+                        Y = intLine
+                End If
+        Next
+        
+        strHTML = strHTML & "Dim " & strArrName & "(" & X & "," & Y & ")" & chr(10)
+        
+        i = 0
+        For Each Line In arrLines
+                arrLineX = split(Line,",")
+                For j = 0 To Ubound(arrLineX)
+                        strHTML = strHTML & strArrName & "(" & i & "," & j & ")" & chr(61) & chr(34) & arrLineX(j) & chr(34) & chr(10)
+                Next
+                i = i + 1
+        Next
+        strHTML = strHTML & chr(10) & "For i = 0 To " & X & chr(10)
+        strHTML = strHTML & chr(9) & "For j = 0 To " & Y & chr(10)
+        strHTML = strHTML & chr(9) & chr(9) & "Wscript.Echo " & strArrName & "(i,j)" & chr(10)
+        strHTML = strHTML & chr(9) & "Next" & chr(10)
+        strHTML = strHTML & "Next" & chr(10)
+        newarrarea.value = strHTML
+        
+End Sub
+'****************************
+Sub QuitScript
+   self.Close()
+End Sub
+'****************************
+'****************************
+</SCRIPT>
+<body>
+<table align='center' border='0' width='100%' valign='top' bordercolor=#FFFFFF cellpadding='3'>
+        <tr>
+                <td align='left'>
+                        <table align='center' border='0' width='100%' valign='top' bordercolor=#FFFFFF cellpadding='3'>
+                                <tr>
+                                        <td align='left'>
+                                                <font size='+3'><b><i>Array Maker</i></b></font><font size='-2'>
+                                                &nbsp;&nbsp;by Rick Vachon, February, 2009</font>
+                                        </td>
+                                        <td align='right' valign='bottom'>      
+                                                <input type='button' value='Close' name='quit' onClick='QuitScript'>
+                                                </input>
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <td align='left'>
+                                                &nbsp;<font size='-1'><b><i>Please input a name for your new Array.</i></b></font>&nbsp;&nbsp;&nbsp;
+                                                <input type='text' id='inarrname' size='20'></input>
+                                        </td>
+                                        </td>
+                                        <td align='left'>
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+        <tr>
+                <td align='left'>
+                        <table border='1' align='left' width='40%' id='table1' height='40%'>
+                                <tr>
+                                        <td>
+                                                <table bordercolor=#FFFFFF bgcolor=#E0EBE7>
+                                                <textarea id=newarrarea cols=120 rows=20></textarea>    
+                                                </table>
+                                        </td>
+                                        <td>&nbsp;&nbsp;&nbsp;
+                                        </td>
+                                        <td valign='top'>
+                                                <hr>
+                                                <input type='button' class='button' id=btnRun value='Go!' onclick='createArray'></input><br/><hr><hr><br/>
+                                                <input type='button' class='button' id=btnCopyToClipBrd value='Clipboard' onclick='CopyToClipBrd'></input><br/>
+                                        </td>
+                                                
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+        <tr>
+                <td align='left'>
+                        <table border='1' align='left' width='40%' id='table1' height='40%'>
+                                <tr>
+                                        <td><font size='-1'>Copy a comma or tab delimmited list to the box below.</font>
+                                        </td>
+                                </tr>
+                                <tr>
+                                        <td>
+                                                <textarea id=newDataArea cols=120 rows=18 title='Type or paste data here. Comma or Tab Delimmited.'></textarea>
+                                        </td>
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+</table>
+</body>
+</html>

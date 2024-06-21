@@ -1,0 +1,715 @@
+<!-->
+<! NAME: VBScript Template Generator v4.hta
+<!
+<! AUTHOR: Darren C. Skidmore
+<! DATE  : 05/04/2012
+<!
+<! COMMENT: This .HTA will generate a VB Script template with selectable options
+<! 			such as:
+<!				objShell = CreateObject("Wscript.Shell")
+<!				objFSO = CreateObject("Scripting.FileSystemObject")
+<!				objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+<!				objShell.ExpandEnvironmentStrings("%PROGRAMFILES%")
+<!				objShell.ExpandEnvironmentStrings("%APPDATA%")
+<! 				objShell.ExpandEnvironmentStrings("%TEMP%")
+<! 				objRegistry = GetObject("winmgmts:\\" & strComputer & "\root\default:StdRegProv")
+<! 				objNetwork = WScript.CreateObject("WScript.Network")
+<! 				Create Sub Routine and or a Function
+<!
+<! 1. SAVE OPTIONS:
+<!	This .hta will create a vbstg.ini file to hold the save location.  The save
+<!	location can be changed in the .hta and will then be saved to the vbstg.ini file.
+<!  Also by default, each script created is	saved into its own subfolder in either
+<!	the default path or the path you specify.  There is also an option to not save
+<!	each script in its own subfolder, and when selected, all generated scripts
+<!	will be saved into the default path or the path	you specify.
+<!
+<! 2. SCRIPT NAMES:
+<! 	Each script you generate will be saved as a .vbs file, there is no need to add
+<! 	the .vbs extension in the script name field.  As you create your scripts and forget
+<! 	to rename them, there is a function will automatically append your scripts with
+<! 	a number ex. Test.vbs, Test1.vbs, Test2.vbs etc. and will show those numbers
+<! 	as revisions in the script.
+<!==========================================================================-->
+<html>
+<head>
+<title>VBScript Template Generator v5</title>
+<OBJECT ID="oShell"
+    CLASSID="clsid:13709620-C279-11CE-A49E-444553540000">
+</OBJECT>
+<SCRIPT Language="VBScript">
+DoResize() ' run the subroutine to position the containing window (your HTA dialog) before the body is rendered.
+Sub DoResize
+	strComputer = "."
+	Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+	Set colItems = objWMIService.ExecQuery("Select * From Win32_DesktopMonitor")
+	For Each objItem In colItems
+		If objItem.Availability = 3 Then
+			intHorizontal = objItem.ScreenWidth
+			intVertical = objItem.ScreenHeight
+			Exit For
+		End If
+	Next
+	intLeft = (intHorizontal - 895) / 2
+	intTop = (intVertical - 750) / 2
+	window.resizeTo 895,750
+	window.moveTo intLeft, intTop
+End Sub
+</SCRIPT>
+<HTA:APPLICATION
+    ID="VBScript Template Generator"
+    APPLICATIONNAME="VBScript Template Generator"
+    SCROLL="no"
+    SINGLEINSTANCE="yes"
+    WINDOWSTATE="normal"
+    CONTEXTMENU="no"
+	INNERBORDER="no"
+	BORDERSTYLE="sunken"
+	BORDER="dialog"
+	SHOWINTASKBAR="yes"
+	MINIMIZEBUTTON="yes"
+	MAXIMIZEBUTTON="no"
+>
+</head>
+<SCRIPT Language="VBScript">
+Sub Window_Onload
+	repository.disabled = True
+	Const ForReading = 1
+	Set objShell = CreateObject("Wscript.Shell")
+	UserOption(0).checked = True
+	txtScriptName.Focus
+	chkNewDefault.Disabled = True
+	strRPath = objShell.CurrentDirectory
+	txtDefaultLocation.Disabled = True
+' Here we check for vbstg.ini where the default save
+' location is stored.  This will allow any user to change the default
+' only one time.  If the vbstg.ini file is missing, it will be created
+' and use the current folder location \Scripts as the target.
+	Set objFSO = CreateObject("Scripting.FileSystemObject")	
+	If objFSO.FileExists(strRPath & "\vbstg.ini") Then
+    	Set objFile = objFSO.OpenTextFile(strRPath & "\vbstg.ini", ForReading)
+		strContents = objFile.ReadAll()
+		objFile.Close
+		Set objRegEx = CreateObject("VBScript.RegExp")
+		objRegEx.Global = True
+		objRegEx.Pattern = "default="
+		Set colMatches = objRegEx.Execute(strContents)
+			If colMatches.Count > 0 Then
+				For Each objMatch In colMatches
+					arrText = Split(strContents,"=")
+					strDefaultLocation = arrText(1)
+				Next
+			End If
+		txtDefaultLocation.Value = strDefaultLocation
+	Else
+		MsgBox "This is the first time VBScript Template Generator has been run. A required .ini (vbstg.ini) file will be created in the same directory as this .hta." & vbCrLf & vbCrLf & "The default save repository for all generated scripts will be " & strRPath & "\Scripts" & " and can be changed under Save Options.", vbOKOnly + vbInformation, "VBScript Template Generator v5 - Setup"
+		Set objFile = objFSO.CreateTextFile(strRPath & "\vbstg.ini")
+		objFile.WriteLine "[save]"
+		objFile.WriteLine "default=" & strRPath & "\Scripts"
+		objFile.Close
+		txtDefaultLocation.Value = strRPath & "\Scripts"
+	End If
+End Sub
+
+' function to validate form
+Function ValidateForm
+	ValidateForm = True
+	If txtScriptName.value = "" Then		' clears the script output basic text area
+		MsgBox "You must enter a name for the script.", vbOKOnly + vbExclamation, "VBScript Template Generator v5"
+		ValidateForm = False
+	End If
+End Function
+Sub RunScripts
+	btaScriptOutput.Value = ""
+	Const ForReading = 1
+	Const ForWriting = 2
+	Dim x
+If ValidateForm = False Then
+		'Form not validated, exiting
+Else
+	strDate = Now
+	strAuthor = txtAuthor.value
+	strProgram = txtScriptName.value
+	strFolderName = txtDefaultLocation.Value
+	strMetaDataName = ""
+' Below are variables used for the common objects that get written in the generated script
+	strObjShell = "Set objShell = CreateObject(""Wscript.Shell"")"
+	strFSO = "Set objFSO = CreateObject(""Scripting.FileSystemObject"")"
+	strWMI = "Set objWMIService = GetObject(""winmgmts:\\"" & strComputer & ""\root\cimv2"")"
+	strEnviroPF = "strProgFiles = objShell.ExpandEnvironmentStrings(""%PROGRAMFILES%"")"
+	strEnviroAD = "strAppData = objShell.ExpandEnvironmentStrings(""%APPDATA%"")"
+	strEnviroTemp = "strTemp = objShell.ExpandEnvironmentStrings(""%TEMP%"")"
+	strobjRegistry = "Set objRegistry = GetObject(""winmgmts:\\"" & strComputer & ""\root\default:StdRegProv"")"
+	strobjNetwork = "Set objNetwork = WScript.CreateObject(""WScript.Network"")"
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+' Check for the existence of the save to folder and script name
+' If found, write script to folder and append name with a sequential number
+	If chkNoSubfolder.Checked = True Then
+		If CheckForFile(strFolderName & "\" & strProgram & ".vbs") = 0 Then
+			strFileName = strFolderName & "\" & strProgram & ".vbs"
+			CreateSubFolders(strFolderName)
+			Set objFile = objFSO.CreateTextFile(strFileName)
+			strMetaDataName = strProgram & ".vbs"
+		Else
+			Do
+			x = x + 1
+			Loop Until CheckForFile(strFolderName & "\" & strProgram & "_" & x & ".vbs") = 0
+			strFileName = strFolderName & "\" & strProgram & "_" & x & ".vbs"
+			Set objFile = objFSO.CreateTextFile(strFileName)
+			strMetaDataName = strProgram & "_" & x & ".vbs"
+		End If
+	Else
+		If CheckForFile(strFolderName & "\" & strProgram & "\" & strProgram & ".vbs") = 0 Then
+			If Not objFSO.FolderExists(strFolderName & "\" & strProgram) Then
+				CreateSubFolders(strFolderName)
+				Set objFolder = objFSO.CreateFolder(strFolderName & "\" & strProgram)
+			End If
+			strFileName = strFolderName & "\" & strProgram & "\" & strProgram & ".vbs"
+			Set objFile = objFSO.CreateTextFile(strFileName)
+			strMetaDataName = strProgram & ".vbs"
+		Else
+			Do
+			x = x + 1
+			Loop Until CheckForFile(strFolderName & "\" & strProgram & "\" & strProgram & "_" & x & ".vbs") = 0
+			If Not objFSO.FolderExists(strFolderName & "\" & strProgram) Then
+				CreateSubFolders(strFolderName)
+				Set objFolder = objFSO.CreateFolder(strFolderName & "\" & strProgram)
+			End If
+			strFileName = strFolderName & "\" & strProgram & "\" & strProgram & "_" & x & ".vbs"
+			Set objFile = objFSO.CreateTextFile(strFileName)
+			strMetaDataName = strProgram & "_" & x & ".vbs"
+		End If
+	End If
+	objFile.WriteLine "'=========================================================================="
+	objFile.WriteLine "'"
+	objFile.WriteLine "' NAME: " & strMetaDataName
+	objFile.WriteLine "'"
+	objFile.WriteLine "' REVISION: " & x
+	objFile.WriteLine "'"
+	objFile.WriteLine "' AUTHOR: " & strAuthor
+	objFile.WriteLine "'"
+	objFile.WriteLine "' DATE  : " & strDate
+	objFile.WriteLine "'"
+	objFile.WriteLine "' COMMENT: "
+' If comments section is blank, write a comment delimiter.  If not blank,
+' check the length of comments against length of text area, trim sentence
+' if necessary and write to a new line with the comment delimiter	
+	If taComments.Value = "" Then
+		objFile.WriteLine"'"
+	Else
+		Dim strBasicTxtArea,arrLines
+		strBasicTxtArea = taComments.Value
+		arrLines = Split(strBasicTxtArea,VBCrLf) ' Split each line by the VBCrLf
+		For i=0 to UBound(arrLines) ' UBound function returns each line in the btaScriptOutput
+			If Len(arrLines(i)) > 67 Then
+				arrWords = Split(arrLines(i), " ")
+				For w = 0 to UBound(arrWords)
+					If Len(strLine & arrWords(w)) > 66 Then
+						objFile.WriteLine "' " & vbTab & strLine
+						strLine = ""
+						w = w - 1
+					Else
+						If strLine = "" Then
+							strLine = arrWords(w)
+						Else
+							strLine = strLine & " " & arrWords(w)
+						End If
+						If w = UBound(arrWords) Then
+							objFile.WriteLine "' " & vbTab & strLine
+						End If
+					End If
+				Next
+			Else
+				objFile.WriteLine "' " & vbTab & arrLines(i)
+			End If
+		Next
+	End If
+	objFile.WriteLine"'"
+	objFile.WriteLine "'=========================================================================="
+	objFile.WriteLine ""
+' Logic used to write the selected objects to the new script
+	If chkOptionExplicit.checked = True Then
+		objFile.WriteLine "Option Explicit"
+		objFile.WriteLine""
+	End If
+	If chkOnError.checked = True Then
+		objFile.WriteLine "On Error Resume Next"
+		objFile.WriteLine""
+	End If
+	objFile.WriteLine"' Declare variables"
+	objFile.WriteLine "Dim strComputer"
+	If chkObjShell.checked = True Then
+		objFile.WriteLine "Dim objShell"
+	End If
+	If chkobjFSO.checked = True Then
+		objFile.WriteLine "Dim objFSO"
+	End If
+	If chkobjWMIService.checked = True Then
+		objFile.WriteLine "Dim objWMIService"
+	End If
+	If chkAppData.checked = True Then
+		objFile.WriteLine "Dim strAppData"
+	End If
+	If chkProgFiles.checked = True Then
+		objFile.WriteLine "Dim strProgFiles"
+	End If
+	If chkTempFolder.checked = True Then
+		objFile.WriteLine "Dim strTemp"
+	End If
+	If chkobjRegistry.checked = True Then
+		objFile.WriteLine "Dim objRegistry"
+	End If
+	If chkobjNetwork.checked = True Then
+		objFile.WriteLine "Dim objNetwork"
+	End If
+	objFile.WriteLine""
+	objFile.WriteLine "strComputer = ""."""
+	If chkConstForRead.checked = True Or chkConstForWriting.checked = True Or chkConstForAppend.checked = True Or chkConstHKLM.checked = True Or chkConstHKCU.checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"' Define Constants"
+	End If
+	If chkConstForRead.checked = True Then
+		objFile.WriteLine "Const ForReading = 1"
+	End If
+	If chkConstForWriting.checked = True Then
+		objFile.WriteLine "Const ForWriting = 2"
+	End If
+	If chkConstForAppend.Checked Then
+		objFile.WriteLine"Const ForAppending = 8"
+	End If
+	If chkConstHKLM.Checked Then
+		objFile.WriteLine"Const HKEY_LOCAL_MACHINE = &H80000002"
+	End If
+	If chkConstHKCU.Checked Then
+		objFile.WriteLine"Const HKEY_CURRENT_USER = &H80000001"
+	End If
+	If chkObjShell.checked = True Or chkobjFSO.checked = True Or chkobjWMIService.checked = True Or chkobjRegistry.Checked = True Or chkobjNetwork.Checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"' VBScript Objects"
+	End If
+	If chkObjShell.checked = True Then
+		objFile.WriteLine strObjShell
+	End If
+	If chkobjFSO.checked = True Then
+		objFile.WriteLine strFSO
+	End If
+	If chkobjWMIService.checked = True Then
+		objFile.WriteLine strWMI
+	End If
+	If chkobjRegistry.checked = True Then
+		objFile.WriteLine strobjRegistry
+	End If
+	If chkobjNetwork.checked = True Then
+		objFile.WriteLine strobjNetwork
+	End If
+	If chkAppData.Checked = True And chkObjShell.checked = False Then
+		objFile.WriteLine strObjShell
+	ElseIf chkProgFiles.Checked = True And chkObjShell.checked = False Then
+		objFile.WriteLine strObjShell
+	ElseIf chkTempFolder.Checked = True And chkObjShell.checked = False Then
+		objFile.WriteLine strObjShell
+	End If
+	If chkAppData.checked = True Or chkProgFiles.checked = True Or chkTempFolder.checked = True Then		
+		objFile.WriteLine""
+		objFile.WriteLine"' Expand Environment Variables"
+	End if
+	If chkAppData.Checked  = True Then
+		objFile.WriteLine strEnviroAD
+	End If
+	If chkProgFiles.Checked = True Then
+		objFile.WriteLine strEnviroPF
+	End If
+	If chkTempFolder.Checked = True Then
+		objFile.WriteLine strEnviroTemp
+	End If
+	objFile.WriteLine""
+	objFile.WriteLine "' Place most of your your code here"
+' MsgBox = 1	AppData = 1		ProgFiles = 0	Temp = 0	AppData
+	If chkMsgBox.Checked = True And chkAppData.Checked = True  And chkProgFiles.Checked = False And chkTempFolder.Checked = False Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""AppData Location = "" & strAppData, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 0		ProgFiles = 1	Temp = 0	Program Files
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = False And chkProgFiles.Checked = True And chkTempFolder.Checked = False Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""Program Files Location = "" & strProgFiles, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 0		ProgFiles = 0	Temp = 1	Temp
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = False And chkProgFiles.Checked = False And chkTempFolder.Checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""Temp Location = "" & strTemp, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 1		ProgFiles = 1	Temp = 0	AppData & Program Files
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = True And chkProgFiles.Checked = True And chkTempFolder.Checked = False Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""AppData = "" & strAppData & VBCrLf & ""Program Files = "" & strProgFiles, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 1		ProgFiles = 0	Temp = 1	AppData & Temp
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = True And chkProgFiles.Checked = False And chkTempFolder.Checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""AppData = "" & strAppData & VBCrLf & ""Temp = "" & strTemp, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 1		ProgFiles = 1	Temp = 1	AppData & Program Files & Temp
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = True And chkProgFiles.Checked = True And chkTempFolder.Checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""AppData Location = "" & strAppData & VBCrLf & ""Program Files = "" & strProgFiles & VBCrLf & ""Temp Location = "" & strTemp, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 0		ProgFiles = 1	Temp = 1	Program Files & Temp
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = False And chkProgFiles.Checked = True And chkTempFolder.Checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""Program Files = "" & strProgFiles & VBCrLf & ""Temp Location = "" & strTemp, vbOKOnly + vbInformation, ""Environment Variable(s)"""
+		objFile.WriteLine""
+' MsgBox = 1	AppData = 0		ProgFiles = 0	Temp = 0
+	ElseIf chkMsgBox.Checked = True And chkAppData.Checked = False And chkProgFiles.Checked = False And chkTempFolder.Checked = False Then
+		objFile.WriteLine""
+		objFile.WriteLine"MsgBox ""Script Name - " & strMetaDataName & """ & VBCrLf & VBCrLf & ""This MsgBox can be used for troubleshooting, or modifed & used in your script."", vbOKOnly + vbInformation, """  & strMetaDataName & """"
+		objFile.WriteLine""		
+	End If
+	If chkObjShell.checked = True Then
+		objFile.WriteLine "Set objShell = Nothing"
+	End If
+	If chkobjFSO.checked = True Then
+		objFile.WriteLine "Set objFSO = Nothing"
+	End If
+	If chkobjWMIService.checked = True Then
+		objFile.WriteLine "Set objWMIService = Nothing"
+	End If
+	If chkobjRegistry.checked = True Then
+		objFile.WriteLine "Set objRegistry = Nothing"
+	End If
+	If chkobjNetwork.checked = True Then
+		objFile.WriteLine "Set objNetwork = Nothing"
+	End If
+	If chkSubRoutine.checked = True Or chkFunction.checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine"'========================================"
+		objFile.WriteLine"' Call Function &  Or Subroutine"
+	End If
+	If chkSubRoutine.checked = True Then
+		objFile.WriteLine "Call MySub()"
+	End If
+	If chkFunction.checked = True Then
+		objFile.WriteLine "Call MyFunction()"
+	End If
+	If chkSubRoutine.checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine "' Subroutine"
+		objFile.WriteLine "Sub MySub"
+		objFile.WriteLine ""
+		objFile.WriteLine "End Sub"
+	End If
+	If chkFunction.checked = True Then
+		objFile.WriteLine""
+		objFile.WriteLine "' Function"
+		objFile.WriteLine "Function MyFunction"
+		objFile.WriteLine ""
+		objFile.WriteLine "End Function"
+	End If
+	objFile.Close
+	Set objFile = objFSO.OpenTextFile(strFileName, ForReading)
+	strText = objFile.ReadAll
+	objFile.Close
+	btaScriptOutput.Value = strText
+	repository.disabled = False
+End If
+End Sub
+
+' Subroutine to add the Set objFSO = CreateObject("Scripting.FileSystemObject")
+' if any of the Contants are checked that require this object
+Sub IncludeobjFSO
+	If chkConstForRead.Checked = True Then
+		chkobjFSO.Checked = True
+	ElseIf chkConstForWriting.Checked = True Then
+		chkobjFSO.Checked = True
+	ElseIf chkConstForAppend.Checked = True Then
+		chkobjFSO.Checked = True
+	ElseIf chkConstForRead.Checked = False Then
+		chkobjFSO.Checked = False
+	ElseIf chkConstForWriting.Checked = False Then
+		chkobjFSO.Checked = False
+	ElseIf chkConstForAppend.Checked = False Then
+		chkobjFSO.Checked = False
+	End If
+End Sub
+
+' Subroutine to add the Set objShell = CreateObject("Wscript.Shell")
+' if any of the ExpandEnvironmentStrings are checked that require
+' this object
+Sub IncludeobjShell
+	If chkAppData.Checked = True Then
+		chkObjShell.Checked = True
+	ElseIf chkProgFiles.Checked = True Then
+		chkObjShell.Checked = True
+	ElseIf chkTempFolder.Checked = True Then
+		chkObjShell.Checked = True
+	ElseIf chkAppData.Checked = False Then
+		chkObjShell.Checked = False
+	ElseIf chkProgFiles.Checked = False Then
+		chkObjShell.Checked = False
+	ElseIf chkTempFolder.Checked = False Then
+		chkObjShell.Checked = False
+	End If
+End Sub
+
+' Subroutine to add the Set objRegistry = GetObject("winmgmts:\\" & strComputer & "\root\default:StdRegProv")
+' if any of the Const HKEY are checked that require this object
+Sub IncludeobjRegistry
+	If chkConstHKLM.Checked = True Then
+		chkobjRegistry.Checked = True
+	ElseIf chkConstHKCU.Checked = True Then
+		chkobjRegistry.Checked = True
+	ElseIf chkConstHKLM.Checked = False Then
+		chkobjRegistry.Checked = False
+	ElseIf chkConstHKCU.Checked = True Then
+		chkobjRegistry.Checked = False
+	End If
+End Sub
+
+' Subroutine to check for the existence of the named folder.  This 
+' is only if the checkbox for Change Save Location is true.  If the
+' folder structure does not exist, create it
+Sub CreateSubFolders(strFolder)
+	Dim objFSO
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	If objFSO.FolderExists(strFolder) Then
+		Exit Sub
+	Else
+		CreateSubFolders(objFSO.GetParentFolderName(strFolder))
+	End If
+	objFSO.CreateFolder(strFolder)
+End Sub
+
+' Subroutine that enables all options when the Select All radio
+' button is enabled
+Sub AllOptions
+	chkOptionExplicit.checked = True
+	chkOnError.checked = True
+	chkObjShell.checked = True
+	chkConstForRead.checked = True
+	chkSubRoutine.checked = True
+	chkobjFSO.checked = True
+	chkConstForWriting.checked = True
+	chkFunction.checked = True
+	chkobjWMIService.checked = True
+	chkAppData.checked = True
+	chkProgFiles.checked = True
+	chkTempFolder.checked = True
+	chkConstForAppend.checked = True
+	chkConstHKLM.checked = True
+	chkobjRegistry.checked = True
+	chkConstHKCU.Checked = True
+	chkobjNetwork.Checked = True
+	chkMsgBox.Checked = True
+End Sub
+
+' Subroutine that disables all options when the Select None radio
+' button is enabled
+Sub NoOptions
+	chkOptionExplicit.checked = False
+	chkOnError.checked = False
+	chkObjShell.checked = False
+	chkConstForRead.checked = False
+	chkSubRoutine.checked = False
+	chkobjFSO.checked = False
+	chkConstForWriting.checked = False
+	chkFunction.checked = False
+	chkobjWMIService.checked = False
+	chkAppData.checked = False
+	chkProgFiles.checked = False
+	chkTempFolder.checked = False
+	chkConstForAppend.checked = False
+	chkConstHKLM.checked = False
+	chkobjRegistry.checked = False
+	chkConstHKCU.Checked = False
+	chkobjNetwork.Checked = False
+	chkMsgBox.Checked = False
+End Sub
+
+' Subroutine that allows the user to specify a different save to folder
+Sub ChangeSaveFolder
+	Set objShell = CreateObject("Wscript.Shell")
+	strRPath = objShell.CurrentDirectory
+	Const ForReading = 1
+	If chkSaveFolder.Checked = True Then
+		chkNewDefault.disabled = False
+		txtDefaultLocation.Disabled = False
+	ElseIf chkSaveFolder.Checked = False Then
+		chkNewDefault.Checked = False
+		chkNewDefault.Disabled = True
+		Set objFSO = CreateObject("Scripting.FileSystemObject")	
+    	Set objFile = objFSO.OpenTextFile(strRPath & "\vbstg.ini", ForReading)	
+		strContents = objFile.ReadAll()
+		objFile.Close
+		Set objRegEx = CreateObject("VBScript.RegExp")
+		objRegEx.Global = True
+		objRegEx.Pattern = "default="
+		Set colMatches = objRegEx.Execute(strContents)  
+			If colMatches.Count > 0 Then
+				For Each objMatch In colMatches
+					arrText = Split(strContents,"=")
+					strDefaultLocation = arrText(1)
+				Next
+			End If
+		txtDefaultLocation.Value = strDefaultLocation
+		txtDefaultLocation.disabled = True
+	End If
+End Sub
+
+' Subroutine that will allow user to change the "Save" folder.
+Sub MakeNewDefault
+	Const ForReading = 1
+	Const ForWriting = 2
+	Set objShell = CreateObject("Wscript.Shell")
+	strRPath = objShell.CurrentDirectory
+	If chkNewDefault.Checked = True Then
+		strMBox = MsgBox("This will change the default save repository." & VBCrLf & "Click Yes to change, or No to cancel.", vbYesNo + vbInformation, "Change default save repository")
+    	' If the user clicked no exit 
+    	If strMBox = vbNo Then
+    		chkSaveFolder.Checked = False
+    		chkNewDefault.Checked = False
+			chkNewDefault.Checked = False
+			chkNewDefault.Disabled = True
+			Set objFSO = CreateObject("Scripting.FileSystemObject")	
+    		Set objFile = objFSO.OpenTextFile(strRPath & "\vbstg.ini", ForReading)
+			strContents = objFile.ReadAll()
+			objFile.Close
+			Set objRegEx = CreateObject("VBScript.RegExp")
+			objRegEx.Global = True
+			objRegEx.Pattern = "default="
+			Set colMatches = objRegEx.Execute(strContents)
+				If colMatches.Count > 0 Then
+					For Each objMatch In colMatches
+						arrText = Split(strContents,"=")
+						strDefaultLocation = arrText(1)
+					Next
+				End If
+			txtDefaultLocation.Value = strDefaultLocation
+			txtDefaultLocation.disabled = True
+       	Else
+        	chkSaveFolder.Checked = False
+        	chkNewDefault.Checked = False
+        	chkNewDefault.Disabled = True
+        	txtDefaultLocation.Disabled = True
+			strNewPath = txtDefaultLocation.Value
+			Set objFSO = CreateObject("Scripting.FileSystemObject")
+			Set objFile = objFSO.OpenTextFile(strRPath & "\vbstg.ini", ForReading)
+			strContents = objFile.ReadAll()
+			objFile.Close
+			Set objRegEx = CreateObject("VBScript.RegExp")
+			objRegEx.Global = True   
+			objRegEx.Pattern = "default="
+			Set colMatches = objRegEx.Execute(strContents)
+			If colMatches.Count > 0 Then
+				For Each objMatch In colMatches
+					arrText = Split(strContents,"=")
+					strNewText = Replace(strContents, arrText(1), strNewPath)
+					objFile.Close
+					Set objFile = objFSO.OpenTextFile(strRPath & "\vbstg.ini", ForWriting)
+					objFile.WriteLine strNewText
+   				Next
+			End If
+		End If
+    End If
+End Sub
+
+' Subroutine that will exit the .hta
+Sub ExitProgram
+    window.close()
+End Sub
+
+' Subroutine to reload the .hta
+Sub RunScript
+    Location.Reload(True)
+End Sub
+
+' Subroutine to open generated script folder
+Sub OpenFolder
+	If chkNoSubfolder.Checked = False Then
+		oshell.Explore txtDefaultLocation.Value & "\" & txtScriptName.value
+	Else
+		oshell.Explore txtDefaultLocation.Value
+	End If
+End Sub
+
+' Function used to return a value, either 0 or 1 if the file does
+' or does not exist
+Function CheckForFile(strFilePath)
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	If objFSO.FileExists(strFilePath) Then
+		CheckForFile = 1
+	Else
+		CheckForFile = 0
+	End If
+End Function
+</SCRIPT>
+<!--Below lines set the background color  -->
+<body>
+<!--
+body
+{
+background-color:#b0c4de;
+background-repeat:no-repeat;
+background-position:center top;
+margin-right:100px;
+}
+<!--End of background color
+-->
+<table border="1"width="840"
+cellpadding="5">
+<tr>
+  <td>
+   <table width="840">
+  <td>
+	 <b><font color="Gray" face="Arial" size="1">Built to generate quick VBScript framework without</font></b></br>
+ 	 <b><font color="Gray" face="Arial" size="1">copying needless code from other scripts.</font></b></br></br>
+     <font color="black" face="Arial" size="1">Name of script:</font>
+     <font color="red" face="Arial" size="1">(Required)</font></br>
+     <input type="text" name="txtScriptName" size="25"></br>
+     <font color="black" face="Arial" size="1">Name of author:</font>
+     <font color="black" face="Arial" size="1">(Optional)</font></br>
+     <input type="text" name="txtAuthor" size="25"></br>
+  <td>
+     <font color="black" face="Arial" size="1" title="All comments entered will be formatted as such in your generated script">Add Script Comments Here:</font><BR>
+     <textarea name="taComments" rows="6" cols="65"></textarea><BR></td>
+  <tr>
+    <table width="840">
+    <hr />
+     <b><font color="black" face="Arial" size="1">Common Options:</font></b>&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp
+	 <font color="black" face="Arial" size="1"><input type="radio" name="UserOption" value="1"onClick="NoOptions"> Select None </font>
+   	 <font color="black" face="Arial" size="1"><input type="radio" name="UserOption" value="2"onClick="AllOptions"> Select All </font></br>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkOptionExplicit"value="1"> Option Explicit </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkOnError"value="2"> On Error Resume Next </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkObjShell"value="3"> objShell = WScript.CreateObject("WScript.Shell") </font></td><tr>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkConstForRead"value="4"OnClick="IncludeobjFSO"> Const ForReading = 1 </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkSubRoutine"value="5"> Create Sub Routine </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkobjFSO"value="6"> objFSO = CreateObject("Scripting.FileSystemObject") </font></td><tr>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkConstForWriting"value="7"OnClick="IncludeobjFSO"> Const ForWriting = 2 </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkFunction"value="8"> Create Function </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkobjWMIService"value="9"> objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")</font></td><tr>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkConstForAppend"value="13"OnClick="IncludeobjFSO"> Const ForAppending = 8 </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkConstHKLM"value="14"onClick="IncludeobjRegistry"> Const HKEY_LOCAL_MACHINE = &H80000002 </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkobjRegistry"value="15"> objRegistry = GetObject("winmgmts:\\" & strComputer & "\root\default:StdRegProv") </font></td><tr>
+     <td><font color="black" face="Arial" size="1" title="If selected, and any environment variables are checked, then these will show in your message box."><input type="checkbox"name="chkMsgBox"value="16">Messge Box</font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkConstHKCU"value="17"onClick="IncludeobjRegistry"> Const HKEY_CURRENT_USER = &H80000001 </font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkobjNetwork"value="18"> objNetwork = WScript.CreateObject("WScript.Network") </font></td>
+ <tr>
+   <table width="840">
+     <td><b><font color="black" face="Arial" size="1">Save Options:</font></b>
+     <td><b><font color="black" face="Arial" size="1">Expand Environment Strings:</font></b><tr>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkSaveFolder"value="19"onClick="ChangeSaveFolder">Change save repository:</font>
+     <font color="black" face="Arial" size="1"><input type="checkbox"name="chkNewDefault"value="21"onClick="MakeNewDefault">Save as new default repository:</font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkAppData"value="10"onClick="IncludeobjShell"> AppData - strAppData = objShell.ExpandEnvironmentStrings("%APPDATA%") </font></td><tr>
+     <td><input type="text" name="txtDefaultLocation" size="50"></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkProgFiles"value="11"onClick="IncludeobjShell"> Program Files - strProgFiles = objShell.ExpandEnvironmentStrings("%PROGRAMFILES%") </font></td><tr>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkNoSubfolder"value="20">Do not save script in its own subfolder</font></td>
+     <td><font color="black" face="Arial" size="1"><input type="checkbox"name="chkTempFolder"value="12"onClick="IncludeobjShell"> Temp Folder - strTemp = objShell.ExpandEnvironmentStrings("%TEMP%") </font></td><tr>
+  </table>
+   <hr />
+    <b><font color="black" face="Arial" size="1">Script Output:</font></b></br>
+    <textarea name="btaScriptOutput" rows="11" cols="98"readonly="readonly"></textarea></br></br>
+	<input type="button" value="Generate Script" onClick="RunScripts" title="Click to generate your VBScript">
+	<input type="button" value="Reset HTA/Clear Fields" onClick="RunScript" title="Click to reset/refresh HTA">
+	<input id="repository" type="button" value="Open Script Repository" onClick="OpenFolder" title="Open Script Repository">
+    <input id=CloseButton  class="button" type="button" value="  Exit  " name="exit_button"  onClick="ExitProgram" title="Click to Exit"></br>
+</body>
+</html>
