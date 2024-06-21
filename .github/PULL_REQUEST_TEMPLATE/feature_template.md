@@ -1,15 +1,12 @@
+# Feature
 
-
----
-
-## If this closes multiple issues, use full syntax for each issue.
+## If this closes multiple issues, use full syntax for each issue
 
 closes #
 
-## A brief description of the new feature.
+## A brief description of the new feature
 
 A short description of the added functionality requested.
-
 
 ## Additional Information
 

@@ -7,7 +7,8 @@ assignees: ''
 
 ---
 
-##  Describe the Security Remediation
+## Describe the Security Remediation
+
 A short description of what the remediation is.
 
 ## CVE: include any relevent CVEs

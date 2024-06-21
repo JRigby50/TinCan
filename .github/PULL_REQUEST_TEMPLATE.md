@@ -1,5 +1,7 @@
-Please go the the `Preview` tab and select the appropriate sub-template:
+# Please go the the `Preview` tab and select the appropriate sub-template:
+
 ## Pull Request Type
+
 What kind of change does this PR introduce?
 
 * [Bugfix](?expand=1&template=bug_template.md&labels=bug,Semver-Patch&title=Bug+fix&head_repo=Dev)

@@ -1,8 +1,6 @@
+# New Version
 
-
----
-
-## If this closes multiple issues, use full syntax for each issue.
+## If this closes multiple issues, use full syntax for each issue
 
 closes #
 
@@ -10,7 +8,6 @@ closes #
 
 A short description of what the new capabilities are.
 
-
-## Additional Information 
+## Additional Information
 
 Add any other information about the New Version here.

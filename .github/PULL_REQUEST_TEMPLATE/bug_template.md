@@ -1,6 +1,4 @@
-
-
----
+# Bug Fix
 
 **If this fixes multiple issues, use full syntax for each issue.**
 
@@ -11,7 +9,6 @@ fixes #
 A brief description of the bug.
 
 ## What was done to fix the bug?
-
 
 ## Additional Information
 

@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## Describe what you'er keeping track of.
+## Describe what you'er keeping track of
 
 A clear and concise description of what the item is.
 

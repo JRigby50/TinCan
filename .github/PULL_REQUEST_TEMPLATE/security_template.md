@@ -1,8 +1,6 @@
+# Security Remediation
 
-
----
-
-## If this resolves multiple issues, use full syntax for each issue.
+## If this resolves multiple issues, use full syntax for each issue
 
 resolves #
 
@@ -12,7 +10,7 @@ A short description of what the remediation is.
 
 ## Include any relevent CVEs
 
-CVE: 
+CVE:
 
 ## Additional Information
 

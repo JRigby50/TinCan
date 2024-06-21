@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## Describe the document you are creating or updating.
+## Describe the document you are creating or updating
 
 A clear and concise description of what the document is.
 
