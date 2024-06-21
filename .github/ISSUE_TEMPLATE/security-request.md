@@ -8,11 +8,7 @@ assignees: ''
 
 ## Describe the Security Remediation
 
-<<<<<<< HEAD
-A short description of what the remediation is.
-=======
 A short description of what the remediation is
->>>>>>> 151827d416239e383dfe5e5aaa29ce8cab39eb49
 
 ## CVE: include any relevent CVEs
 

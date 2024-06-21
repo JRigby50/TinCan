@@ -1,6 +1,6 @@
 ---
 name: Documentation
-about: Something needs to be watched
+about: Something needs to be written up
 title: 'Documentation: '
 labels: ignore-for-release,documentation
 assignees: ''

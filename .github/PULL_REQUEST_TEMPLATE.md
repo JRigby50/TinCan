@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# Please go the the `Preview` tab and select the appropriate sub-template:
-=======
 # Please go the the `Preview` tab and select the appropriate sub-template
->>>>>>> 151827d416239e383dfe5e5aaa29ce8cab39eb49
 
 ## Pull Request Type
 
