@@ -22,7 +22,7 @@ changelog:
     - title: New Major Version  🎉
       labels:
         - Semver-Major
-        - enhancement
+        - version
     - title: Exciting New Features 🎉
       labels:
         - Semver-Minor
