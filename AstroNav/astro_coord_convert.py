@@ -10,7 +10,7 @@
 # c = SkyCoord(ra=wx*u.deg, dec=wy*u.deg, frame='icrs')
 # c.galactic
 import astropy.coordinates as coord
-import astropy.units as units
+# import astropy.units as units
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy.coordinates import Galactocentric
